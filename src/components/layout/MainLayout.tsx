@@ -31,7 +31,7 @@ import {
   IconSidebarSystem,
   IconChevronDown,
 } from '@/components/ui/icons';
-import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
+import { BRAND_MARK_DATA_URI } from '@/assets/brandMark';
 import {
   useAuthStore,
   useConfigStore,
@@ -51,6 +51,7 @@ import { triggerHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { LANGUAGE_LABEL_KEYS, LANGUAGE_ORDER } from '@/utils/constants';
 import { isSupportedLanguage } from '@/utils/language';
 import { getSidebarShortcutLabel, isSidebarToggleShortcut } from '@/utils/sidebarShortcut';
+import { BRAND_NAME } from '@/utils/brand';
 import type { Theme } from '@/types';
 
 const sidebarIcons: Record<string, ReactNode> = {
@@ -348,8 +349,10 @@ export function MainLayout() {
   const languageMenuRef = useRef<HTMLDivElement | null>(null);
   const themeMenuRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
+  const isFirstRouteRef = useRef(true);
 
-  const fullBrandName = 'CLI Proxy API Management Center';
+  const fullBrandName = BRAND_NAME;
   const abbrBrandName = t('title.abbr');
   const isLogsPage = location.pathname.startsWith('/logs');
   const isPluginResourcePage = location.pathname.startsWith('/plugin-pages');
@@ -699,6 +702,30 @@ export function MainLayout() {
       : []),
   ];
   const navItems = navGroups.flatMap((group) => flattenNavItems(group.items));
+  const activeNavItem = navItems
+    .filter(
+      (item) =>
+        item.path === location.pathname ||
+        (item.path !== '/' && location.pathname.startsWith(`${item.path}/`))
+    )
+    .sort((a, b) => b.path.length - a.path.length)[0];
+  const activePageLabel = activeNavItem
+    ? (activeNavItem.label ?? (activeNavItem.labelKey ? t(activeNavItem.labelKey) : ''))
+    : '';
+
+  // Name the current page in the browser tab, e.g. "Dashboard · CloudProxyz".
+  useEffect(() => {
+    document.title = activePageLabel ? `${activePageLabel} · ${BRAND_NAME}` : BRAND_NAME;
+  }, [activePageLabel]);
+
+  // Client-side navigation keeps focus on the clicked link; move it to the new page instead.
+  useEffect(() => {
+    if (isFirstRouteRef.current) {
+      isFirstRouteRef.current = false;
+      return;
+    }
+    mainRef.current?.focus({ preventScroll: true });
+  }, [location.pathname]);
   const navOrder = navItems.map((item) => item.path);
   const getRouteOrder = (pathname: string) => {
     const trimmedPath =
@@ -976,6 +1003,17 @@ export function MainLayout() {
         isPluginResourcePage ? 'plugin-resource-shell' : ''
       }`}
     >
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          // Hash routing owns the URL fragment, so move focus directly.
+          event.preventDefault();
+          mainRef.current?.focus();
+        }}
+      >
+        {t('common.skip_to_content')}
+      </a>
       <div className="top-gradient-blur" aria-hidden="true" />
 
       <header className="main-header" ref={headerRef}>
@@ -1021,6 +1059,7 @@ export function MainLayout() {
             size="sm"
             onClick={handleRefreshAll}
             title={t('header.refresh_all')}
+            aria-label={t('header.refresh_all')}
           >
             {headerIcons.refresh}
           </Button>
@@ -1031,7 +1070,6 @@ export function MainLayout() {
               onClick={toggleLanguageMenu}
               title={t('language.switch')}
               aria-label={t('language.switch')}
-              aria-haspopup="menu"
               aria-expanded={languageMenuOpen}
             >
               {headerIcons.language}
@@ -1039,7 +1077,7 @@ export function MainLayout() {
             {languageMenuOpen && (
               <div
                 className="notification entering language-menu-popover"
-                role="menu"
+                role="group"
                 aria-label={t('language.switch')}
               >
                 {LANGUAGE_ORDER.map((lang) => (
@@ -1048,11 +1086,12 @@ export function MainLayout() {
                     type="button"
                     className={`language-menu-option ${language === lang ? 'active' : ''}`}
                     onClick={() => handleLanguageSelect(lang)}
-                    role="menuitemradio"
-                    aria-checked={language === lang}
+                    aria-pressed={language === lang}
                   >
                     <span>{t(LANGUAGE_LABEL_KEYS[lang])}</span>
-                    {language === lang ? <span className="language-menu-check">✓</span> : null}
+                    {language === lang ? <span className="language-menu-check" aria-hidden="true">
+                        ✓
+                      </span> : null}
                   </button>
                 ))}
               </div>
@@ -1065,7 +1104,6 @@ export function MainLayout() {
               onClick={toggleThemeMenu}
               title={t('theme.switch')}
               aria-label={t('theme.switch')}
-              aria-haspopup="menu"
               aria-expanded={themeMenuOpen}
             >
               {theme === 'auto'
@@ -1079,7 +1117,7 @@ export function MainLayout() {
             {themeMenuOpen && (
               <div
                 className="notification entering theme-menu-popover"
-                role="menu"
+                role="group"
                 aria-label={t('theme.switch')}
               >
                 {THEME_CARDS.map((tc) => (
@@ -1088,8 +1126,7 @@ export function MainLayout() {
                     type="button"
                     className={`theme-card ${theme === tc.key ? 'active' : ''}`}
                     onClick={() => handleThemeSelect(tc.key)}
-                    role="menuitemradio"
-                    aria-checked={theme === tc.key}
+                    aria-pressed={theme === tc.key}
                   >
                     <div
                       className="theme-card-preview"
@@ -1131,7 +1168,13 @@ export function MainLayout() {
               </div>
             )}
           </div>
-          <Button variant="ghost" size="sm" onClick={logout} title={t('header.logout')}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={logout}
+            title={t('header.logout')}
+            aria-label={t('header.logout')}
+          >
             {headerIcons.logout}
           </Button>
         </div>
@@ -1152,7 +1195,11 @@ export function MainLayout() {
         >
           <div className="sidebar-header">
             <div className="sidebar-brand" title={fullBrandName}>
-              <img src={INLINE_LOGO_JPEG} alt="CPAMC logo" className="sidebar-brand-logo" />
+              <img
+                src={BRAND_MARK_DATA_URI}
+                alt={showSidebarLabels ? '' : BRAND_NAME}
+                className="sidebar-brand-logo"
+              />
               {showSidebarLabels && (
                 <span className="sidebar-brand-text">
                   <span className="sidebar-brand-title">{abbrBrandName}</span>
@@ -1162,7 +1209,7 @@ export function MainLayout() {
             </div>
           </div>
 
-          <div className="nav-section">
+          <nav className="nav-section" aria-label={t('sidebar.nav_label')}>
             {navGroups.map((group, idx) => (
               <div className="nav-group" key={group.id}>
                 {showSidebarLabels ? (
@@ -1173,7 +1220,7 @@ export function MainLayout() {
                 {group.items.map((item) => renderNavItem(item))}
               </div>
             ))}
-          </div>
+          </nav>
         </aside>
 
         {railTooltip && (
@@ -1198,6 +1245,9 @@ export function MainLayout() {
           ref={contentRef}
         >
           <main
+            id="main-content"
+            ref={mainRef}
+            tabIndex={-1}
             className={`main-content${isLogsPage ? ' main-content-logs' : ''}${
               isPluginResourcePage ? ' main-content-plugin-resource' : ''
             }`}

@@ -1016,3 +1016,261 @@
     }
   }
 }
+
+// Skip link: hidden until it receives keyboard focus, then pinned above the header.
+.skip-link {
+  position: fixed;
+  inset-block-start: 8px;
+  inset-inline-start: 8px;
+  z-index: $z-notification + 1;
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong, var(--text-primary));
+  font-weight: 600;
+  transform: translateY(-200%);
+
+  &:focus-visible {
+    transform: none;
+  }
+}
+
+// main receives programmatic focus after navigation and from the skip link; it is not a control.
+.main-content:focus {
+  outline: none;
+}
+
+// ============================================================================
+// CloudProxyz spec-sheet shell
+// Solid paper surfaces, black rules and hard offset shadows instead of the
+// upstream glass effects. Kept as one override block so upstream merges stay
+// local to the rules above.
+// ============================================================================
+
+// 品牌色条：与 brandMark 同源的 7 色样条
+%brand-swatch-strip {
+  background: linear-gradient(
+    90deg,
+    #d9403a 0 14.28%,
+    #3f9d5a 14.28% 28.56%,
+    #2f3a8f 28.56% 42.84%,
+    #5aa9e6 42.84% 57.12%,
+    #f4d23d 57.12% 71.4%,
+    #d63a8f 71.4% 85.68%,
+    #111111 85.68% 100%
+  );
+}
+
+.top-gradient-blur {
+  display: none;
+}
+
+.main-header {
+  .sidebar-toggle-floating {
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-hard);
+
+    &:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-strong);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+      box-shadow: var(--shadow-hard);
+    }
+  }
+
+  .mobile-sidebar-actions,
+  .header-actions {
+    gap: 2px;
+    padding: 4px;
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-hard);
+  }
+
+  .mobile-sidebar-actions .btn,
+  .header-actions .btn {
+    border-radius: 0;
+    color: var(--text-primary);
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: -2px;
+      box-shadow: none;
+    }
+  }
+
+  .language-menu-popover,
+  .theme-menu-popover {
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .language-menu-option {
+    border-radius: 0;
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: -2px;
+      box-shadow: none;
+    }
+
+    &.active {
+      color: var(--text-primary);
+      font-weight: 700;
+      background: var(--chip-yellow);
+    }
+  }
+
+  .theme-card {
+    border-radius: 0;
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 0;
+      box-shadow: none;
+    }
+
+    &.active {
+      border-color: var(--border-strong);
+      background: var(--chip-yellow);
+    }
+  }
+
+  .theme-card-preview {
+    border-radius: 0;
+  }
+}
+
+.sidebar {
+  background: var(--bg-primary);
+  border-inline-end: 1px solid var(--border-strong);
+
+  .sidebar-header {
+    position: relative;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border-color);
+
+    // 品牌色条
+    &::after {
+      @extend %brand-swatch-strip;
+      content: '';
+      position: absolute;
+      inset-inline: 8px;
+      bottom: 6px;
+      height: 5px;
+    }
+  }
+
+  .sidebar-brand-logo {
+    border-radius: 0;
+  }
+
+  .sidebar-brand-title {
+    font-family: $font-display;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .sidebar-brand-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .nav-group-label {
+    font-family: $font-mono;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--text-tertiary);
+  }
+
+  .nav-group-divider {
+    background: var(--border-color);
+  }
+
+  .nav-sub-list {
+    border-inline-start: 1px solid var(--border-color);
+  }
+
+  .nav-item {
+    border-radius: 0;
+    border: 1px solid transparent;
+
+    .nav-icon {
+      color: var(--text-secondary);
+    }
+
+    .nav-badge {
+      border-radius: 0;
+      border: 1px dotted var(--chip-border);
+      background: var(--count-badge-bg);
+      color: var(--count-badge-text);
+      font-family: $font-mono;
+      font-variant-numeric: tabular-nums;
+    }
+
+    &:hover {
+      transform: none;
+      background: var(--bg-tertiary);
+      border-color: var(--border-color);
+
+      .nav-icon {
+        color: var(--text-primary);
+      }
+    }
+
+    // 当前页：像规格表上被选中的标签，黑框 + 硬阴影
+    &.active {
+      background: var(--bg-primary);
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-hard);
+
+      .nav-icon {
+        color: var(--text-primary);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 1px;
+    }
+
+    &.nav-sub-item {
+      border-radius: 0;
+    }
+  }
+
+  &.collapsed .nav-item .nav-badge {
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+.nav-tooltip {
+  border-radius: 0;
+  background: #111111;
+  color: #f2f2f0;
+  box-shadow: 3px 3px 0 rgb(0 0 0 / 0.25);
+}
+
+.skip-link {
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-hard);
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}

@@ -43,7 +43,26 @@ const resolveTheme = (theme: Theme): AppliedTheme => {
   return theme;
 };
 
+/**
+ * Swap themes without animating every color transition at once: disable transitions,
+ * force a style flush, then restore them after the next frame.
+ */
+const suppressTransitionsDuringSwap = () => {
+  if (typeof document === 'undefined' || !document.head) return;
+  const style = document.createElement('style');
+  style.textContent = '*,*::before,*::after{transition:none!important}';
+  document.head.appendChild(style);
+  void window.getComputedStyle(document.body).opacity;
+  requestAnimationFrame(() => requestAnimationFrame(() => style.remove()));
+};
+
 const applyTheme = (resolved: AppliedTheme) => {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = resolved === 'dark' || resolved === 'white' ? resolved : null;
+  if (current !== next) {
+    suppressTransitionsDuringSwap();
+  }
+
   if (resolved === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
     return;

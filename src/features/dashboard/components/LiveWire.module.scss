@@ -48,7 +48,7 @@
   transform: translate(50%, -50%);
   background: var(--wire-stroke);
   box-shadow: 0 0 0 0 color-mix(in srgb, var(--wire-color) 45%, transparent);
-  animation: wirePulse 2.4s ease-out 1.9s infinite;
+  animation: wirePulse 2.4s ease-out 1.9s 3;
   /* 数据刷新时光点滑到新位置，而不是瞬移 */
   transition: top 400ms var(--ease-out-strong, ease-out);
 }

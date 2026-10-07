@@ -54,14 +54,15 @@
     "model_alias_placeholder": "模型别名 (可选)",
     "invalid_provider_index": "无效的提供商索引。",
     "unsaved_changes_title": "未保存的更改",
-    "unsaved_changes_message": "你有未保存的更改，离开后将丢失这些更改。确定要离开吗？"
+    "unsaved_changes_message": "你有未保存的更改，离开后将丢失这些更改。确定要离开吗？",
+    "skip_to_content": "跳到主要内容"
   },
   "title": {
-    "login": "CLI Proxy API Management Center",
-    "abbr": "CPAMC"
+    "login": "{{brand}}",
+    "abbr": "{{brand}}"
   },
   "splash": {
-    "title": "CLI Proxy API",
+    "title": "{{brand}}",
     "subtitle": "管理中心"
   },
   "login": {
@@ -77,7 +78,7 @@
     "submit_button": "登录",
     "submitting": "连接中...",
     "error_backend_detail": "后端返回",
-    "error_required": "请填写完整的连接信息",
+    "error_required": "请输入管理密钥。",
     "error_invalid": "连接失败，请检查服务地址、管理接口和管理密钥",
     "error_network": "网络连接失败，请检查网络或服务器地址",
     "error_timeout": "连接超时，服务器无响应",
@@ -87,7 +88,14 @@
     "error_legacy_backend": "当前后端可使用 v0 管理接口，但不支持 v8。请将 CLIProxyAPI 升级至 v8 或更高版本后再使用此管理页面。",
     "error_server": "后端处理管理接口时发生错误，请查看服务日志",
     "error_cors": "跨域请求被阻止，请检查服务器配置",
-    "error_ssl": "SSL/TLS 证书验证失败"
+    "error_ssl": "SSL/TLS 证书验证失败",
+    "show_key": "显示管理密钥",
+    "hide_key": "隐藏管理密钥",
+    "heading": "登录",
+    "spec_title": "连接",
+    "spec_backend": "后端",
+    "spec_backend_value": "CLIProxyAPI v8 或更高版本",
+    "spec_panel": "面板版本"
   },
   "header": {
     "refresh_all": "刷新全部",
@@ -1756,7 +1764,7 @@
   },
   "system_info": {
     "title": "管理中心信息",
-    "about_title": "CLI Proxy API Management Center",
+    "about_title": "{{brand}}",
     "models_title": "可用模型列表",
     "models_desc": "展示 /models 返回的模型，并自动使用服务器保存的 API Key 进行鉴权。",
     "models_loading": "正在加载可用模型...",
@@ -1824,8 +1832,9 @@
     "toggle_collapse": "收起侧边栏",
     "expand": "展开",
     "collapse": "收起",
-    "subtitle": "CLI Proxy API 管理控制台",
-    "auth_files_count": "认证文件：{{count}} 个"
+    "subtitle": "管理控制台",
+    "auth_files_count": "认证文件：{{count}} 个",
+    "nav_label": "主导航"
   },
   "footer": {
     "api_version": "CLI Proxy API 版本",

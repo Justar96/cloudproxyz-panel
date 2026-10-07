@@ -54,14 +54,15 @@
     "model_alias_placeholder": "模型別名（選填）",
     "invalid_provider_index": "無效的供應商索引。",
     "unsaved_changes_title": "未儲存的變更",
-    "unsaved_changes_message": "你有未儲存的變更，離開後將遺失這些變更。確定要離開嗎？"
+    "unsaved_changes_message": "你有未儲存的變更，離開後將遺失這些變更。確定要離開嗎？",
+    "skip_to_content": "跳至主要內容"
   },
   "title": {
-    "login": "CLI Proxy API Management Center",
-    "abbr": "CPAMC"
+    "login": "{{brand}}",
+    "abbr": "{{brand}}"
   },
   "splash": {
-    "title": "CLI Proxy API",
+    "title": "{{brand}}",
     "subtitle": "管理中心"
   },
   "login": {
@@ -77,7 +78,7 @@
     "submit_button": "登入",
     "submitting": "連線中...",
     "error_backend_detail": "後端返回",
-    "error_required": "請填寫完整的連線資訊",
+    "error_required": "請輸入管理金鑰。",
     "error_invalid": "連線失敗，請檢查服務位址、管理介面和管理金鑰",
     "error_network": "網路連線失敗，請檢查網路或伺服器位址",
     "error_timeout": "連線逾時，伺服器無回應",
@@ -87,7 +88,14 @@
     "error_legacy_backend": "目前後端可使用 v0 管理介面，但不支援 v8。請將 CLIProxyAPI 升級至 v8 或更新版本後再使用此管理頁面。",
     "error_server": "後端處理管理介面時發生錯誤，請查看服務日誌",
     "error_cors": "跨域請求被阻擋，請檢查伺服器設定",
-    "error_ssl": "SSL/TLS 憑證驗證失敗"
+    "error_ssl": "SSL/TLS 憑證驗證失敗",
+    "show_key": "顯示管理金鑰",
+    "hide_key": "隱藏管理金鑰",
+    "heading": "登入",
+    "spec_title": "連線",
+    "spec_backend": "後端",
+    "spec_backend_value": "CLIProxyAPI v8 或更新版本",
+    "spec_panel": "面板版本"
   },
   "header": {
     "refresh_all": "全部重新整理",
@@ -1782,7 +1790,7 @@
   },
   "system_info": {
     "title": "管理中心資訊",
-    "about_title": "CLI Proxy API Management Center",
+    "about_title": "{{brand}}",
     "models_title": "可用模型清單",
     "models_desc": "展示 /models 回傳的模型，並自動使用伺服器儲存的 API Key 進行驗證。",
     "models_loading": "正在載入可用模型...",
@@ -1850,8 +1858,9 @@
     "toggle_collapse": "收起側邊欄",
     "expand": "展開",
     "collapse": "收起",
-    "subtitle": "CLI Proxy API 管理控制台",
-    "auth_files_count": "驗證檔案：{{count}} 個"
+    "subtitle": "管理控制台",
+    "auth_files_count": "驗證檔案：{{count}} 個",
+    "nav_label": "主導覽"
   },
   "footer": {
     "api_version": "CLI Proxy API 版本",

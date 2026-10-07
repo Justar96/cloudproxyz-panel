@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
@@ -10,7 +10,8 @@ import { useAuthStore, useLanguageStore, useNotificationStore } from '@/stores';
 import { detectApiBaseFromLocation, normalizeApiBase } from '@/utils/connection';
 import { LANGUAGE_LABEL_KEYS, LANGUAGE_ORDER } from '@/utils/constants';
 import { isSupportedLanguage } from '@/utils/language';
-import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
+import { BRAND_MARK_DATA_URI } from '@/assets/brandMark';
+import { BRAND_NAME } from '@/utils/brand';
 import type { ApiError } from '@/types';
 import { LegacyBackendError } from '@/services/api/legacyBackendProbe';
 import styles from './LoginPage.module.scss';
@@ -106,6 +107,8 @@ export function LoginPage() {
   const [autoLoading, setAutoLoading] = useState(true);
   const [autoLoginSuccess, setAutoLoginSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [keyError, setKeyError] = useState('');
+  const keyInputRef = useRef<HTMLInputElement>(null);
 
   const detectedBase = useMemo(() => detectApiBaseFromLocation(), []);
   const languageOptions = useMemo(
@@ -154,13 +157,16 @@ export function LoginPage() {
 
   const handleSubmit = useCallback(async () => {
     if (!managementKey.trim()) {
-      setError(t('login.error_required'));
+      setError('');
+      setKeyError(t('login.error_required'));
+      keyInputRef.current?.focus();
       return;
     }
 
     const baseToUse = apiBase ? normalizeApiBase(apiBase) : detectedBase;
     setLoading(true);
     setError('');
+    setKeyError('');
     try {
       await login({
         apiBase: baseToUse,
@@ -187,10 +193,10 @@ export function LoginPage() {
     t,
   ]);
 
-  const handleSubmitKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Enter' && !loading) {
-        event.preventDefault();
+  const handleFormSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!loading) {
         handleSubmit();
       }
     },
@@ -206,22 +212,29 @@ export function LoginPage() {
   const showSplash = autoLoading || autoLoginSuccess;
 
   return (
-    <div className={styles.container}>
-      {/* 左侧品牌展示区 */}
-      <div className={styles.brandPanel}>
-        <div className={styles.brandContent}>
-          <span className={styles.brandWord}>CLI</span>
-          <span className={styles.brandWord}>PROXY</span>
-          <span className={styles.brandWord}>API</span>
-        </div>
-      </div>
+    <div className={styles.page}>
+      <div className={styles.sheet}>
+        <header className={styles.sheetHeader}>
+          <span className={styles.wordmark}>
+            <img src={BRAND_MARK_DATA_URI} alt="" className={styles.mark} />
+            {BRAND_NAME}
+          </span>
+          <span className={styles.swatches} aria-hidden="true" />
+          <Select
+            className={styles.languageSelect}
+            value={language}
+            options={languageOptions}
+            onChange={handleLanguageChange}
+            fullWidth={false}
+            ariaLabel={t('language.switch')}
+          />
+        </header>
+        <div className={styles.halftone} aria-hidden="true" />
 
-      {/* 右侧功能交互区 */}
-      <div className={styles.formPanel}>
         {showSplash ? (
-          /* 启动动画 */
+          /* 自动登录：短暂的启动画面 */
           <div className={styles.splashContent}>
-            <img src={INLINE_LOGO_JPEG} alt="CPAMC" className={styles.splashLogo} />
+            <img src={BRAND_MARK_DATA_URI} alt="" className={styles.splashLogo} />
             <h1 className={styles.splashTitle}>{t('splash.title')}</h1>
             <p className={styles.splashSubtitle}>{t('splash.subtitle')}</p>
             <div className={styles.splashLoader}>
@@ -229,101 +242,104 @@ export function LoginPage() {
             </div>
           </div>
         ) : (
-          /* 登录表单 */
-          <div className={styles.formContent}>
-            {/* Logo */}
-            <img src={INLINE_LOGO_JPEG} alt="Logo" className={styles.logo} />
+          <div className={styles.columns}>
+            {/* 登录单：主操作，放在阅读起点 */}
+            <section className={styles.slip} aria-labelledby="login-heading">
+              <h1 id="login-heading" className={styles.title}>
+                {t('login.heading')}
+              </h1>
 
-            {/* 登录表单卡片 */}
-            <div className={styles.loginCard}>
-              <div className={styles.loginHeader}>
-                <div className={styles.titleRow}>
-                  <div className={styles.title}>{t('title.login')}</div>
-                  <Select
-                    className={styles.languageSelect}
-                    value={language}
-                    options={languageOptions}
-                    onChange={handleLanguageChange}
-                    fullWidth={false}
-                    ariaLabel={t('language.switch')}
+              <form className={styles.loginForm} onSubmit={handleFormSubmit} noValidate>
+                <Input
+                  ref={keyInputRef}
+                  autoFocus
+                  label={t('login.management_key_label')}
+                  placeholder={t('login.management_key_placeholder')}
+                  type={showKey ? 'text' : 'password'}
+                  name="cpa-management-key"
+                  autoComplete="current-password"
+                  value={managementKey}
+                  onChange={(e) => {
+                    setManagementKey(e.target.value);
+                    if (keyError) setKeyError('');
+                  }}
+                  error={keyError || undefined}
+                  rightElement={
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => setShowKey((prev) => !prev)}
+                      aria-label={showKey ? t('login.hide_key') : t('login.show_key')}
+                      title={showKey ? t('login.hide_key') : t('login.show_key')}
+                    >
+                      {showKey ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                    </button>
+                  }
+                />
+
+                <div className={styles.checkRow}>
+                  <SelectionCheckbox
+                    checked={rememberPassword}
+                    onChange={setRememberPassword}
+                    ariaLabel={t('login.remember_password_label')}
+                    label={t('login.remember_password_label')}
+                    labelClassName={styles.toggleLabel}
                   />
                 </div>
-                <div className={styles.subtitle}>{t('login.subtitle')}</div>
-              </div>
 
-              <div className={styles.connectionBox}>
-                <div className={styles.label}>{t('login.connection_current')}</div>
-                <div className={styles.value}>{apiBase || detectedBase}</div>
-                <div className={styles.hint}>{t('login.connection_auto_hint')}</div>
-              </div>
+                <div className={styles.checkRow}>
+                  <SelectionCheckbox
+                    checked={showCustomBase}
+                    onChange={setShowCustomBase}
+                    ariaLabel={t('login.custom_connection_label')}
+                    label={t('login.custom_connection_label')}
+                    labelClassName={styles.toggleLabel}
+                  />
+                </div>
 
-              <div className={styles.toggleAdvanced}>
-                <SelectionCheckbox
-                  checked={showCustomBase}
-                  onChange={setShowCustomBase}
-                  ariaLabel={t('login.custom_connection_label')}
-                  label={t('login.custom_connection_label')}
-                  labelClassName={styles.toggleLabel}
-                />
-              </div>
+                {showCustomBase && (
+                  <Input
+                    label={t('login.custom_connection_label')}
+                    placeholder={t('login.custom_connection_placeholder')}
+                    value={apiBase}
+                    onChange={(e) => setApiBase(e.target.value)}
+                    hint={t('login.custom_connection_hint')}
+                  />
+                )}
 
-              {showCustomBase && (
-                <Input
-                  label={t('login.custom_connection_label')}
-                  placeholder={t('login.custom_connection_placeholder')}
-                  value={apiBase}
-                  onChange={(e) => setApiBase(e.target.value)}
-                  hint={t('login.custom_connection_hint')}
-                />
-              )}
-
-              <Input
-                autoFocus
-                label={t('login.management_key_label')}
-                placeholder={t('login.management_key_placeholder')}
-                type={showKey ? 'text' : 'password'}
-                name="cpa-management-key"
-                autoComplete="current-password"
-                value={managementKey}
-                onChange={(e) => setManagementKey(e.target.value)}
-                onKeyDown={handleSubmitKeyDown}
-                rightElement={
-                  <button
-                    type="button"
-                    className="btn btn-ghost btn-sm"
-                    onClick={() => setShowKey((prev) => !prev)}
-                    aria-label={
-                      showKey
-                        ? t('login.hide_key', { defaultValue: '隐藏密钥' })
-                        : t('login.show_key', { defaultValue: '显示密钥' })
-                    }
-                    title={
-                      showKey
-                        ? t('login.hide_key', { defaultValue: '隐藏密钥' })
-                        : t('login.show_key', { defaultValue: '显示密钥' })
-                    }
-                  >
-                    {showKey ? <IconEyeOff size={16} /> : <IconEye size={16} />}
-                  </button>
-                }
-              />
-
-              <div className={styles.toggleAdvanced}>
-                <SelectionCheckbox
-                  checked={rememberPassword}
-                  onChange={setRememberPassword}
-                  ariaLabel={t('login.remember_password_label')}
-                  label={t('login.remember_password_label')}
-                  labelClassName={styles.toggleLabel}
-                />
-              </div>
-
-              <Button fullWidth onClick={handleSubmit} loading={loading}>
-                {loading ? t('login.submitting') : t('login.submit_button')}
-              </Button>
+                <Button type="submit" className={styles.submit} loading={loading}>
+                  {loading ? t('login.submitting') : `${t('login.submit_button')} →`}
+                </Button>
+              </form>
 
               {error && <div className={styles.errorBox}>{error}</div>}
-            </div>
+            </section>
+
+            {/* 连接规格表 */}
+            <section className={styles.spec} aria-labelledby="login-spec-heading">
+              <h2 id="login-spec-heading" className={styles.specTitle}>
+                {t('login.spec_title')}
+              </h2>
+              <dl className={styles.specTable}>
+                <div className={styles.specRow}>
+                  <dt>{t('login.connection_current')}</dt>
+                  <dd>
+                    <span className={styles.specValueMono}>{apiBase || detectedBase}</span>
+                    <span className={styles.specHint}>{t('login.connection_auto_hint')}</span>
+                  </dd>
+                </div>
+                <div className={styles.specRow}>
+                  <dt>{t('login.spec_backend')}</dt>
+                  <dd>{t('login.spec_backend_value')}</dd>
+                </div>
+                <div className={styles.specRow}>
+                  <dt>{t('login.spec_panel')}</dt>
+                  <dd>
+                    <span className={styles.chip}>{__APP_VERSION__ || 'dev'}</span>
+                  </dd>
+                </div>
+              </dl>
+            </section>
           </div>
         )}
       </div>

@@ -10,6 +10,7 @@ import en from './locales/en.json';
 import ru from './locales/ru.json';
 import vi from './locales/vi.json';
 import { getInitialLanguage } from '@/utils/language';
+import { BRAND_NAME } from '@/utils/brand';
 
 i18n.use(initReactI18next).init({
   resources: {
@@ -23,6 +24,7 @@ i18n.use(initReactI18next).init({
   fallbackLng: 'zh-CN',
   interpolation: {
     escapeValue: false, // React 已经转义
+    defaultVariables: { brand: BRAND_NAME },
   },
   react: {
     useSuspense: false,

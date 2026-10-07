@@ -54,14 +54,15 @@
     "model_alias_placeholder": "Bí danh model (tùy chọn)",
     "invalid_provider_index": "Chỉ mục provider không hợp lệ.",
     "unsaved_changes_title": "Thay đổi chưa lưu",
-    "unsaved_changes_message": "Bạn có thay đổi chưa lưu. Rời đi bây giờ sẽ mất các thay đổi đó. Bạn có muốn rời đi không?"
+    "unsaved_changes_message": "Bạn có thay đổi chưa lưu. Rời đi bây giờ sẽ mất các thay đổi đó. Bạn có muốn rời đi không?",
+    "skip_to_content": "Chuyển đến nội dung"
   },
   "title": {
-    "login": "Trung tâm Quản lý CLI Proxy API",
-    "abbr": "CPAMC"
+    "login": "{{brand}}",
+    "abbr": "{{brand}}"
   },
   "splash": {
-    "title": "CLI Proxy API",
+    "title": "{{brand}}",
     "subtitle": "Trung tâm Quản lý"
   },
   "login": {
@@ -77,7 +78,7 @@
     "submit_button": "Đăng nhập",
     "submitting": "Đang kết nối...",
     "error_backend_detail": "Phản hồi từ backend",
-    "error_required": "Vui lòng điền đầy đủ thông tin kết nối",
+    "error_required": "Nhập key quản lý.",
     "error_invalid": "Kết nối thất bại, vui lòng kiểm tra địa chỉ máy chủ, Management API và key quản lý",
     "error_network": "Kết nối mạng thất bại, vui lòng kiểm tra mạng hoặc địa chỉ máy chủ",
     "error_timeout": "Kết nối hết thời gian chờ, máy chủ không phản hồi",
@@ -87,7 +88,14 @@
     "error_server": "Backend gặp lỗi khi xử lý yêu cầu quản lý, hãy kiểm tra log máy chủ",
     "error_cors": "Yêu cầu cross-origin bị chặn, vui lòng kiểm tra cấu hình máy chủ",
     "error_ssl": "Xác minh chứng chỉ SSL/TLS thất bại",
-    "error_legacy_backend": "Backend này chấp nhận Management API v0 nhưng không cung cấp v8. Vui lòng nâng cấp CLIProxyAPI lên v8 hoặc mới hơn để sử dụng trang quản lý này."
+    "error_legacy_backend": "Backend này chấp nhận Management API v0 nhưng không cung cấp v8. Vui lòng nâng cấp CLIProxyAPI lên v8 hoặc mới hơn để sử dụng trang quản lý này.",
+    "show_key": "Hiện key quản lý",
+    "hide_key": "Ẩn key quản lý",
+    "heading": "Đăng nhập",
+    "spec_title": "Kết nối",
+    "spec_backend": "Backend",
+    "spec_backend_value": "CLIProxyAPI v8 trở lên",
+    "spec_panel": "Phiên bản panel"
   },
   "header": {
     "refresh_all": "Làm mới tất cả",
@@ -498,7 +506,8 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "cloud_session_credits": "Tín dụng phiên Cloud"
   },
   "codex_quota": {
     "title": "Quota Codex",
@@ -1713,7 +1722,7 @@
   },
   "system_info": {
     "title": "Thông tin Trung tâm Quản lý",
-    "about_title": "Trung tâm Quản lý CLI Proxy API",
+    "about_title": "{{brand}}",
     "models_title": "Model khả dụng",
     "models_desc": "Hiển thị phản hồi /models và tự động dùng API key đã lưu để xác thực.",
     "models_loading": "Đang tải model khả dụng...",
@@ -1781,8 +1790,9 @@
     "toggle_collapse": "Thu gọn thanh bên",
     "expand": "Mở rộng",
     "collapse": "Thu gọn",
-    "subtitle": "Bảng điều khiển CLI Proxy API",
-    "auth_files_count": "File xác thực: {{count}}"
+    "subtitle": "Bảng điều khiển quản lý",
+    "auth_files_count": "File xác thực: {{count}}",
+    "nav_label": "Điều hướng chính"
   },
   "footer": {
     "api_version": "Phiên bản CLI Proxy API",

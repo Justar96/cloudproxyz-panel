@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes, type ReactNode } from 'react';
+import { useId, type InputHTMLAttributes, type ReactNode, type Ref } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -9,6 +9,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: ReactNode;
   error?: string;
   rightElement?: ReactNode;
+  ref?: Ref<HTMLInputElement>;
 }
 
 export function Input({
@@ -20,6 +21,7 @@ export function Input({
   rightElement,
   className = '',
   id,
+  ref,
   ...rest
 }: InputProps) {
   const generatedId = useId();
@@ -36,15 +38,23 @@ export function Input({
       {labelExtra}
       <div style={{ position: 'relative' }}>
         <input
+          ref={ref}
           id={inputId}
-          className={`input ${className}`.trim()}
+          className={`input ${rightElement ? 'input-has-trailing' : ''} ${className}`
+            .replace(/\s+/g, ' ')
+            .trim()}
           aria-invalid={Boolean(error) || rest['aria-invalid']}
           aria-describedby={describedBy}
           {...rest}
         />
         {rightElement && (
           <div
-            style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)' }}
+            style={{
+              position: 'absolute',
+              insetInlineEnd: 8,
+              top: '50%',
+              transform: 'translateY(-50%)',
+            }}
           >
             {rightElement}
           </div>

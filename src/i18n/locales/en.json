@@ -54,14 +54,15 @@
     "model_alias_placeholder": "Model alias (optional)",
     "invalid_provider_index": "Invalid provider index.",
     "unsaved_changes_title": "Unsaved changes",
-    "unsaved_changes_message": "You have unsaved changes. Leaving now will discard them. Do you want to leave?"
+    "unsaved_changes_message": "You have unsaved changes. Leaving now will discard them. Do you want to leave?",
+    "skip_to_content": "Skip to content"
   },
   "title": {
-    "login": "CLI Proxy API Management Center",
-    "abbr": "CPAMC"
+    "login": "{{brand}}",
+    "abbr": "{{brand}}"
   },
   "splash": {
-    "title": "CLI Proxy API",
+    "title": "{{brand}}",
     "subtitle": "Management Center"
   },
   "login": {
@@ -77,7 +78,7 @@
     "submit_button": "Login",
     "submitting": "Connecting...",
     "error_backend_detail": "Backend response",
-    "error_required": "Please fill in complete connection information",
+    "error_required": "Enter the management key.",
     "error_invalid": "Connection failed, please check the server address, Management API, and management key",
     "error_network": "Network connection failed, please check your network or server address",
     "error_timeout": "Connection timed out, server not responding",
@@ -87,7 +88,14 @@
     "error_legacy_backend": "This backend accepts v0 Management API but does not provide v8. Upgrade CLIProxyAPI to v8 or later to use this management page.",
     "error_server": "Backend failed while handling the management request, check the server logs",
     "error_cors": "Cross-origin request blocked, please check server configuration",
-    "error_ssl": "SSL/TLS certificate verification failed"
+    "error_ssl": "SSL/TLS certificate verification failed",
+    "show_key": "Show management key",
+    "hide_key": "Hide management key",
+    "heading": "Sign in",
+    "spec_title": "Connection",
+    "spec_backend": "Backend",
+    "spec_backend_value": "CLIProxyAPI v8 or later",
+    "spec_panel": "Panel version"
   },
   "header": {
     "refresh_all": "Refresh All",
@@ -107,7 +115,7 @@
     "plugin_store": "Plugin Store",
     "config_management": "Config Panel",
     "logs": "Logs Viewer",
-    "system_info": "Management Center Info"
+    "system_info": "System Info"
   },
   "nav_groups": {
     "operate": "Operate",
@@ -1757,7 +1765,7 @@
   },
   "system_info": {
     "title": "Management Center Info",
-    "about_title": "CLI Proxy API Management Center",
+    "about_title": "{{brand}}",
     "models_title": "Available Models",
     "models_desc": "Shows the /models response and uses saved API keys for auth automatically.",
     "models_loading": "Loading available models...",
@@ -1825,8 +1833,9 @@
     "toggle_collapse": "Collapse sidebar",
     "expand": "Expand",
     "collapse": "Collapse",
-    "subtitle": "CLI Proxy API Console",
-    "auth_files_count": "Authentication files: {{count}}"
+    "subtitle": "Management console",
+    "auth_files_count": "Authentication files: {{count}}",
+    "nav_label": "Main navigation"
   },
   "footer": {
     "api_version": "CLI Proxy API Version",

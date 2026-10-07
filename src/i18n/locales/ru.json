@@ -54,14 +54,15 @@
     "model_alias_placeholder": "Псевдоним модели (необязательно)",
     "invalid_provider_index": "Неверный индекс провайдера.",
     "unsaved_changes_title": "Несохранённые изменения",
-    "unsaved_changes_message": "У вас есть несохранённые изменения. Если вы уйдёте, они будут потеряны. Выйти?"
+    "unsaved_changes_message": "У вас есть несохранённые изменения. Если вы уйдёте, они будут потеряны. Выйти?",
+    "skip_to_content": "Перейти к содержимому"
   },
   "title": {
-    "login": "Центр управления CLI Proxy API",
-    "abbr": "CPAMC"
+    "login": "{{brand}}",
+    "abbr": "{{brand}}"
   },
   "splash": {
-    "title": "CLI Proxy API",
+    "title": "{{brand}}",
     "subtitle": "Центр управления"
   },
   "login": {
@@ -77,7 +78,7 @@
     "submit_button": "Войти",
     "submitting": "Подключение...",
     "error_backend_detail": "Ответ сервера",
-    "error_required": "Пожалуйста, заполните все данные подключения",
+    "error_required": "Введите ключ управления.",
     "error_invalid": "Подключение не удалось, проверьте адрес сервера, Management API и ключ управления",
     "error_network": "Сетевая ошибка, проверьте подключение или адрес сервера",
     "error_timeout": "Время ожидания истекло, сервер не отвечает",
@@ -87,7 +88,14 @@
     "error_legacy_backend": "Этот сервер поддерживает Management API v0, но не v8. Обновите CLIProxyAPI до v8 или новее, чтобы использовать эту страницу управления.",
     "error_server": "Backend не смог обработать запрос управления, проверьте журналы сервера",
     "error_cors": "Блокировка CORS, проверьте конфигурацию сервера",
-    "error_ssl": "Ошибка проверки SSL/TLS сертификата"
+    "error_ssl": "Ошибка проверки SSL/TLS сертификата",
+    "show_key": "Показать ключ управления",
+    "hide_key": "Скрыть ключ управления",
+    "heading": "Вход",
+    "spec_title": "Подключение",
+    "spec_backend": "Бэкенд",
+    "spec_backend_value": "CLIProxyAPI v8 или новее",
+    "spec_panel": "Версия панели"
   },
   "header": {
     "refresh_all": "Обновить всё",
@@ -1751,7 +1759,7 @@
   },
   "system_info": {
     "title": "Информация о центре управления",
-    "about_title": "CLI Proxy API Management Center",
+    "about_title": "{{brand}}",
     "models_title": "Доступные модели",
     "models_desc": "Показывает ответ /models и автоматически использует сохранённые API-ключи для авторизации.",
     "models_loading": "Загрузка доступных моделей...",
@@ -1819,8 +1827,9 @@
     "toggle_collapse": "Свернуть боковую панель",
     "expand": "Развернуть",
     "collapse": "Свернуть",
-    "subtitle": "Консоль управления CLI Proxy API",
-    "auth_files_count": "Файлов аутентификации: {{count}}"
+    "subtitle": "Консоль управления",
+    "auth_files_count": "Файлов аутентификации: {{count}}",
+    "nav_label": "Основная навигация"
   },
   "footer": {
     "api_version": "Версия CLI Proxy API",
