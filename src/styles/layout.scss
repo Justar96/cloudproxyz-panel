@@ -90,6 +90,9 @@
     padding: 12px;
     background: var(--bg-primary);
     box-shadow: var(--shadow-m);
+    // The drawer is a raised card, not the canvas: fall back to the card steps.
+    --bg-canvas-hover: var(--bg-hover);
+    --bg-canvas-fill: var(--bg-tertiary);
     transform: translateX(-104%);
     transition: transform var(--dur-large) var(--ease-large);
 
@@ -169,12 +172,12 @@
 
   @media (hover: hover) {
     &:hover {
-      background: var(--bg-hover);
+      background: var(--bg-canvas-hover);
     }
   }
 
   &[aria-expanded='true'] {
-    background: var(--bg-hover);
+    background: var(--bg-canvas-hover);
   }
 
   &:focus-visible {
@@ -333,7 +336,7 @@
 
   &:hover,
   &:focus-visible {
-    background: var(--bg-hover);
+    background: var(--bg-canvas-hover);
 
     .sidebar-expand-mark {
       opacity: 0;
@@ -431,7 +434,7 @@
 
   @media (hover: hover) {
     &:hover {
-      background: var(--bg-hover);
+      background: var(--bg-canvas-hover);
       color: var(--text-primary);
     }
   }
@@ -512,14 +515,12 @@
   text-align: start;
   text-decoration: none;
   cursor: pointer;
-  transition:
-    background-color var(--dur-hover) var(--ease-out-strong),
-    color var(--dur-hover) var(--ease-out-strong);
+  // No hover fade: the nav is swept by the pointer constantly, feedback should be immediate.
   -webkit-tap-highlight-color: transparent;
 
   @media (hover: hover) {
     &:hover {
-      background: var(--bg-hover);
+      background: var(--bg-canvas-hover);
     }
   }
 
@@ -555,7 +556,6 @@
     width: 20px;
     height: 20px;
     color: var(--text-secondary);
-    transition: color var(--dur-hover) var(--ease-out-strong);
 
     svg {
       width: 18px;
@@ -599,7 +599,7 @@
     height: 20px;
     padding: 0 6px;
     border-radius: $radius-full;
-    background: var(--bg-tertiary);
+    background: var(--bg-canvas-fill);
     color: var(--text-secondary);
     font-size: 12px;
     line-height: 20px;
@@ -681,7 +681,7 @@
   min-height: 32px;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
-  background: var(--bg-tertiary);
+  background: var(--bg-canvas-fill);
   color: var(--text-secondary);
   font-size: 12px;
   line-height: 16px;
@@ -730,7 +730,6 @@
   box-shadow: var(--floating-shadow);
   transform: translateY(-50%);
   pointer-events: none;
-  animation: nav-tooltip-in 160ms var(--ease-out-strong);
 
   @media (max-width: $breakpoint-mobile) {
     display: none;
@@ -748,12 +747,6 @@
   font-size: 12px;
   line-height: 16px;
   color: var(--text-secondary);
-}
-
-@keyframes nav-tooltip-in {
-  from {
-    opacity: 0;
-  }
 }
 
 // ── Shared selection primitives (Graphical option group / segmented control) ──

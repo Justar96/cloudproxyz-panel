@@ -5,14 +5,13 @@ import { FieldAnchor, FieldGrid, ToggleRow } from '../fields/FieldPrimitives';
 import { QuotaSwitchPreviewModelToggle, QuotaSwitchProjectToggle } from '../fields/sharedFields';
 
 /** 04 配额回退：配额耗尽时的回退策略（两个开关默认 true）。 */
-export function SectionQuota({ values, disabled, animateIn, onChange }: ConfigSectionProps) {
+export function SectionQuota({ values, disabled, onChange }: ConfigSectionProps) {
   const { t } = useTranslation();
 
   return (
     <SectionCard
       title={t('config_management.visual.sections.quota.title')}
       description={t('config_management.visual.sections.quota.description')}
-      animateIn={animateIn}
     >
       <FieldGrid>
         <QuotaSwitchProjectToggle values={values} disabled={disabled} onChange={onChange} />

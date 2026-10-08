@@ -18,7 +18,6 @@ export function SectionStreaming({
   values,
   validationErrors,
   disabled,
-  animateIn,
   onChange,
 }: ConfigSectionProps) {
   const { t } = useTranslation();
@@ -46,7 +45,6 @@ export function SectionStreaming({
     <SectionCard
       title={t('config_management.visual.sections.streaming.title')}
       description={t('config_management.visual.sections.streaming.description')}
-      animateIn={animateIn}
     >
       <FieldStack>
         <FieldGrid>

@@ -17,17 +17,18 @@ describe('quota toolbar presentation contracts', () => {
     expect(styles).toMatch(/&::-webkit-search-cancel-button,[\s\S]*?appearance: none;/);
   });
 
-  test('keeps search, provider and sorting in one toolbar', () => {
+  test('puts the provider tab bar above one search + sort toolbar', () => {
+    const providerStart = source.indexOf('<div className={styles.provider}>');
     const toolbarStart = source.indexOf('<div className={styles.toolbar}');
     const searchStart = source.indexOf('<div className={styles.search}>');
-    const providerStart = source.indexOf('<div className={styles.provider}>');
     const sortStart = source.indexOf('<div className={styles.sort}>');
-    expect(toolbarStart).toBeGreaterThan(-1);
+    expect(providerStart).toBeGreaterThan(-1);
+    expect(toolbarStart).toBeGreaterThan(providerStart);
     expect(searchStart).toBeGreaterThan(toolbarStart);
-    expect(providerStart).toBeGreaterThan(searchStart);
-    expect(sortStart).toBeGreaterThan(providerStart);
+    expect(sortStart).toBeGreaterThan(searchStart);
+    expect(source).toContain('<ProviderTabs');
     expect(source).toContain('onChange={handleTabChange}');
-    expect(source).toContain("ariaLabel={t('quota_management.provider_label'");
+    expect(source).toContain("ariaLabel={t('quota_management.provider_label')}");
     expect(styles).toMatch(/\.toolbar\s*\{[^}]*flex-wrap: wrap;/);
     expect(styles).toContain('&:focus-within');
     expect(styles).toContain('&:focus-visible');

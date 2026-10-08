@@ -17,6 +17,25 @@
   &::-webkit-scrollbar {
     display: none;
   }
+
+  /* Overflow cue: fade whichever edge has tabs scrolled out of view. */
+  &[data-fade-start] {
+    mask-image: linear-gradient(to right, transparent, #000 32px);
+  }
+
+  &[data-fade-end] {
+    mask-image: linear-gradient(to left, transparent, #000 32px);
+  }
+
+  &[data-fade-start][data-fade-end] {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 32px,
+      #000 calc(100% - 32px),
+      transparent
+    );
+  }
 }
 
 .tab {

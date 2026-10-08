@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageTransitionLayer } from '@/components/common/PageTransitionLayer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useRevealGroup } from '@/hooks/motion';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 import { useVisualConfig } from '@/hooks/useVisualConfig';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
@@ -49,9 +48,6 @@ import { SectionQuota } from './components/sections/SectionQuota';
 import { SectionStreaming } from './components/sections/SectionStreaming';
 import styles from './ConfigPage.module.scss';
 
-/** 首载入场预算：卡片延迟 0.28s + 0.45s 动画，之后关闭 animateIn，切 tab 不再重播。 */
-const ENTRANCE_BUDGET_MS = 800;
-
 export function ConfigPage() {
   const { t } = useTranslation();
   const location = useLocation();
@@ -66,7 +62,6 @@ export function ConfigPage() {
   const connectionStatus = useAuthStore((state) => state.connectionStatus);
   const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const revealRef = useRevealGroup<HTMLDivElement>();
 
   const {
     visualValues,
@@ -90,12 +85,6 @@ export function ConfigPage() {
       readSavedSection(localStorage.getItem(CONFIG_SECTION_STORAGE_KEY))
   );
   const handledRequestedFieldRef = useRef<string | null>(null);
-  // 首载入场：挂载后一个预算周期内为 true；此后切 tab 新挂载的卡片不再播入场。
-  const [animateCards, setAnimateCards] = useState(true);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setAnimateCards(false), ENTRANCE_BUDGET_MS);
-    return () => window.clearTimeout(timer);
-  }, []);
 
   // 旧「简单/完整」双模式已退役，清掉遗留的持久化键。
   useEffect(() => {
@@ -291,7 +280,6 @@ export function ConfigPage() {
     validationErrors: visualValidationErrors,
     disabled:
       disableControls || doc.loading || doc.saving || doc.diffModalOpen || doc.recoveryRequired,
-    animateIn: animateCards,
     onChange: setVisualValues,
   };
 
@@ -330,7 +318,7 @@ export function ConfigPage() {
   );
 
   return (
-    <div className={`page ${styles.page}`} ref={revealRef}>
+    <div className={`page ${styles.page}`}>
       <ConfigHeader
         meta={headerMeta}
         reloadDisabled={doc.loading || doc.saving}
@@ -353,7 +341,7 @@ export function ConfigPage() {
       {mode === 'visual' ? (
         <ConfigFieldStateContext.Provider value={fieldState}>
           <div className={styles.layout}>
-            <div className={`on-canvas ${styles.nav}`} data-reveal>
+            <div className={`on-canvas ${styles.nav}`}>
               <ConfigSearch disabled={disableControls || doc.loading} onJump={jumpToField} />
               <ConfigTabs
                 active={activeSection}

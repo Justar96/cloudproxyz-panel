@@ -18,7 +18,6 @@ import { formatRelativeInstant } from '@/utils/quota';
 import { getQuotaCacheKey, getQuotaDisplayName } from '@/utils/quota/identity';
 import { useNow } from '@/hooks/useNow';
 import type { ResolvedTheme } from '@/types';
-import { getAuthFileIcon } from '@/features/authFiles/constants';
 import {
   buildTimelineLane,
   laneHasWindow,
@@ -30,6 +29,7 @@ import {
 import type { TimelineLane, TimelineMode } from '../quotaTimelineModel';
 import type { QuotaFileEntry } from '../logic';
 import type { QuotaCardState } from '../providers';
+import { getQuotaProviderIcon } from '../providerIcons';
 import styles from './QuotaTimeline.module.scss';
 
 const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
@@ -336,7 +336,7 @@ function Lane({ lane, span, now, mode, cells, nowPercent, resolvedTheme }: LaneP
   );
 
   // Provider identity rides on the brand logo only; bars stay graphite.
-  const iconSrc = getAuthFileIcon(lane.provider, resolvedTheme);
+  const iconSrc = getQuotaProviderIcon(lane.provider, resolvedTheme);
 
   // Sub-day windows are labelled in hours — rounding 5h to days gives "0d".
   const periodLabel =

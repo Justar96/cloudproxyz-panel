@@ -28,3 +28,12 @@ describe('provider filter overflow', () => {
     expect(quotaStyles).toMatch(/\.sort\s*\{\s*flex: 0 0 auto;/);
   });
 });
+
+describe('provider tab overflow cue', () => {
+  test('fades a clipped edge since the scrollbar is hidden', () => {
+    const source = readFileSync('src/features/authFiles/components/ProviderTabs.tsx', 'utf8');
+    expect(source).toContain('data-fade-start={edges.start || undefined}');
+    expect(source).toContain('data-fade-end={edges.end || undefined}');
+    expect(tabsStyles).toContain('&[data-fade-start][data-fade-end]');
+  });
+});

@@ -22,7 +22,6 @@ export function SectionCommon({
   values,
   validationErrors,
   disabled,
-  animateIn,
   onChange,
 }: ConfigSectionProps) {
   const { t } = useTranslation();
@@ -32,7 +31,6 @@ export function SectionCommon({
     <SectionCard
       title={t('config_management.visual.sections.common.title')}
       description={t('config_management.visual.sections.common.description')}
-      animateIn={animateIn}
     >
       <FieldStack>
         <FieldGrid>

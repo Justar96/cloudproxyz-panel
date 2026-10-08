@@ -17,7 +17,6 @@ export type SectionPayloadProps = ConfigSectionProps & {
 export function SectionPayload({
   values,
   disabled,
-  animateIn,
   hasPayloadValidationErrors,
   onChange,
 }: SectionPayloadProps) {
@@ -49,7 +48,6 @@ export function SectionPayload({
     <SectionCard
       title={t('config_management.visual.sections.payload.title')}
       description={t('config_management.visual.sections.payload.description')}
-      animateIn={animateIn}
     >
       <FieldStack>
         <FieldAnchor fieldId="payloadDefaultRules">

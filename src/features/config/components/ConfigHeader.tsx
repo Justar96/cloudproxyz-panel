@@ -36,10 +36,8 @@ export function ConfigHeader({
   return (
     <header className="page-header">
       <div className="page-heading">
-        <h1 className="page-title" data-reveal>
-          {t('config_management.title')}
-        </h1>
-        <p className={`page-subtitle ${styles.meta}`} data-reveal>
+        <h1 className="page-title">{t('config_management.title')}</h1>
+        <p className={`page-subtitle ${styles.meta}`}>
           {meta.map((segment, index) => (
             <Fragment key={segment.key}>
               {index > 0 ? (
@@ -56,7 +54,7 @@ export function ConfigHeader({
           ))}
         </p>
       </div>
-      <div className="page-actions" data-reveal>
+      <div className="page-actions">
         {extraActions}
         <button
           type="button"

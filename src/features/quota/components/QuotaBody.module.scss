@@ -109,16 +109,8 @@
 .quotaBarFill {
   height: 100%;
   border-radius: $radius-full;
-  transition: width 360ms var(--ease-large);
-  transform-origin: left center;
-  animation: quota-meter-fill 480ms var(--ease-out-strong) both;
-  animation-delay: calc(var(--meter-index, 0) * 40ms);
-}
-
-@keyframes quota-meter-fill {
-  from {
-    transform: scaleX(0);
-  }
+  /* Value changes on refresh glide; nothing replays on mount. */
+  transition: width var(--dur-hover) var(--ease-out-strong);
 }
 
 .quotaBarFillHigh,
@@ -174,7 +166,6 @@
 @media (prefers-reduced-motion: reduce) {
   .quotaBarFill {
     transition: none;
-    animation: none;
   }
 }
 
@@ -507,7 +498,6 @@
     -80% 0,
     0 0,
     0 0;
-  animation: eliteLiquid 12s ease-in-out infinite alternate;
   box-shadow:
     0 1px 3px rgba(30, 42, 58, 0.28),
     inset 0 1px 1px rgba(255, 255, 255, 0.92),
@@ -532,30 +522,8 @@
     --glass-blur: 9px;
     filter: var(--glass-filter);
     opacity: 0.75;
-    animation: eliteBreathe 7s ease-in-out infinite alternate;
     pointer-events: none;
     z-index: -1;
-  }
-
-  /* 巡回扫光：一道冷白亮带扫过镜面，只占 7.5s 周期的前 13%，其余时间静止 */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: inherit;
-    background-image: linear-gradient(
-      105deg,
-      transparent 38%,
-      rgba(255, 255, 255, 0.08) 44%,
-      rgba(255, 255, 255, 0.75) 50%,
-      rgba(255, 255, 255, 0.08) 56%,
-      transparent 62%
-    );
-    background-repeat: no-repeat;
-    background-size: 260% 100%;
-    background-position: 240% 0;
-    animation: eliteSheen 7.5s cubic-bezier(0.4, 0, 0.2, 1) 1.2s infinite;
-    pointer-events: none;
   }
 
   /* 中性铬没有彩度可扩，P3 分支无收益（金卡需要它是因为暖金有色域外的彩度）。
@@ -568,60 +536,7 @@
         inset 0 1px 1px rgba(255, 255, 255, 0.92),
         inset 0 -1.5px 2px rgba(60, 74, 92, 0.4),
         0 0 22px #{'color(rec2100-linear 1.5 1.8 2.3 / 0.42)'};
-
-      &::after {
-        background-image: linear-gradient(
-          105deg,
-          transparent 38%,
-          #{'color(rec2100-linear 1.2 1.3 1.5 / 0.1)'} 44%,
-          #{'color(rec2100-linear 2.6 2.8 3.2 / 0.8)'} 50%,
-          #{'color(rec2100-linear 1.2 1.3 1.5 / 0.1)'} 56%,
-          transparent 62%
-        );
-      }
     }
-  }
-}
-
-@keyframes eliteLiquid {
-  from {
-    background-position:
-      0 0,
-      -50% 0,
-      170% 0,
-      -80% 0,
-      0 0,
-      0 0;
-  }
-  to {
-    background-position:
-      0 0,
-      150% 0,
-      -70% 0,
-      190% 0,
-      0 0,
-      0 0;
-  }
-}
-
-@keyframes eliteSheen {
-  0% {
-    background-position: 240% 0;
-  }
-  13% {
-    background-position: -140% 0;
-  }
-  100% {
-    background-position: -140% 0;
-  }
-}
-
-@keyframes eliteBreathe {
-  from {
-    opacity: 0.55;
-  }
-  to {
-    opacity: 0.9;
   }
 }
 
@@ -698,28 +613,17 @@
   }
 }
 
-/* 减动效：三条动画全停，亮带冻结在压字前的一帧 —— 静态也是完成品。 */
-@media (prefers-reduced-motion: reduce) {
-  .elitePlanValue,
-  :global([data-theme='dark']) .elitePlanValue {
-    animation: none;
-    background-position:
-      0 0,
-      42% 0,
-      60% 0,
-      30% 0,
-      0 0,
-      0 0;
-
-    &::before {
-      animation: none;
-      opacity: 0.75;
-    }
-
-    &::after {
-      content: none;
-    }
-  }
+/* 静态定格：液态对流 / 扫光 / 呼吸三条常驻循环已移除（常驻装饰动效干扰阅读），
+ * 亮带固定在压字前的一帧 —— 静态即完成品。 */
+.elitePlanValue,
+:global([data-theme='dark']) .elitePlanValue {
+  background-position:
+    0 0,
+    42% 0,
+    60% 0,
+    30% 0,
+    0 0,
+    0 0;
 }
 
 @include mobile {

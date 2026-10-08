@@ -1654,7 +1654,10 @@
     "filter_empty_title": "No credentials are {{label}}",
     "filter_empty_desc": "Load quota for more credentials, or show all of them.",
     "load_quota": "Load quota",
-    "percent_left": "{{percent}}% left"
+    "percent_left": "{{percent}}% left",
+    "retry": "Retry",
+    "headline_hint": "left on the tightest limit",
+    "not_loaded_desc": "Quota isn't fetched automatically. Load it to see what's left."
   },
   "plugin_management": {
     "title": "Plugin Management",

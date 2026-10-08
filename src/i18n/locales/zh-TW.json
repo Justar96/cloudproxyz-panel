@@ -1678,7 +1678,10 @@
     "filter_empty_title": "沒有「{{label}}」的憑證",
     "filter_empty_desc": "載入更多憑證的額度，或顯示全部憑證。",
     "load_quota": "載入額度",
-    "percent_left": "剩餘 {{percent}}%"
+    "percent_left": "剩餘 {{percent}}%",
+    "retry": "重試",
+    "headline_hint": "最緊額度剩餘",
+    "not_loaded_desc": "額度不會自動查詢。載入後即可查看剩餘量。"
   },
   "plugin_management": {
     "title": "插件管理",

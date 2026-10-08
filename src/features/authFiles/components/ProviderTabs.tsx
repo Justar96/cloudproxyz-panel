@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getAuthFileIcon,
@@ -16,7 +16,13 @@ export type ProviderTabsProps = {
   active: string;
   resolvedTheme: ResolvedTheme;
   onChange: (type: string) => void;
+  /** Accessible name for the group; defaults to the generic "All" filter label. */
+  ariaLabel?: string;
+  /** Icon source override; a custom icon is drawn bare, without the theme-surface tile. */
+  getIcon?: (type: string, resolvedTheme: ResolvedTheme) => string | null;
 };
+
+type OverflowEdges = { start: boolean; end: boolean };
 
 /**
  * Provider filter: a horizontally scrolling segmented track (wheel and touch scroll).
@@ -28,9 +34,13 @@ export function ProviderTabs({
   active,
   resolvedTheme,
   onChange,
+  ariaLabel,
+  getIcon,
 }: ProviderTabsProps) {
   const { t } = useTranslation();
   const tabsRef = useRef<HTMLDivElement>(null);
+  // The scrollbar is hidden, so a fade on each clipped edge is the cue that more tabs exist.
+  const [edges, setEdges] = useState<OverflowEdges>({ start: false, end: false });
 
   useEffect(() => {
     const strip = tabsRef.current;
@@ -38,20 +48,37 @@ export function ProviderTabs({
     const onWheel = (event: WheelEvent) => scrollProviderTabs(strip, event);
     // React delegates wheel events passively; use a local listener to prevent page scrolling.
     strip.addEventListener('wheel', onWheel, { passive: false });
-    return () => strip.removeEventListener('wheel', onWheel);
-  }, []);
+
+    const measure = () => {
+      const maxScroll = strip.scrollWidth - strip.clientWidth;
+      const offset = Math.abs(strip.scrollLeft);
+      const next = { start: offset > 1, end: maxScroll - offset > 1 };
+      setEdges((prev) => (prev.start === next.start && prev.end === next.end ? prev : next));
+    };
+    measure();
+    strip.addEventListener('scroll', measure, { passive: true });
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(strip);
+    return () => {
+      strip.removeEventListener('wheel', onWheel);
+      strip.removeEventListener('scroll', measure);
+      observer?.disconnect();
+    };
+  }, [types.length]);
 
   return (
     <div
       ref={tabsRef}
       className={`on-canvas ${styles.tabs}`}
       role="group"
-      aria-label={t('auth_files.filter_all')}
+      aria-label={ariaLabel ?? t('auth_files.filter_all')}
+      data-fade-start={edges.start || undefined}
+      data-fade-end={edges.end || undefined}
     >
       {types.map((type) => {
         const isActive = active === type;
         const label = type === 'all' ? t('auth_files.filter_all') : getTypeLabel(t, type);
-        const iconSrc = type === 'all' ? null : getAuthFileIcon(type, resolvedTheme);
+        const iconSrc = type === 'all' ? null : (getIcon ?? getAuthFileIcon)(type, resolvedTheme);
 
         return (
           <button
@@ -66,7 +93,7 @@ export function ProviderTabs({
                 className={styles.tabIconWrap}
                 style={
                   // 与 AI 提供商界面一致：Kimi 图标底座随主题切换颜色
-                  isThemeSurfaceIconProvider(type)
+                  !getIcon && isThemeSurfaceIconProvider(type)
                     ? { background: getThemeSurfaceIconBackground(resolvedTheme) }
                     : undefined
                 }

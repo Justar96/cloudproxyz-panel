@@ -1,7 +1,5 @@
 import { ReactNode, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, type Location } from 'react-router-dom';
-import { animate } from 'motion/mini';
-import type { AnimationPlaybackControlsWithThen } from 'motion-dom';
 import {
   PAGE_TRANSITION_LAYER_CONTEXT_VALUES,
   PageTransitionLayerContext,
@@ -16,44 +14,9 @@ interface PageTransitionProps {
   scrollContainerRef?: React.RefObject<HTMLElement | null>;
 }
 
-// Premium personality: enter > exit, decelerate-in / accelerate-out.
-const VERTICAL_ENTER_DURATION = 0.36;
-const VERTICAL_EXIT_DURATION = 0.22;
-const VERTICAL_ENTER_DISTANCE = 28;
-const VERTICAL_EXIT_DISTANCE = 12;
-const REDUCED_MOTION_DURATION = 0.15;
-
-const IOS_TRANSITION_DURATION = 0.44;
-const IOS_ENTER_FROM_X_PERCENT = 100;
-const IOS_EXIT_TO_X_PERCENT_FORWARD = -22;
-const IOS_EXIT_TO_X_PERCENT_BACKWARD = 100;
-const IOS_ENTER_FROM_X_PERCENT_BACKWARD = -22;
-const IOS_BACKGROUND_SCALE = 0.96;
-const IOS_BACKGROUND_OPACITY = 0.5;
-const IOS_SHADOW_VALUE = '-20px 0 36px rgba(0, 0, 0, 0.20)';
-
-// easeOutQuart: powerful but elegant deceleration for hero entrances.
-const easeOutQuart = (progress: number) => 1 - (1 - progress) ** 4;
-// easeInQuad: gentle start, accelerates away — exits should not linger.
-const easeInQuad = (progress: number) => progress * progress;
-// easeOutCubic: smooth Apple-style settle for iOS push/pop.
-const easeOutCubic = (progress: number) => 1 - (1 - progress) ** 3;
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-const buildVerticalTransform = (y: number) => `translate3d(0px, ${y}px, 0px)`;
-const buildIosTransform = (xPercent: number, y: number, scale = 1) =>
-  scale === 1
-    ? `translate3d(${xPercent}%, ${y}px, 0px)`
-    : `translate3d(${xPercent}%, ${y}px, 0px) scale(${scale})`;
-
-const clearLayerStyles = (element: HTMLElement | null) => {
-  if (!element) return;
-  element.style.removeProperty('transform');
-  element.style.removeProperty('opacity');
-  element.style.removeProperty('box-shadow');
-};
+// Route changes swap instantly. Navigation is the most frequent action in the app, so a slide on
+// every click is time spent watching instead of reading. The layer stack is still kept: it
+// restores per-route scroll and keeps the iOS-variant parent page mounted behind its child.
 
 type Layer = {
   key: string;
@@ -227,18 +190,10 @@ export function PageTransition({
     layers,
   ]);
 
-  // Run Motion animation when animating starts
+  // Settle the swap before paint: restore the target's scroll, then drop the exiting layer.
   useLayoutEffect(() => {
     if (!isAnimating) return;
-
     if (!currentLayerRef.current) return;
-
-    const currentLayerEl = currentLayerRef.current;
-    const exitingLayerEl = exitingLayerRef.current;
-    const transitionVariant = transitionVariantRef.current;
-
-    clearLayerStyles(currentLayerEl);
-    clearLayerStyles(exitingLayerEl);
 
     const scrollContainer = resolveScrollContainer();
     const exitScrollOffset = exitScrollOffsetRef.current;
@@ -247,169 +202,10 @@ export function PageTransition({
       scrollContainer.scrollTo({ top: enterScrollOffset, left: 0, behavior: 'auto' });
     }
 
-    const transitionDirection = transitionDirectionRef.current;
-    const isForward = transitionDirection === 'forward';
-    const enterFromY = isForward ? VERTICAL_ENTER_DISTANCE : -VERTICAL_ENTER_DISTANCE;
-    const exitToY = isForward ? -VERTICAL_EXIT_DISTANCE : VERTICAL_EXIT_DISTANCE;
-    const exitBaseY = enterScrollOffset - exitScrollOffset;
-    const reduceMotion = prefersReducedMotion();
-    const activeAnimations: AnimationPlaybackControlsWithThen[] = [];
-    let cancelled = false;
-    let completed = false;
-    const completeTransition = () => {
-      if (completed) return;
-      completed = true;
-
-      const nextLayers = nextLayersRef.current;
-      nextLayersRef.current = null;
-      setLayers((prev) => nextLayers ?? prev.filter((layer) => layer.status !== 'exiting'));
-      setIsAnimating(false);
-
-      clearLayerStyles(currentLayerEl);
-      clearLayerStyles(exitingLayerEl);
-    };
-
-    if (reduceMotion) {
-      // Accessibility: skip spatial motion entirely, fall back to a quick crossfade.
-      if (exitingLayerEl) {
-        exitingLayerEl.style.transform =
-          transitionVariant === 'ios'
-            ? buildIosTransform(0, exitBaseY)
-            : buildVerticalTransform(exitBaseY);
-        activeAnimations.push(
-          animate(
-            exitingLayerEl,
-            { opacity: [1, 0] },
-            { duration: REDUCED_MOTION_DURATION, ease: easeOutCubic }
-          )
-        );
-      }
-      currentLayerEl.style.opacity = '0';
-      activeAnimations.push(
-        animate(
-          currentLayerEl,
-          { opacity: [0, 1] },
-          { duration: REDUCED_MOTION_DURATION, ease: easeOutCubic }
-        )
-      );
-    } else if (transitionVariant === 'ios') {
-      const exitToXPercent = isForward
-        ? IOS_EXIT_TO_X_PERCENT_FORWARD
-        : IOS_EXIT_TO_X_PERCENT_BACKWARD;
-      const enterFromXPercent = isForward
-        ? IOS_ENTER_FROM_X_PERCENT
-        : IOS_ENTER_FROM_X_PERCENT_BACKWARD;
-
-      // Background layer (the one being pushed back / coming forward from behind) gets
-      // scale + opacity dim to read as "behind". Top layer is the one sliding fully on/off.
-      const exitScaleTo = isForward ? IOS_BACKGROUND_SCALE : 1;
-      const exitOpacityTo = isForward ? IOS_BACKGROUND_OPACITY : 1;
-      const enterScaleFrom = isForward ? 1 : IOS_BACKGROUND_SCALE;
-      const enterOpacityFrom = isForward ? 1 : IOS_BACKGROUND_OPACITY;
-
-      if (exitingLayerEl) {
-        exitingLayerEl.style.transform = buildIosTransform(0, exitBaseY, 1);
-        exitingLayerEl.style.opacity = '1';
-      }
-
-      currentLayerEl.style.transform = buildIosTransform(enterFromXPercent, 0, enterScaleFrom);
-      currentLayerEl.style.opacity = String(enterOpacityFrom);
-
-      // Shadow sits on whichever layer is visually in front of the other during the slide.
-      const topLayerEl = isForward ? currentLayerEl : exitingLayerEl;
-      if (topLayerEl) {
-        topLayerEl.style.boxShadow = IOS_SHADOW_VALUE;
-      }
-
-      if (exitingLayerEl) {
-        activeAnimations.push(
-          animate(
-            exitingLayerEl,
-            {
-              transform: [
-                buildIosTransform(0, exitBaseY, 1),
-                buildIosTransform(exitToXPercent, exitBaseY, exitScaleTo),
-              ],
-              opacity: [1, exitOpacityTo],
-            },
-            {
-              duration: IOS_TRANSITION_DURATION,
-              ease: easeOutCubic,
-            }
-          )
-        );
-      }
-
-      activeAnimations.push(
-        animate(
-          currentLayerEl,
-          {
-            transform: [
-              buildIosTransform(enterFromXPercent, 0, enterScaleFrom),
-              buildIosTransform(0, 0, 1),
-            ],
-            opacity: [enterOpacityFrom, 1],
-          },
-          {
-            duration: IOS_TRANSITION_DURATION,
-            ease: easeOutCubic,
-          }
-        )
-      );
-    } else {
-      // Vertical: split timing — exit leaves quickly (accelerate), enter settles slowly (decelerate).
-      if (exitingLayerEl) {
-        exitingLayerEl.style.transform = buildVerticalTransform(exitBaseY);
-        activeAnimations.push(
-          animate(
-            exitingLayerEl,
-            {
-              transform: [
-                buildVerticalTransform(exitBaseY),
-                buildVerticalTransform(exitBaseY + exitToY),
-              ],
-              opacity: [1, 0],
-            },
-            {
-              duration: VERTICAL_EXIT_DURATION,
-              ease: easeInQuad,
-            }
-          )
-        );
-      }
-
-      currentLayerEl.style.transform = buildVerticalTransform(enterFromY);
-      currentLayerEl.style.opacity = '0';
-      activeAnimations.push(
-        animate(
-          currentLayerEl,
-          {
-            transform: [buildVerticalTransform(enterFromY), buildVerticalTransform(0)],
-            opacity: [0, 1],
-          },
-          {
-            duration: VERTICAL_ENTER_DURATION,
-            ease: easeOutQuart,
-          }
-        )
-      );
-    }
-
-    if (!activeAnimations.length) {
-      completeTransition();
-    } else {
-      void Promise.all(
-        activeAnimations.map((animation) => animation.finished.catch(() => undefined))
-      ).then(() => {
-        if (cancelled) return;
-        completeTransition();
-      });
-    }
-
-    return () => {
-      cancelled = true;
-      activeAnimations.forEach((animation) => animation.stop());
-    };
+    const nextLayers = nextLayersRef.current;
+    nextLayersRef.current = null;
+    setLayers((prev) => nextLayers ?? prev.filter((layer) => layer.status !== 'exiting'));
+    setIsAnimating(false);
   }, [isAnimating, resolveScrollContainer]);
 
   return (

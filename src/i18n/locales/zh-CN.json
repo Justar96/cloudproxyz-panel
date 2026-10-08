@@ -1652,7 +1652,10 @@
     "filter_empty_title": "没有「{{label}}」的凭证",
     "filter_empty_desc": "加载更多凭证的额度，或显示全部凭证。",
     "load_quota": "加载额度",
-    "percent_left": "剩余 {{percent}}%"
+    "percent_left": "剩余 {{percent}}%",
+    "retry": "重试",
+    "headline_hint": "最紧额度剩余",
+    "not_loaded_desc": "额度不会自动查询。加载后即可查看剩余量。"
   },
   "plugin_management": {
     "title": "插件管理",

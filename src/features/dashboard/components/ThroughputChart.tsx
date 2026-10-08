@@ -125,9 +125,6 @@ export function ThroughputChart({ traffic }: ThroughputChartProps) {
               const successHeight = (bucket.success / scaleMax) * 100;
               const failureHeight = (bucket.failed / scaleMax) * 100;
               const hasBoth = bucket.success > 0 && bucket.failed > 0;
-              /* 级差按桶数归一化：不管窗口多长，整波入场都收在 360ms 内 */
-              const barDelayMs =
-                buckets.length > 1 ? Math.round((index / (buckets.length - 1)) * 360) : 0;
 
               return (
                 <div
@@ -136,7 +133,7 @@ export function ThroughputChart({ traffic }: ThroughputChartProps) {
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => setActiveIndex((current) => (current === index ? null : index))}
                 >
-                  {/* 峰值直标放在 scaleY 容器之外，避免入场时被一起挤压 */}
+                  {/* 峰值直标放在柱体容器之外，按柱高定位 */}
                   {index === peakIndex && peakTotal > 0 && (
                     <span
                       className={styles.peakLabel}
@@ -145,10 +142,7 @@ export function ThroughputChart({ traffic }: ThroughputChartProps) {
                       {peakTotal.toLocaleString()}
                     </span>
                   )}
-                  <div
-                    className={styles.stack}
-                    style={{ '--bar-delay': `${barDelayMs}ms` } as React.CSSProperties}
-                  >
+                  <div className={styles.stack}>
                     {bucket.failed > 0 && (
                       <span
                         className={`${styles.segment} ${styles.segmentFailure} ${

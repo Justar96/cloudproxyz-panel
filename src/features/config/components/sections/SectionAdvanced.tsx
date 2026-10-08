@@ -26,7 +26,6 @@ export function SectionAdvanced({
   values,
   validationErrors,
   disabled,
-  animateIn,
   onChange,
 }: ConfigSectionProps) {
   const { t } = useTranslation();
@@ -52,7 +51,6 @@ export function SectionAdvanced({
     <SectionCard
       title={t('config_management.visual.sections.advanced.title')}
       description={t('config_management.visual.sections.advanced.description')}
-      animateIn={animateIn}
     >
       <FieldStack>
         <SectionOAuthBehavior

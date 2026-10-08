@@ -23,7 +23,6 @@ export function SectionConnectivity({
   values,
   validationErrors,
   disabled,
-  animateIn,
   onChange,
 }: ConfigSectionProps) {
   const { t } = useTranslation();
@@ -35,7 +34,6 @@ export function SectionConnectivity({
     <SectionCard
       title={t('config_management.visual.sections.connectivity.title')}
       description={t('config_management.visual.sections.connectivity.description')}
-      animateIn={animateIn}
     >
       <FieldStack>
         <FieldGrid>

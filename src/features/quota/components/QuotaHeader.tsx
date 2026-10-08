@@ -18,14 +18,10 @@ export function QuotaHeader({ refreshing, disableControls, onRefreshAll }: Quota
   return (
     <header className="page-header">
       <div className="page-heading">
-        <h1 className="page-title" data-reveal>
-          {t('quota_management.title')}
-        </h1>
-        <p className="page-subtitle" data-reveal>
-          {t('quota_management.subtitle')}
-        </p>
+        <h1 className="page-title">{t('quota_management.title')}</h1>
+        <p className="page-subtitle">{t('quota_management.subtitle')}</p>
       </div>
-      <div className="page-actions" data-reveal>
+      <div className="page-actions">
         <Button onClick={onRefreshAll} disabled={disableControls || refreshing}>
           <IconRefreshCw
             size={16}

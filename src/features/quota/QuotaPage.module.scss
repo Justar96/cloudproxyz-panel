@@ -101,7 +101,12 @@
   }
 }
 
-.provider,
+/* Provider tab bar: its own row so every provider with credentials stays visible. */
+.provider {
+  display: flex;
+  min-width: 0;
+}
+
 .sort {
   flex: 0 0 auto;
   min-width: 160px;
@@ -132,7 +137,6 @@
     color: var(--text-primary);
   }
 
-  .provider button[aria-haspopup='listbox']:hover,
   .sort button[aria-haspopup='listbox']:hover {
     background: var(--bg-hover);
   }
@@ -171,7 +175,7 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  padding-block: 16px 4px;
+  padding-block: 0 12px;
 }
 
 .groupTitle {
@@ -187,18 +191,10 @@
 }
 
 .groupIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: var(--radius-xs);
-
-  img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-  }
+  display: block;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .groupCount {
@@ -216,25 +212,23 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* 桌面：一张列表卡，行间发丝线。移动：行各自成卡（见 QuotaCard.module.scss）。 */
-.list {
-  display: flex;
-  flex-direction: column;
+/* 每个订阅一张卡：自适应列数，单列下限 300px（窄屏退化为单列）。 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 12px;
   min-width: 0;
-  padding: 4px 24px;
-  border-radius: var(--radius-xl);
-  background: var(--bg-primary);
-
-  > article + article {
-    border-top: 1px solid var(--border-color);
-  }
 }
 
-.skeletonRow {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 24px;
-  padding-block: 20px;
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 200px;
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  box-shadow: inset 0 0 0 1px var(--border-color);
 }
 
 .emptyWrap {
@@ -272,27 +266,18 @@
     height: 36px;
   }
 
-  .provider,
   .sort {
     flex: 1 1 140px;
     min-width: 0;
   }
 
-  .provider button[aria-haspopup='listbox'],
   .sort button[aria-haspopup='listbox'] {
     height: 40px;
   }
 
-  .list {
-    padding: 0 16px;
-  }
-
-  .skeletonRow {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+  .skeletonCard {
+    min-height: 160px;
     padding: 16px;
-    border-radius: var(--radius-xl);
-    background: var(--bg-primary);
   }
 
   .emptyWrap {

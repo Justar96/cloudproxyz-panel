@@ -18,23 +18,22 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { useNow } from '@/hooks/useNow';
-import { useRevealGroup } from '@/hooks/motion';
 import { useAuthStore, useQuotaStore, useThemeStore } from '@/stores';
 import type { AuthFileItem, ResolvedTheme } from '@/types';
 import { getQuotaCacheKey } from '@/utils/quota/identity';
-import {
-  getAuthFileIcon,
-  getThemeSurfaceIconBackground,
-  getTypeLabel,
-  isThemeSurfaceIconProvider,
-} from '@/features/authFiles/constants';
+import { getTypeLabel } from '@/features/authFiles/constants';
+import { ProviderTabs } from '@/features/authFiles/components/ProviderTabs';
 import { QuotaHeader } from './components/QuotaHeader';
 import { QuotaCard } from './components/QuotaCard';
 import { QuotaTimeline } from './components/QuotaTimeline';
 import { QuotaOverview, type QuotaHealthFilter } from './components/QuotaOverview';
-import { countQuotaHealth, resolveQuotaHealth, type QuotaHealth } from './health';
 import {
-  CARD_ENTRANCE_BUDGET_MS,
+  countQuotaHealth,
+  resolveQuotaHealth,
+  type QuotaHealth,
+  type QuotaHealthSummary,
+} from './health';
+import {
   QUOTA_PAGE_SIZE,
   QUOTA_SORT_MODES,
   QUOTA_TAB_ORDER,
@@ -52,6 +51,7 @@ import {
   type QuotaFileEntry,
 } from './logic';
 import { nextRecoveryMs } from './resetSchedule';
+import { getQuotaProviderIcon } from './providerIcons';
 import { QUOTA_ADAPTERS, getQuotaSetter, type QuotaCardState } from './providers';
 import type { QuotaProviderType } from './providers/types';
 import { useDevinQuotaAutoLoad } from './providers/devin/useDevinQuotaAutoLoad';
@@ -84,8 +84,6 @@ export function QuotaPage() {
   const [search, setSearch] = useState('');
   const [healthFilter, setHealthFilter] = useState<QuotaHealthFilter>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  // 页头 + 工具栏的入场级联（标题 → meta → 动作 → 工具栏，级差 70ms）
-  const revealRef = useRevealGroup<HTMLDivElement>();
 
   const disableControls = connectionStatus !== 'connected';
 
@@ -173,14 +171,14 @@ export function QuotaPage() {
 
   // Health per credential from the quota already loaded (no requests).
   const healthByKey = useMemo(() => {
-    const map = new Map<QuotaFileEntry, QuotaHealth>();
+    const map = new Map<QuotaFileEntry, QuotaHealthSummary>();
     entries.forEach((entry) => {
-      map.set(entry, resolveQuotaHealth(entry.type, getQuota(entry)).health);
+      map.set(entry, resolveQuotaHealth(entry.type, getQuota(entry)));
     });
     return map;
   }, [entries, getQuota]);
   const healthOf = useCallback(
-    (entry: QuotaFileEntry): QuotaHealth => healthByKey.get(entry) ?? 'idle',
+    (entry: QuotaFileEntry): QuotaHealth => healthByKey.get(entry)?.health ?? 'idle',
     [healthByKey]
   );
   const providerEntries = useMemo(
@@ -245,17 +243,14 @@ export function QuotaPage() {
     [t]
   );
 
-  const providerOptions = useMemo(
-    () => [
-      { value: 'all', label: `${t('auth_files.filter_all')} (${tabCounts.all ?? 0})` },
-      ...QUOTA_TAB_ORDER.filter((type) => (tabCounts[type] ?? 0) > 0 || type === tab).map(
-        (type) => ({
-          value: type,
-          label: `${getTypeLabel(t, type)} (${tabCounts[type] ?? 0})`,
-        })
-      ),
-    ],
-    [t, tabCounts, tab]
+  // Only providers that have credentials get a tab (plus the active one, so it never vanishes).
+  const providerTabs = useMemo(
+    () => ['all', ...QUOTA_TAB_ORDER.filter((type) => (tabCounts[type] ?? 0) > 0 || type === tab)],
+    [tabCounts, tab]
+  );
+  const getProviderTabIcon = useCallback(
+    (type: string, theme: ResolvedTheme) => getQuotaProviderIcon(type as QuotaProviderType, theme),
+    []
   );
 
   // 默认序下当前页已按提供商连续排列：切成分组；「最快恢复」跨提供商，保持单一列表。
@@ -344,24 +339,6 @@ export function QuotaPage() {
 
   const canUseActions = !disableControls && !loading && filesGeneration === sessionGeneration;
 
-  /* ---------- 首屏卡片一次性级联入场 ----------
-   * 首批数据渲染后立即翻转 cardsAnimated；已挂载的卡片在挂载时捕获过自己的
-   * 延迟（QuotaCard 内 useState 初始化），后续切 tab/翻页/刷新新挂载的卡片
-   * 拿到 null —— 不重播。 */
-
-  const [cardsAnimated, setCardsAnimated] = useState(false);
-  const enableCardEntrance = !cardsAnimated && !loading && pageItems.length > 0;
-  useEffect(() => {
-    if (enableCardEntrance) {
-      setCardsAnimated(true);
-    }
-  }, [enableCardEntrance]);
-  const cardEntranceDelay = (index: number): number | null => {
-    if (!enableCardEntrance) return null;
-    if (pageItems.length <= 1) return 0;
-    return Math.round((index / (pageItems.length - 1)) * CARD_ENTRANCE_BUDGET_MS);
-  };
-
   /* ---------- 渲染 ---------- */
 
   const isEmpty = !loading && filteredEntries.length === 0;
@@ -375,15 +352,15 @@ export function QuotaPage() {
       canRefresh={canUseActions && !entry.file.disabled}
       resetting={resettingQuotaName === getQuotaCacheKey(entry.file)}
       health={healthOf(entry)}
+      minRemaining={healthByKey.get(entry)?.minRemaining ?? null}
       showProvider={sortMode !== 'default'}
-      entranceDelayMs={cardEntranceDelay(pageItems.indexOf(entry))}
       onRefresh={() => void refreshQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
       onReset={() => resetQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
     />
   );
 
   return (
-    <div className={`page ${styles.page}`} ref={revealRef}>
+    <div className={`page ${styles.page}`}>
       <QuotaHeader
         refreshing={loading || batchLoading}
         disableControls={disableControls}
@@ -391,19 +368,31 @@ export function QuotaPage() {
       />
 
       {entries.length > 0 && (
-        <div data-reveal>
-          <QuotaOverview
-            entries={providerEntries}
-            healthOf={healthOf}
-            quotaOf={getQuota}
-            counts={healthCounts}
-            filter={healthFilter}
-            onFilterChange={handleHealthFilterChange}
+        <QuotaOverview
+          entries={providerEntries}
+          healthOf={healthOf}
+          quotaOf={getQuota}
+          counts={healthCounts}
+          filter={healthFilter}
+          onFilterChange={handleHealthFilterChange}
+        />
+      )}
+
+      {entries.length > 0 && (
+        <div className={styles.provider}>
+          <ProviderTabs
+            types={providerTabs}
+            counts={tabCounts}
+            active={tab}
+            resolvedTheme={resolvedTheme}
+            onChange={handleTabChange}
+            ariaLabel={t('quota_management.provider_label')}
+            getIcon={getProviderTabIcon}
           />
         </div>
       )}
 
-      <div className={styles.toolbar} role="search" data-reveal>
+      <div className={styles.toolbar} role="search">
         <div className={styles.search}>
           <IconSearch size={16} className={styles.searchIcon} aria-hidden="true" />
           <input
@@ -430,15 +419,6 @@ export function QuotaPage() {
             </button>
           )}
         </div>
-        <div className={styles.provider}>
-          <Select
-            value={tab}
-            options={providerOptions}
-            onChange={handleTabChange}
-            ariaLabel={t('quota_management.provider_label', { defaultValue: 'Provider' })}
-            size="sm"
-          />
-        </div>
         <div className={styles.sort}>
           <Select
             value={sortMode}
@@ -457,11 +437,13 @@ export function QuotaPage() {
       )}
 
       {loading ? (
-        <div className={styles.list} aria-hidden="true">
+        <div className={styles.grid} aria-hidden="true">
           {Array.from({ length: SKELETON_ROW_COUNT }, (_, index) => (
-            <div key={index} className={styles.skeletonRow}>
-              <Skeleton height={32} width={200} rounded={8} />
-              <Skeleton height={32} rounded={8} />
+            <div key={index} className={styles.skeletonCard}>
+              <Skeleton height={32} width="60%" rounded={8} />
+              <Skeleton height={28} width={96} rounded={8} />
+              <Skeleton height={6} rounded={999} />
+              <Skeleton height={6} rounded={999} />
             </div>
           ))}
         </div>
@@ -511,38 +493,25 @@ export function QuotaPage() {
         </div>
       ) : (
         pageGroups.map((group) => {
-          const iconSrc = group.type ? getAuthFileIcon(group.type, resolvedTheme) : null;
+          const iconSrc = group.type ? getQuotaProviderIcon(group.type, resolvedTheme) : null;
           return (
             <section
               key={group.type ?? 'all'}
               className={styles.group}
               aria-labelledby={group.type ? `quota-group-${group.type}` : undefined}
             >
-              <div className={styles.list}>
-                {group.type && (
-                  <header className={styles.groupHeader}>
-                    <h2 id={`quota-group-${group.type}`} className={styles.groupTitle}>
-                      {iconSrc && (
-                        <span
-                          className={styles.groupIcon}
-                          style={
-                            isThemeSurfaceIconProvider(group.type)
-                              ? { background: getThemeSurfaceIconBackground(resolvedTheme) }
-                              : undefined
-                          }
-                        >
-                          <img src={iconSrc} alt="" />
-                        </span>
-                      )}
-                      {getTypeLabel(t, group.type)}
-                    </h2>
-                    <span className={styles.groupCount}>
-                      {healthFilter === null ? (tabCounts[group.type] ?? 0) : group.items.length}
-                    </span>
-                  </header>
-                )}
-                {group.items.map(renderRow)}
-              </div>
+              {group.type && (
+                <header className={styles.groupHeader}>
+                  <h2 id={`quota-group-${group.type}`} className={styles.groupTitle}>
+                    {iconSrc && <img src={iconSrc} alt="" className={styles.groupIcon} />}
+                    {getTypeLabel(t, group.type)}
+                  </h2>
+                  <span className={styles.groupCount}>
+                    {healthFilter === null ? (tabCounts[group.type] ?? 0) : group.items.length}
+                  </span>
+                </header>
+              )}
+              <div className={styles.grid}>{group.items.map(renderRow)}</div>
             </section>
           );
         })

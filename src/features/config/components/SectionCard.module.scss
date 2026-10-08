@@ -16,18 +16,6 @@
   }
 }
 
-/* 首载入场：360ms 大位移曲线轻上浮，仅首载播一次 */
-.cardEnter {
-  animation: config-card-in var(--dur-large, 360ms) var(--ease-large) 120ms backwards;
-}
-
-@keyframes config-card-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 8px, 0);
-  }
-}
-
 .header {
   display: flex;
   flex-direction: column;
@@ -60,10 +48,4 @@
   width: 100%;
   min-width: 0;
   container-type: inline-size;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cardEnter {
-    animation: none;
-  }
 }

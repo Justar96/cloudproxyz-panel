@@ -80,6 +80,10 @@
   --bg-quinary: var(--graphite-1);
   --bg-recessed: var(--graphite-3); // segmented track
   --bg-selected: var(--graphite-0); // selected segment
+  // Controls drawn straight on the canvas (sidebar rail). The card-tuned hover/fill steps sit
+  // only 0.027 OKLCH L from the canvas in light and vanish there; these keep ≥ 0.05.
+  --bg-canvas-hover: var(--graphite-4);
+  --bg-canvas-fill: var(--graphite-0); // badge / pill raised off the canvas
   --floating-surface: var(--graphite-0);
 
   // Text
@@ -215,9 +219,12 @@
 [data-theme='white'] {
   --bg-secondary: var(--graphite-0);
   --bg-quinary: var(--graphite-0);
+  --bg-canvas-hover: var(--graphite-3);
+  --bg-canvas-fill: var(--graphite-2);
 }
 
 [data-theme='dark'] {
+  --bg-canvas-hover: var(--graphite-3);
   --floating-shadow: 0 0 0 1px #ffffff12, 0 12px 32px #00000099;
   --shadow-m: var(--floating-shadow);
 }

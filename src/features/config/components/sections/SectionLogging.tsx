@@ -11,7 +11,6 @@ export function SectionLogging({
   values,
   validationErrors,
   disabled,
-  animateIn,
   onChange,
 }: ConfigSectionProps) {
   const { t } = useTranslation();
@@ -26,7 +25,6 @@ export function SectionLogging({
     <SectionCard
       title={t('config_management.visual.sections.logging.title')}
       description={t('config_management.visual.sections.logging.description')}
-      animateIn={animateIn}
     >
       <FieldStack>
         <FieldGrid>

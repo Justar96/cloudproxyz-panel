@@ -1,33 +1,88 @@
 @use '../../../styles/mixins' as *;
 
 /* ============================================================
- * 额度行 — Felt 语汇。
- * 桌面端：身份列 / 水位 tile 网格 / 动作列，排在提供商分组的列表卡里，
- *         行与行之间只用一条发丝分隔线（由 QuotaPage .list 提供）。
- * 移动端：每行变成独立的无边框卡片，三段纵向堆叠。
+ * 额度卡 — 每个订阅一张独立卡片，排在 QuotaPage .grid 里。
+ * 头部 → 摘要（大号剩余 %）→ body（套餐 / 水位条）→ footer（次要动作）。
+ * 无边框卡面（--bg-primary 落在画布上）；用尽 / 失败时加一圈危险色内描边，
+ * 含义同时由徽章文字承载，不只靠颜色。
  * ============================================================ */
 
 .card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   min-width: 0;
-  padding-block: 16px;
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  /* Hairline edge: on the white theme the canvas is the card colour, so fill alone vanishes. */
+  box-shadow: inset 0 0 0 1px var(--border-color);
+
+  &[data-health='low'] {
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--viz-warning) 45%, transparent);
+  }
+
+  &[data-health='exhausted'],
+  &[data-health='error'] {
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--viz-failure) 45%, transparent);
+  }
 }
 
-/* idle 行只有头部一行 */
-.cardIdle {
-  gap: 0;
-}
-
-/* ---------- 头部：身份 / 健康徽章 / 动作 ---------- */
+/* ---------- 头部：身份 / 刷新 ---------- */
 
 .head {
   display: flex;
   align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ---------- 摘要：最紧额度剩余 % + 健康徽章 ---------- */
+
+.summary {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px 12px;
   min-width: 0;
+}
+
+.headline {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.headlineValue {
+  font-size: 32px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+
+  [data-health='low'] & {
+    color: var(--status-attention-text);
+  }
+
+  [data-health='exhausted'] & {
+    color: var(--status-danger-text);
+  }
+}
+
+.headlineUnit {
+  margin-inline-start: 2px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.headlineHint {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
 }
 
 .health {
@@ -79,45 +134,15 @@
   [data-health='error'] > & {
     background: var(--viz-failure);
   }
-
-  [data-health='loading'] > & {
-    animation: quota-dot-pulse 1s ease-in-out infinite alternate;
-  }
 }
 
-@keyframes quota-dot-pulse {
-  to {
-    opacity: 0.3;
-  }
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: 0 0 auto;
-}
-
-/* 首次数据到达时的一次性级联入场；切 tab / 翻页 / 刷新不重播 */
-.cardEnter {
-  animation: quota-row-in 360ms var(--ease-large) both;
-  animation-delay: var(--card-delay, 0s);
-}
-
-@keyframes quota-row-in {
-  from {
-    opacity: 0;
-    translate: 0 8px;
-  }
-}
-
-/* ---------- 身份列：品牌图标 + 文件名 + 提供商 ---------- */
+/* ---------- 身份：品牌图标 + 文件名 + 提供商 ---------- */
 
 .identity {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: 1 1 220px;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -126,15 +151,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-tertiary);
+  width: 28px;
+  height: 28px;
 }
 
+/* 品牌标直接落在卡面上，不加底座 */
 .icon {
-  width: 18px;
-  height: 18px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   display: block;
 }
@@ -167,75 +191,46 @@
   @include text-ellipsis;
 }
 
-/* ---------- body：水位 tile 网格 ----------
- * 额度行 / Antigravity 分组各占一格（QuotaBody 里 grid-column: auto），
- * 其余块默认通栏。:where() 让默认值零特异性，不和 QuotaBody 抢。 */
+/* ---------- body：套餐 chip 行 + 纵向水位条 ----------
+ * 卡宽有限，每块各占一行。用 grid 而非 flex 列：QuotaBody 的额度行带
+ * flex: 1 1 240px（为横向 tile 设计），在 flex 列里会变成 240px 高。 */
 
-/* Flex-wrap so meter tiles (QuotaBody .quotaRow: flex 1 1 240px) share each line evenly;
- * every other block (plan, credits, messages) takes a full line. */
 .body {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
   min-width: 0;
-  padding-inline-start: 44px;
 }
 
 :where(.body) > * {
-  flex: 1 1 100%;
   min-width: 0;
 }
 
-/* ---------- idle：整块 body 即点击加载的落点 ---------- */
+.body:empty {
+  display: none;
+}
 
-.idleBody {
+/* ---------- idle：说明 + 加载按钮，填满卡片剩余高度 ---------- */
+
+.idlePanel {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 40px;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
-  transition:
-    background-color var(--dur-hover) var(--ease-out-strong),
-    color var(--dur-hover) var(--ease-out-strong),
-    translate var(--dur-press) var(--ease-out-strong);
-
-  &:disabled {
-    cursor: not-allowed;
-    color: var(--text-disabled);
-  }
-
-  &:active:not(:disabled) {
-    translate: 0 1px;
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: 2px;
-  }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .idleBody:hover:not(:disabled) {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-}
-
-.idleGlyph {
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 96px;
+  padding: 14px 16px;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-lg);
 }
 
 .idleHint {
+  margin: 0;
   font-size: 13px;
   line-height: 20px;
+  color: var(--text-secondary);
+  text-wrap: pretty;
 }
 
 /* ---------- loading：双幽灵行骨架 ---------- */
@@ -301,16 +296,36 @@
   border: 0;
 }
 
-/* ---------- error ---------- */
+/* ---------- error：说明 + 就地重试 ---------- */
 
-.errorStrip {
+.errorPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--status-danger-bg);
+}
+
+.errorText {
+  margin: 0;
   font-size: 13px;
   line-height: 20px;
   color: var(--status-danger-text);
-  background: var(--status-danger-bg);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
   overflow-wrap: anywhere;
+}
+
+/* ---------- footer：重置类次要动作，贴卡底 ---------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
 }
 
 /* ---------- 动作 ---------- */
@@ -341,33 +356,16 @@
 
 @include mobile {
   .card {
-    padding-block: 14px;
+    padding: 16px;
   }
 
-  .identity {
-    flex-basis: 100%;
-  }
-
-  .actions {
-    margin-inline-start: auto;
-  }
-
-  .body {
-    padding-inline-start: 0;
+  .headlineValue {
+    font-size: 28px;
+    line-height: 32px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .idleBody {
-    transition: none;
-  }
-
-  .idleBody:active:not(:disabled) {
-    translate: none;
-  }
-
-  .cardEnter,
-  .healthDot,
   .skeletonLabel,
   .skeletonTrack,
   .spinning {

@@ -38,18 +38,6 @@
   outline-color: var(--accent);
 }
 
-/* One-off cascade on first data; filtering, paging and polling do not replay it. */
-.cardEnter {
-  animation: card-in 200ms var(--ease-out-strong) both;
-  animation-delay: var(--card-delay, 0s);
-}
-
-@keyframes card-in {
-  from {
-    opacity: 0;
-  }
-}
-
 /* ---------- Head: selection · account · status ---------- */
 
 .head {
@@ -496,9 +484,5 @@
 @media (prefers-reduced-motion: reduce) {
   .card {
     transition: none;
-  }
-
-  .cardEnter {
-    animation: none;
   }
 }

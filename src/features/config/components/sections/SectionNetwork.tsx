@@ -20,7 +20,6 @@ export function SectionNetwork({
   values,
   validationErrors,
   disabled,
-  animateIn,
   onChange,
 }: ConfigSectionProps) {
   const { t } = useTranslation();
@@ -60,7 +59,6 @@ export function SectionNetwork({
     <SectionCard
       title={t('config_management.visual.sections.network.title')}
       description={t('config_management.visual.sections.network.description')}
-      animateIn={animateIn}
     >
       <FieldStack>
         <FieldGrid>

@@ -131,13 +131,6 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  animation: barGrow var(--dur-large) var(--ease-large) both;
-  animation-delay: var(--bar-delay, 0ms);
-  transform-origin: bottom center;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 }
 
 .segment {
@@ -180,11 +173,6 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   pointer-events: none;
-  animation: peakFade 200ms var(--ease-out-strong) 400ms backwards;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 }
 
 /* ---------- Tooltip (floating layer) ---------- */
@@ -332,24 +320,4 @@
   line-height: 20px;
   color: var(--text-secondary);
   text-wrap: pretty;
-}
-
-@keyframes barGrow {
-  from {
-    transform: scaleY(0.02);
-    opacity: 0;
-  }
-  to {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-}
-
-@keyframes peakFade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }

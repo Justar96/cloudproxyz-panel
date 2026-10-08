@@ -1611,7 +1611,10 @@
     "filter_empty_title": "Không có mục nào ở trạng thái {{label}}",
     "filter_empty_desc": "Tải hạn mức cho thêm thông tin xác thực, hoặc hiện tất cả.",
     "load_quota": "Tải hạn mức",
-    "percent_left": "Còn {{percent}}%"
+    "percent_left": "Còn {{percent}}%",
+    "retry": "Thử lại",
+    "headline_hint": "còn lại ở giới hạn chặt nhất",
+    "not_loaded_desc": "Hạn mức không tự động tải. Hãy tải để xem phần còn lại."
   },
   "plugin_management": {
     "title": "Quản lý Plugin",

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useInterval } from '@/hooks/useInterval';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
-import { useRevealOnScroll } from '@/hooks/motion';
 import { usePageTransitionLayer } from '@/components/common/PageTransitionLayer';
 import { Button } from '@/components/ui/Button';
 import { IconInbox, IconSearch } from '@/components/ui/icons';
@@ -59,8 +58,6 @@ import styles from './AuthFilesPage.module.scss';
 const DEFAULT_REGULAR_PAGE_SIZE = 9;
 const DEFAULT_COMPACT_PAGE_SIZE = 12;
 const SKELETON_CARD_COUNT = 6;
-/** 首屏卡片级联入场总预算，与 useRevealGroup 同一 360ms 语汇。 */
-const CARD_ENTRANCE_BUDGET_MS = 360;
 
 const resolveStatusFilterMode = (
   problemOnly: boolean,
@@ -483,24 +480,6 @@ export function AuthFilesPage() {
   const activeCount = useMemo(() => files.filter((file) => file.disabled !== true).length, [files]);
   const problemCount = useMemo(() => files.filter(isProblemAuthFile).length, [files]);
 
-  /* ---------- 首屏卡片一次性级联入场 ----------
-   * 首批数据渲染后立即翻转 cardsAnimated；已挂载的卡片在挂载时捕获过
-   * 自己的延迟（AuthFileCard 内 useState 初始化），不受后续 null 影响，
-   * 而过滤/翻页/轮询新挂载的卡片拿到 null——不重播。 */
-
-  const [cardsAnimated, setCardsAnimated] = useState(false);
-  const enableCardEntrance = !cardsAnimated && isCurrentLayer && !loading && pageItems.length > 0;
-  useEffect(() => {
-    if (enableCardEntrance) {
-      setCardsAnimated(true);
-    }
-  }, [enableCardEntrance]);
-  const cardEntranceDelay = (index: number): number | null => {
-    if (!enableCardEntrance) return null;
-    if (pageItems.length <= 1) return 0;
-    return Math.round((index / (pageItems.length - 1)) * CARD_ENTRANCE_BUDGET_MS);
-  };
-
   /* ---------- 杂项 ---------- */
 
   const copyTextWithNotification = useCallback(
@@ -568,8 +547,6 @@ export function AuthFilesPage() {
       ? t('auth_files.delete_all_button')
       : `${t('common.delete')} ${getTypeLabel(t, normalizedFilter)}`;
   })();
-
-  const oauthSectionRef = useRevealOnScroll<HTMLDivElement>();
 
   const isFirstRunEmpty = !loading && files.length === 0 && !error;
   const isNoResults = !loading && files.length > 0 && pageItems.length === 0;
@@ -702,7 +679,7 @@ export function AuthFilesPage() {
           </div>
         ) : (
           <div className={gridClasses}>
-            {pageItems.map((file, index) => (
+            {pageItems.map((file) => (
               <AuthFileCard
                 key={getQuotaCacheKey(file)}
                 file={file}
@@ -716,7 +693,6 @@ export function AuthFilesPage() {
                 cooldownResetting={cooldownResetting}
                 quotaFilterType={activeQuotaFilter}
                 statusBarCache={statusBarCache}
-                entranceDelayMs={cardEntranceDelay(index)}
                 onShowModels={showModels}
                 onDownload={handleDownload}
                 onManualRefresh={handleManualRefresh}
@@ -759,7 +735,7 @@ export function AuthFilesPage() {
         )}
       </section>
 
-      <div className={styles.configGrid} ref={oauthSectionRef}>
+      <div className={styles.configGrid}>
         <OAuthExcludedCard
           disableControls={disableControls}
           excludedError={excludedError}
