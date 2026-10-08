@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } f
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import {
+  IconAlertTriangle,
   IconGithub,
   IconPlug,
   IconRefreshCw,
@@ -38,21 +38,17 @@ import {
   resolvePluginAssetURL,
 } from './pluginResources';
 import { waitForPluginState } from './pluginPolling';
-import { getPluginLogo } from './pluginLogo';
+import { findPluginStoreEntry, getPluginLogo } from './pluginLogo';
+import {
+  PluginCallout,
+  PluginLogo,
+  PluginRuntimeSummary,
+  StatusDot,
+  type PluginTone,
+} from './components/PluginPageParts';
 import styles from './PluginsPage.module.scss';
 
 type PluginRuntimeWaitStatus = 'ready' | 'globalDisabled' | 'timeout';
-
-function PluginCardLogo({ src }: { src: string }) {
-  const [failed, setFailed] = useState(false);
-  const showImage = Boolean(src) && !failed;
-
-  return showImage ? (
-    <img src={src} alt="" onError={() => setFailed(true)} />
-  ) : (
-    <IconPlug size={18} />
-  );
-}
 
 const hasStatus = (error: unknown, status: number) => isRecord(error) && error.status === status;
 
@@ -483,243 +479,281 @@ export function PluginsPage() {
   };
 
   const savingConfig = Boolean(editingPlugin && mutatingID === editingPlugin.id);
+  const hasPlugins = (data?.plugins.length ?? 0) > 0;
+
+  const getPluginState = (plugin: PluginListEntry): { tone: PluginTone; label: string } => {
+    if (plugin.effectiveEnabled) {
+      return { tone: 'success', label: t('plugin_management.status_effective') };
+    }
+    if (!plugin.enabled) {
+      return {
+        tone: 'neutral',
+        label: t('plugin_management.status_disabled', { defaultValue: 'Disabled' }),
+      };
+    }
+    if (data && !data.pluginsEnabled) {
+      return {
+        tone: 'attention',
+        label: t('plugin_management.status_global_off', {
+          defaultValue: 'Waiting for global switch',
+        }),
+      };
+    }
+    if (!plugin.registered) {
+      return { tone: 'danger', label: t('plugin_management.not_registered') };
+    }
+    return { tone: 'attention', label: t('plugin_management.status_inactive') };
+  };
 
   return (
-    <div className={styles.page}>
-      {/* ── Page Header ── */}
-      <div className={styles.pageHeader}>
-        <h1 className={styles.title}>{t('plugin_management.title')}</h1>
-        <p className={styles.description}>{t('plugin_management.description')}</p>
-      </div>
-
-      {/* ── Alerts ── */}
-      {error ? <div className={styles.errorBox}>{error}</div> : null}
-
-      {data && !data.pluginsEnabled ? (
-        <div className={styles.warningBox}>{t('plugin_management.global_disabled_hint')}</div>
-      ) : null}
-
-      {/* ── Status Bar ── */}
-      {data ? (
-        <div className={styles.statusBar}>
-          <div className={styles.statusPill}>
-            <span
-              className={`${styles.statusDot} ${
-                data.pluginsEnabled ? styles.statusDotOn : styles.statusDotOff
-              }`}
-            />
-            <span className={styles.statusLabel}>{t('plugin_management.global_status')}</span>
-            <span className={styles.statusValue}>
-              {data.pluginsEnabled
-                ? t('plugin_management.global_enabled')
-                : t('plugin_management.global_disabled')}
-            </span>
-          </div>
-
-          <span className={styles.statusDivider} />
-
-          <div className={styles.statusPill}>
-            <span className={styles.statusLabel}>{t('plugin_management.plugins_dir')}</span>
-            <span
-              className={`${styles.statusValue} ${styles.statusPathValue}`}
-              title={data.pluginsDir || 'plugins'}
-            >
-              {data.pluginsDir || 'plugins'}
-            </span>
-          </div>
-
-          <span className={styles.statusDivider} />
-
-          <div className={styles.statusPill}>
-            <span className={styles.statusLabel}>{t('plugin_management.discovered')}</span>
-            <span className={styles.statusValue}>{pluginStats.discovered}</span>
-          </div>
-
-          <span className={styles.statusDivider} />
-
-          <div className={styles.statusPill}>
-            <span className={styles.statusLabel}>{t('plugin_management.effective')}</span>
-            <span className={styles.statusValue}>
-              {pluginStats.effective}/{pluginStats.registered}
-            </span>
-          </div>
+    <div className={`page ${styles.page}`}>
+      <header className="page-header">
+        <div className="page-heading">
+          <h1 className="page-title">{t('plugin_management.title')}</h1>
+          <p className="page-subtitle">{t('plugin_management.description')}</p>
         </div>
-      ) : null}
-
-      {/* ── Toolbar ── */}
-      <div className={styles.toolbar}>
-        <Input
-          type="search"
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
-          placeholder={t('plugin_management.search_placeholder')}
-          aria-label={t('plugin_management.search_label')}
-          rightElement={<IconSearch size={16} />}
-        />
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={loadPlugins}
-          disabled={!connected || loading || Boolean(mutatingID || deletingID)}
-          loading={loading}
-        >
-          <IconRefreshCw size={16} />
-          {t('plugin_management.refresh')}
-        </Button>
-        <Button variant="secondary" size="sm" onClick={() => navigate('/plugin-store')}>
-          <IconSidebarStore size={16} />
-          {t('plugin_store.title')}
-        </Button>
-      </div>
-
-      {/* ── Plugin List ── */}
-      {loading ? (
-        <div className={styles.pluginList}>
-          {Array.from({ length: 4 }, (_, index) => (
-            <div key={index} className={styles.skeletonRow}>
-              <div className={styles.skeletonAvatar} />
-              <div className={styles.skeletonText}>
-                <div className={styles.skeletonLine} />
-                <div className={styles.skeletonLine} />
-              </div>
-            </div>
-          ))}
+        <div className="page-actions">
+          <Button onClick={() => navigate('/plugin-store')}>
+            <IconSidebarStore size={16} />
+            {t('plugin_management.browse_store', { defaultValue: 'Browse store' })}
+          </Button>
         </div>
-      ) : visiblePlugins.length === 0 ? (
-        <EmptyState
-          title={t('plugin_management.no_plugins')}
-          description={t('plugin_management.no_plugins_desc')}
+      </header>
+
+      {error ? (
+        <PluginCallout
+          tone="danger"
+          role="alert"
+          icon={<IconAlertTriangle size={16} />}
           action={
-            <Button variant="secondary" size="sm" onClick={loadPlugins} disabled={!connected}>
-              <IconRefreshCw size={16} />
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={loadPlugins}
+              disabled={!connected || loading || Boolean(mutatingID || deletingID)}
+              loading={loading}
+            >
+              <IconRefreshCw size={14} />
               {t('plugin_management.refresh')}
             </Button>
           }
+        >
+          {error}
+        </PluginCallout>
+      ) : null}
+
+      {data && !data.pluginsEnabled ? (
+        <PluginCallout tone="attention" icon={<IconAlertTriangle size={16} />}>
+          {t('plugin_management.global_disabled_hint')}
+        </PluginCallout>
+      ) : null}
+
+      {data ? (
+        <PluginRuntimeSummary
+          statusLabel={t('plugin_management.global_status')}
+          enabled={data.pluginsEnabled}
+          enabledLabel={t('plugin_management.global_enabled')}
+          disabledLabel={t('plugin_management.global_disabled')}
+          items={[
+            {
+              label: t('plugin_management.plugins_dir'),
+              value: data.pluginsDir || 'plugins',
+              title: data.pluginsDir || 'plugins',
+              mono: true,
+            },
+            { label: t('plugin_management.discovered'), value: pluginStats.discovered },
+            {
+              label: t('plugin_management.effective'),
+              value: `${pluginStats.effective}/${pluginStats.registered}`,
+            },
+          ]}
         />
-      ) : (
-        <div className={styles.pluginList}>
-          {visiblePlugins.map((plugin) => {
-            const logo = resolvePluginAsset(getPluginLogo(plugin, logoEntries));
-            const github = plugin.metadata?.githubRepository.trim();
-            const openingConfig = openingConfigID === plugin.id;
-            const deletingPlugin = deletingID === plugin.id;
-            const actionBusy = Boolean(mutatingID || openingConfigID || deletingID);
-            const version = plugin.metadata?.version;
-            const author = plugin.metadata?.author;
+      ) : null}
 
-            return (
-              <article key={plugin.id} className={styles.pluginRow}>
-                {/* Logo */}
-                <div className={styles.logoBox} aria-hidden="true">
-                  <PluginCardLogo key={logo} src={logo} />
+      <section className={styles.listSection} aria-busy={loading}>
+        {hasPlugins ? (
+          <div className={`on-canvas ${styles.toolbar}`}>
+            <Input
+              type="search"
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+              placeholder={t('plugin_management.search_placeholder')}
+              aria-label={t('plugin_management.search_label')}
+              rightElement={<IconSearch size={16} />}
+            />
+          </div>
+        ) : null}
+
+        {loading && !data ? (
+          <div className={styles.listCard}>
+            {Array.from({ length: 3 }, (_, index) => (
+              <div key={index} className={styles.skeletonRow} aria-hidden="true">
+                <div className={styles.skeletonAvatar} />
+                <div className={styles.skeletonText}>
+                  <div className={styles.skeletonLine} />
+                  <div className={styles.skeletonLine} />
                 </div>
+              </div>
+            ))}
+          </div>
+        ) : visiblePlugins.length === 0 ? (
+          error && !data ? null : (
+            <div className={styles.emptyCard}>
+              <span className={styles.emptyIcon} aria-hidden="true">
+                <IconPlug size={20} />
+              </span>
+              <div className={styles.emptyText}>
+                <h2>
+                  {hasPlugins
+                    ? t('plugin_management.no_matches', { defaultValue: 'No matching plugins' })
+                    : t('plugin_management.no_plugins')}
+                </h2>
+                <p>
+                  {hasPlugins
+                    ? t('plugin_management.no_matches_desc', {
+                        defaultValue: 'No installed plugin matches this search.',
+                      })
+                    : t('plugin_management.no_plugins_desc')}
+                </p>
+              </div>
+              <div className={styles.emptyActions}>
+                {hasPlugins ? (
+                  <Button variant="secondary" size="sm" onClick={() => setFilter('')}>
+                    {t('plugin_management.clear_search', { defaultValue: 'Clear search' })}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={loadPlugins}
+                    disabled={!connected || loading}
+                    loading={loading}
+                  >
+                    <IconRefreshCw size={14} />
+                    {t('plugin_management.refresh')}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )
+        ) : (
+          <ul className={styles.listCard}>
+            {visiblePlugins.map((plugin) => {
+              const logo = resolvePluginAsset(getPluginLogo(plugin, logoEntries));
+              const storeEntry = findPluginStoreEntry(plugin, logoEntries);
+              const github = plugin.metadata?.githubRepository.trim();
+              const openingConfig = openingConfigID === plugin.id;
+              const deletingPlugin = deletingID === plugin.id;
+              const actionBusy = Boolean(mutatingID || openingConfigID || deletingID);
+              const version = plugin.metadata?.version?.trim();
+              const author = plugin.metadata?.author;
+              const description = storeEntry?.description.trim();
+              const updateAvailable = Boolean(storeEntry?.installed && storeEntry.updateAvailable);
+              const state = getPluginState(plugin);
+              const facts = [
+                state.tone === 'danger'
+                  ? ''
+                  : plugin.registered
+                    ? t('plugin_management.registered')
+                    : t('plugin_management.not_registered'),
+                plugin.configured
+                  ? t('plugin_management.configured')
+                  : t('plugin_management.not_configured'),
+                plugin.supportsOAuth ? t('plugin_management.oauth') : '',
+              ].filter(Boolean);
 
-                {/* Info */}
-                <div className={styles.pluginInfo}>
-                  <div className={styles.pluginName}>
-                    <h2>{getPluginTitle(plugin)}</h2>
-                    <div className={styles.badgeRow}>
-                      <span
-                        className={
-                          plugin.effectiveEnabled ? styles.badgeSuccess : styles.badgeMuted
-                        }
-                      >
-                        {plugin.effectiveEnabled
-                          ? t('plugin_management.status_effective')
-                          : t('plugin_management.status_inactive')}
-                      </span>
-                      <span className={plugin.registered ? styles.badge : styles.badgeWarning}>
-                        {plugin.registered
-                          ? t('plugin_management.registered')
-                          : t('plugin_management.not_registered')}
-                      </span>
-                      <span className={plugin.configured ? styles.badge : styles.badgeMuted}>
-                        {plugin.configured
-                          ? t('plugin_management.configured')
-                          : t('plugin_management.not_configured')}
-                      </span>
-                      {plugin.supportsOAuth ? (
-                        <span className={styles.badge}>{t('plugin_management.oauth')}</span>
-                      ) : null}
-                    </div>
-                  </div>
+              return (
+                <li key={plugin.id} className={styles.pluginRow}>
+                  <PluginLogo key={logo} src={logo} />
 
-                  <span className={styles.pluginId}>{plugin.id}</span>
-
-                  {version || author || plugin.path ? (
-                    <div className={styles.pluginMeta}>
+                  <div className={styles.pluginInfo}>
+                    <div className={styles.pluginTitleLine}>
+                      <h2 className={styles.pluginName}>{getPluginTitle(plugin)}</h2>
                       {version ? (
-                        <span className={styles.metaItem}>
-                          <strong>{version}</strong>
+                        <span className={styles.pluginVersion}>
+                          {/^v/i.test(version) ? version : `v${version}`}
                         </span>
                       ) : null}
-                      {version && author ? (
-                        <span className={styles.metaDot} aria-hidden="true" />
+                      {updateAvailable ? (
+                        <span className="badge badge-warning">
+                          {t('plugin_store.badge_update')}
+                        </span>
                       ) : null}
-                      {author ? <span className={styles.metaItem}>{author}</span> : null}
-                      {(version || author) && plugin.path ? (
-                        <span className={styles.metaDot} aria-hidden="true" />
-                      ) : null}
+                    </div>
+
+                    {description ? <p className={styles.pluginDescription}>{description}</p> : null}
+
+                    <div className={styles.pluginMeta}>
+                      <span className={styles.pluginId}>{plugin.id}</span>
+                      {author ? <span>{author}</span> : null}
                       {plugin.path ? (
-                        <span
-                          className={`${styles.metaItem} ${styles.metaPath}`}
-                          title={plugin.path}
-                        >
+                        <span className={styles.pluginPath} title={plugin.path}>
                           {plugin.path}
                         </span>
                       ) : null}
                     </div>
-                  ) : null}
-                </div>
 
-                {/* Actions */}
-                <div className={styles.rowActions}>
-                  <ToggleSwitch
-                    checked={plugin.enabled}
-                    onChange={(enabled) => handleTogglePlugin(plugin, enabled)}
-                    disabled={!connected || actionBusy}
-                    ariaLabel={t('plugin_management.enabled')}
-                  />
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => openConfigSheet(plugin)}
-                    disabled={!connected || actionBusy}
-                    loading={openingConfig}
-                  >
-                    <IconSettings size={14} />
-                    {t('plugin_management.edit_config')}
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDeletePlugin(plugin)}
-                    disabled={!connected || actionBusy}
-                    loading={deletingPlugin}
-                    title={t('plugin_management.delete_plugin')}
-                    aria-label={t('plugin_management.delete_plugin')}
-                  >
-                    <IconTrash2 size={14} />
-                    {t('plugin_management.delete_plugin')}
-                  </Button>
-                  {github ? (
-                    <a
-                      className={styles.iconLink}
-                      href={github}
-                      target="_blank"
-                      rel="noreferrer"
-                      title={t('plugin_management.open_repository')}
-                      aria-label={t('plugin_management.open_repository')}
+                    <div className={styles.statusLine}>
+                      <span className={styles.statusPrimary}>
+                        <StatusDot tone={state.tone} />
+                        {state.label}
+                      </span>
+                      {facts.map((fact) => (
+                        <span key={fact} className={styles.statusFact}>
+                          {fact}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className={styles.rowActions}>
+                    <ToggleSwitch
+                      checked={plugin.enabled}
+                      onChange={(enabled) => handleTogglePlugin(plugin, enabled)}
+                      disabled={!connected || actionBusy}
+                      ariaLabel={`${t('plugin_management.enabled')}: ${getPluginTitle(plugin)}`}
+                    />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => openConfigSheet(plugin)}
+                      disabled={!connected || actionBusy}
+                      loading={openingConfig}
                     >
-                      <IconGithub size={14} />
-                    </a>
-                  ) : null}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
+                      <IconSettings size={14} />
+                      {t('plugin_management.edit_config')}
+                    </Button>
+                    {github ? (
+                      <a
+                        className={styles.iconButton}
+                        href={github}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={t('plugin_management.open_repository')}
+                        aria-label={t('plugin_management.open_repository')}
+                      >
+                        <IconGithub size={16} />
+                      </a>
+                    ) : null}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={styles.deleteButton}
+                      onClick={() => handleDeletePlugin(plugin)}
+                      disabled={!connected || actionBusy}
+                      loading={deletingPlugin}
+                      title={t('plugin_management.delete_plugin')}
+                      aria-label={t('plugin_management.delete_plugin')}
+                    >
+                      <IconTrash2 size={16} />
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
 
       {/* ── Config Sheet ── */}
       <Sheet

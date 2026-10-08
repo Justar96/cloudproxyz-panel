@@ -9,26 +9,36 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  line-height: 20px;
+
+  & + & {
+    border-top: 1px solid var(--border-color);
+  }
 }
 
 .identity {
   flex: 1;
   min-width: 0;
+  font-family: $font-mono;
+  font-size: 13px;
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 
 .success {
-  color: var(--success-color);
+  color: var(--status-success-text);
 }
 
 .failure {
-  color: var(--error-color);
+  color: var(--status-danger-text);
 }
 
 .error {
   width: 100%;
   margin: 0;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--text-secondary);
   white-space: pre-wrap;
   overflow-wrap: anywhere;

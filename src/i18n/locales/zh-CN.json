@@ -95,7 +95,12 @@
     "spec_title": "连接",
     "spec_backend": "后端",
     "spec_backend_value": "CLIProxyAPI v8 或更高版本",
-    "spec_panel": "面板版本"
+    "spec_panel": "面板版本",
+    "key_label": "管理密钥",
+    "custom_connection_toggle": "使用自定义服务器地址",
+    "custom_connection_field": "服务器地址",
+    "submit_sign_in": "登录",
+    "submitting_sign_in": "正在登录…"
   },
   "header": {
     "refresh_all": "刷新全部",
@@ -209,7 +214,22 @@
     "cta_system_desc": "版本详情与管理中心信息。",
     "window_m": "{{minutes}} 分钟",
     "window_h": "{{hours}} 小时",
-    "window_hm": "{{hours}} 小时 {{minutes}} 分"
+    "window_hm": "{{hours}} 小时 {{minutes}} 分",
+    "status_healthy": "最近 {{window}} 内请求运行正常。",
+    "status_degraded": "部分请求失败，请检查供应商和日志。",
+    "status_failing": "大量请求失败，请检查供应商和日志。",
+    "status_idle": "当前窗口内没有请求。",
+    "status_offline": "未连接到服务器。",
+    "status_connecting": "正在连接服务器…",
+    "kpi_requests": "请求数",
+    "kpi_window": "最近 {{window}}",
+    "kpi_no_window": "暂无流量",
+    "rate_degraded": "性能下降",
+    "rate_failing": "大量失败",
+    "traffic_heading": "请求趋势",
+    "traffic_caption": "最近 {{window}} 内每 10 分钟的成功与失败请求数。",
+    "fleet_heading": "各供应商流量",
+    "shortcuts_title": "快捷入口"
   },
   "basic_settings": {
     "debug_enable": "启用调试模式",
@@ -439,7 +459,9 @@
     "quota_refresh_single": "刷新额度",
     "quota_refresh_hint": "仅刷新该认证文件的额度",
     "quota_refresh_success": "已刷新 \"{{name}}\" 的额度",
-    "quota_refresh_failed": "刷新 \"{{name}}\" 的额度失败：{{message}}"
+    "quota_refresh_failed": "刷新 \"{{name}}\" 的额度失败：{{message}}",
+    "search_placeholder_short": "搜索凭证",
+    "health_status_unavailable": "不可用"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -544,7 +566,6 @@
     "reset_confirm_button": "确认重置",
     "reset_not_confirmed": "未确认额度重置成功，请刷新额度后再决定是否重试。",
     "reset_cooldown_failed": "额度已重置，但代理冷却清除失败。请在原连接的认证文件页面使用“清除冷却”，不要再次消耗重置卡。",
-
     "reset_success": "已重置 \"{{name}}\" 的 Codex 额度",
     "reset_failed": "重置 \"{{name}}\" 的 Codex 额度失败：{{message}}",
     "plan_plus": "Plus",
@@ -787,7 +808,8 @@
     "provider_required": "请先填写提供商名称",
     "upgrade_required": "当前 CPA 版本不支持模型别名功能，请升级 CPA 版本",
     "upgrade_required_title": "需要升级 CPA 版本",
-    "upgrade_required_desc": "当前服务器版本不支持 OAuth 模型别名功能，请升级到最新版本的 CPA（CLI Proxy API）后重试。"
+    "upgrade_required_desc": "当前服务器版本不支持 OAuth 模型别名功能，请升级到最新版本的 CPA（CLI Proxy API）后重试。",
+    "view_mode_label": "视图"
   },
   "auth_login": {
     "devin_oauth_cancel": "取消 Devin 登录",
@@ -931,7 +953,9 @@
     "iflow_oauth_status_error": "认证失败:",
     "iflow_oauth_start_error": "启动 iFlow OAuth 失败:",
     "iflow_oauth_polling_error": "检查认证状态失败:",
-    "remote_access_disabled": "远程访问不支持此登录方式，请从本地 (localhost) 访问"
+    "remote_access_disabled": "远程访问不支持此登录方式，请从本地 (localhost) 访问",
+    "card_status_idle": "可以登录",
+    "page_subtitle": "登录提供商，将其凭证保存为认证文件。"
   },
   "stats": {
     "success": "成功",
@@ -1027,7 +1051,16 @@
     "search_empty_desc": "尝试更换关键字或清空筛选条件。",
     "double_click_copy_hint": "双击复制日志原文",
     "copy_success": "已复制日志原文",
-    "copy_failed": "复制失败"
+    "copy_failed": "复制失败",
+    "pause_live": "暂停实时",
+    "resume_live": "恢复实时",
+    "level_all": "全部",
+    "level_trace": "跟踪",
+    "level_debug": "调试",
+    "level_info": "信息",
+    "level_warn": "警告",
+    "level_error": "错误",
+    "level_fatal": "致命"
   },
   "config_management": {
     "title": "配置面板",
@@ -1548,7 +1581,10 @@
         "update": "更新",
         "add": "添加"
       }
-    }
+    },
+    "field_modified": "已修改",
+    "unsaved_changes_count_other": "{{count}} 处未保存的更改",
+    "unsaved_changes_count_one": "{{count}} 处未保存的更改"
   },
   "quota_management": {
     "search_label": "搜索账号",
@@ -1595,7 +1631,8 @@
     "weekday_wed": "三",
     "weekday_thu": "四",
     "weekday_fri": "五",
-    "weekday_sat": "六"
+    "weekday_sat": "六",
+    "provider_label": "提供商"
   },
   "plugin_management": {
     "title": "插件管理",
@@ -1654,7 +1691,13 @@
     "invalid_json": "请输入有效 JSON",
     "expected_array": "请输入 JSON 数组",
     "expected_object": "请输入 JSON 对象",
-    "invalid_enum": "请选择声明的枚举值"
+    "invalid_enum": "请选择声明的枚举值",
+    "browse_store": "浏览插件商店",
+    "status_disabled": "已停用",
+    "status_global_off": "等待全局开关启用",
+    "no_matches": "没有匹配的插件",
+    "no_matches_desc": "没有已安装的插件符合当前搜索。",
+    "clear_search": "清除搜索"
   },
   "plugin_store": {
     "title": "插件商店",
@@ -1751,7 +1794,9 @@
     "gate_step2_action": "我已阅读并理解上述风险",
     "gate_step3_prompt": "如需确认，请在下方输入框中键入 “{{token}}”",
     "gate_step3_action": "安装此插件",
-    "gate_step3_hint": "请输入上方显示的完整标识以启用安装。"
+    "gate_step3_hint": "请输入上方显示的完整标识以启用安装。",
+    "view_installed": "已安装插件",
+    "tags_label": "标签"
   },
   "plugin_resource": {
     "page_count": "{{count}} 个页面",
@@ -1788,7 +1833,12 @@
     "clear_login_title": "本地登录信息",
     "clear_login_desc": "清理本地保存的登录信息并退出登录。",
     "clear_login_button": "清理登录信息",
-    "clear_login_confirm": "确认清理本地登录信息并退出登录？"
+    "clear_login_confirm": "确认清理本地登录信息并退出登录？",
+    "subtitle": "版本、连接信息以及当前代理提供的模型。",
+    "about_tagline": "CLI Proxy API 管理面板",
+    "connection_title": "连接",
+    "connection_status": "状态",
+    "server_address": "服务器地址"
   },
   "notification": {
     "trusted_proxies_restart_required": "可信代理配置已保存，重启后端后生效。",
@@ -1834,7 +1884,9 @@
     "collapse": "收起",
     "subtitle": "管理控制台",
     "auth_files_count": "认证文件：{{count}} 个",
-    "nav_label": "主导航"
+    "nav_label": "主导航",
+    "workspace_menu": "工作区设置",
+    "breadcrumb": "面包屑导航"
   },
   "footer": {
     "api_version": "CLI Proxy API 版本",
@@ -1930,7 +1982,9 @@
       "title": "AI 提供商",
       "activeResources": "{{active}}/{{total}} 个活跃资源",
       "providerFamilies": "{{count}} 个提供商家族",
-      "updatedAt": "更新于 {{time}}"
+      "updatedAt": "更新于 {{time}}",
+      "subtitle": "按提供商分组管理上游 API 密钥与端点。",
+      "quickStartSubtitle": "一个 APIKEY.FUN 密钥即可为你配置所有支持的协议。"
     },
     "actions": {
       "refresh": "刷新",
@@ -1981,7 +2035,8 @@
       "cliProfileTag": "CLI 指纹",
       "empty": "尚未添加配置,点击右上角新建。",
       "filterPlaceholder": "搜索密钥、地址、前缀…",
-      "description": "在 {{route}} 下管理资源"
+      "description": "在 {{route}} 下管理资源",
+      "searchLabel": "搜索资源"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -2053,7 +2108,8 @@
         "openai": "OpenAI 兼容",
         "gemini": "Gemini",
         "codexResponses": "Codex API (Responses)"
-      }
+      },
+      "emptyDescription": "在此添加你的 APIKEY.FUN 密钥，或先注册账号。"
     },
     "status": {
       "active": "活跃",
@@ -2212,6 +2268,13 @@
     },
     "modelCatalog": {
       "notLoaded": "未加载"
+    },
+    "empty": {
+      "title": "还没有 {{provider}} 密钥",
+      "description": "添加 API 密钥后，请求即可通过此提供商路由。",
+      "noMatchTitle": "没有匹配的资源",
+      "noMatchDescription": "换个关键词搜索，或清除模型筛选。",
+      "clearFilters": "清除筛选"
     }
   },
   "claude_reset": {

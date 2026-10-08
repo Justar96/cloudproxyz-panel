@@ -1,30 +1,28 @@
 @use '../../../styles/mixins' as *;
 
 /* ============================================================
- * 凭证卡片 — statTile 配方（14px 圆角 / 1px 边框 / 82% 透感纸面）
- * 身份优先；停用时弱化内容，操作区保持清晰以便重新启用。
+ * Credential card: raised fill on the canvas, no borders.
+ * Identity first; a status dot + label carries health. Disabled cards dim their content
+ * but keep the footer clear so the credential can be re-enabled.
  * ============================================================ */
 
 .card {
+  container-type: inline-size;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
-  transition: border-color 160ms var(--ease-out-strong, ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .card:hover {
-    border-color: var(--border-hover);
-  }
+  min-width: 0;
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color var(--dur-hover) var(--ease-out-strong);
 }
 
 .cardDisabled {
-  background: color-mix(in srgb, var(--bg-primary) 55%, var(--bg-tertiary));
+  background: color-mix(in oklab, var(--bg-primary) 60%, var(--bg-tertiary));
 }
 
 .cardDisabled > :not(.actions) {
@@ -32,18 +30,17 @@
 }
 
 .cardCompact {
-  gap: 10px;
-  padding: 13px 14px;
+  gap: 8px;
+  padding: 16px;
 }
 
 .cardSelected {
-  border-color: color-mix(in srgb, var(--primary-color) 55%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 40%, transparent);
+  outline-color: var(--accent);
 }
 
-/* 首次数据到达时的一次性级联入场；过滤/翻页/轮询不重播 */
+/* One-off cascade on first data; filtering, paging and polling do not replay it. */
 .cardEnter {
-  animation: card-in 180ms var(--ease-out-strong, ease-out) both;
+  animation: card-in 200ms var(--ease-out-strong) both;
   animation-delay: var(--card-delay, 0s);
 }
 
@@ -53,99 +50,150 @@
   }
 }
 
-/* ---------- 头部：选择 + 供应商药丸 / 账号 ---------- */
+/* ---------- Head: selection · account · status ---------- */
 
 .head {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  min-height: 24px;
 }
 
 .selection {
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .identity {
+  flex: 1 1 16ch;
+  min-width: 0;
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+/* Emails and project IDs wrap rather than truncate. */
+.account {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+/* Fallback when there is no account: the file name is an identifier, so mono.
+   Declared after .account so letter-spacing wins by source order. */
+.accountMono {
+  font-family: $font-mono;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+.statusLine {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--text-disabled);
+}
+
+.toneSuccess .statusDot {
+  background: var(--status-success-solid);
+}
+
+.toneNeutral .statusDot {
+  background: var(--text-disabled);
+}
+
+.toneAttention {
+  color: var(--status-attention-text);
+
+  .statusDot {
+    background: var(--status-attention-solid);
+  }
+}
+
+.toneDanger {
+  color: var(--status-danger-text);
+
+  .statusDot {
+    background: var(--status-danger-solid);
+  }
+}
+
+/* ---------- Sub line: provider chip · file name ---------- */
+
+.subline {
   display: flex;
-  flex: 1;
   align-items: center;
   flex-wrap: wrap;
   gap: 4px 8px;
   min-width: 0;
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.6;
+  margin: -4px 0 0;
 }
 
-/* 品牌药丸与账号按盒子中心对齐，避免不同字号的基线造成视觉偏移。 */
-.providerBadge {
+.providerChip {
   flex-shrink: 0;
-  max-width: 100%;
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 600;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
+  line-height: 16px;
+  font-weight: 500;
 }
 
 .runtimeLabel {
-  margin-left: auto;
-  font-size: 11px;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-quaternary);
 }
 
-/* 窄卡片保留基本阅读宽度；空间不足时换行，不截断邮箱或项目 ID。 */
-.account {
+/* The full file name; codex names embed the email mid-string, so it must wrap. */
+.fileName {
   flex: 1 1 12ch;
   min-width: 0;
-  letter-spacing: -0.005em;
-  color: var(--text-primary);
-  overflow-wrap: anywhere;
-}
-
-/* 无账号线索时主行回落到文件名，沿用 mono 语汇。
-   必须声明在 .account 之后——两者同为单类选择器，letter-spacing 靠源序决胜。 */
-.accountMono {
   font-family: $font-mono;
-  letter-spacing: -0.01em;
-}
-
-/* 副行：满卡宽的文件名。email 在 codex 名字的中段，必须能换行才不丢信息，
-   overflow-wrap + -webkit-box 的组合与本文件 .warning span 同配方。 */
-.fileName {
-  margin: -4px 0 0;
-  font-family: $font-mono;
-  font-size: 11px;
-  line-height: 1.45;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-quaternary);
   overflow-wrap: anywhere;
   @include text-ellipsis-multiline(2);
 }
 
 .note {
   margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--text-secondary);
   @include text-ellipsis;
 }
 
-/* ---------- 告警行 ---------- */
+/* ---------- Warning (attention) ---------- */
 
 .warning {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--status-attention-bg);
+  color: var(--status-attention-text);
   font-size: 12px;
-  line-height: 1.45;
-  color: var(--warning-text);
-  background: var(--warning-bg);
-  border: 1px solid var(--warning-border);
-  border-radius: 8px;
-  padding: 7px 9px;
+  line-height: 16px;
 
   span {
     min-width: 0;
@@ -156,15 +204,15 @@
 
 .warningIcon {
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
-/* ---------- 健康区：eyebrow + 计数 + 状态条 ---------- */
+/* ---------- Request health: label · counts · status bar ---------- */
 
 .health {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
 
 .healthHead {
@@ -175,42 +223,36 @@
 }
 
 .healthLabel {
-  font-family: $font-mono;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .healthCounts {
   display: inline-flex;
   align-items: baseline;
-  gap: 8px;
-  font-family: $font-mono;
-  font-size: 11.5px;
-  font-weight: 600;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-variant-numeric: tabular-nums;
 }
 
-.countOk {
-  color: var(--text-quaternary);
-}
-
+.countOk,
 .countFail {
   color: var(--text-quaternary);
 }
 
-/* 绿色只给活的流量：有计数才点亮 */
+/* Colour only for live traffic: a count must exist before it lights up. */
 .countLive.countOk {
-  color: var(--viz-success);
+  color: var(--status-success-text);
 }
 
 .countLive.countFail {
-  color: var(--viz-failure);
+  color: var(--status-danger-text);
 }
 
-/* ---------- ProviderStatusBar 注入样式（18 个契约类名） ---------- */
+/* ---------- ProviderStatusBar injected classes (contract names) ---------- */
 
 .statusBar {
   display: flex;
@@ -232,12 +274,12 @@
 }
 
 .statusBlock {
-  height: 14px;
+  height: 12px;
   border-radius: 2px;
 }
 
 .statusBlockIdle {
-  background: color-mix(in srgb, var(--text-quaternary) 26%, transparent);
+  background: var(--bg-tertiary);
 }
 
 .statusBlockActive .statusBlock {
@@ -246,25 +288,25 @@
 }
 
 .statusRate {
-  font-family: $font-mono;
-  font-size: 11.5px;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-quaternary);
   min-width: 40px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   text-align: right;
+  color: var(--text-quaternary);
 }
 
 .statusRateHigh {
-  color: var(--viz-success);
+  color: var(--status-success-text);
 }
 
 .statusRateMedium {
-  color: var(--quota-medium-color);
+  color: var(--status-attention-text);
 }
 
 .statusRateLow {
-  color: var(--viz-failure);
+  color: var(--status-danger-text);
 }
 
 .statusTooltip {
@@ -276,16 +318,15 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 150px;
-  padding: 8px 10px;
-  border-radius: 10px;
+  min-width: 160px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
   background: var(--floating-surface);
-  border: 1px solid var(--border-color);
   box-shadow: var(--floating-shadow);
   pointer-events: none;
-  font-family: $font-mono;
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
 }
 
 .statusTooltipLeft {
@@ -300,44 +341,43 @@
 }
 
 .tooltipTime {
-  color: var(--text-tertiary);
-  letter-spacing: 0.03em;
+  color: var(--text-secondary);
 }
 
 .tooltipStats {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   color: var(--text-secondary);
 }
 
 .tooltipSuccess {
-  color: var(--viz-success);
+  color: var(--status-success-text);
 }
 
 .tooltipFailure {
-  color: var(--viz-failure);
+  color: var(--status-danger-text);
 }
 
 .tooltipRate {
   color: var(--text-secondary);
 }
 
-/* ---------- 元数据行：size · modified · priority · WRR weight ---------- */
+/* ---------- Meta: size · modified · priority · WRR weight ---------- */
 
 .metaRow {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px 7px;
-  font-family: $font-mono;
-  font-size: 11.5px;
+  gap: 4px 8px;
+  font-size: 12px;
+  line-height: 16px;
   font-variant-numeric: tabular-nums;
-  color: var(--text-tertiary);
+  color: var(--text-quaternary);
 }
 
 .metaDivider {
-  color: var(--text-quaternary);
+  color: var(--text-disabled);
   user-select: none;
 }
 
@@ -347,33 +387,18 @@
   align-items: baseline;
   gap: 4px;
   padding: 2px 6px;
-  border: 1px solid transparent;
-  border-radius: $radius-full;
-  font-weight: 650;
-  line-height: 1.35;
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 500;
   white-space: nowrap;
 }
 
-.metaPriority {
-  color: var(--text-secondary);
-  background: color-mix(in srgb, var(--text-quaternary) 10%, transparent);
-  border-color: color-mix(in srgb, var(--text-quaternary) 24%, transparent);
-}
-
-.metaWeight {
-  color: var(--primary-active);
-  background: var(--primary-10);
-  border-color: var(--primary-30);
-}
-
 .metaMetricLabel {
-  font-size: 10px;
-  font-weight: 600;
-  color: currentColor;
-  opacity: 0.78;
+  color: var(--text-secondary);
 }
 
-/* ---------- 页脚动作区 ---------- */
+/* ---------- Footer actions ---------- */
 
 .actions {
   margin-top: auto;
@@ -381,15 +406,14 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  gap: 8px;
+  padding-top: 4px;
 }
 
 .actionsMain {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
   min-width: 0;
 }
@@ -397,10 +421,9 @@
 .utilityActions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
-/* Button 会用 span 包裹 children；将包裹层也设为 flex，避免 SVG 按文本基线偏移。 */
 .actions :global(.btn > span) {
   display: inline-flex;
   align-items: center;
@@ -414,49 +437,30 @@
   flex-shrink: 0;
 }
 
-/* 图标按钮：方形紧凑的安静描边风——危险动作静默存在，hover 才显色块 */
+/* Quiet square icon buttons; the destructive one only shows its colour on hover. */
 .card .actions .iconButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  min-height: 32px;
+  height: 32px;
   padding: 0;
   background: transparent;
-  border: 1px solid var(--border-color);
   color: var(--text-secondary);
-}
-
-.card .actions .iconButton:global(.btn-danger) {
-  color: var(--danger-color);
-  border-color: color-mix(in srgb, var(--danger-color) 28%, transparent);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .card .actions .iconButton:hover:not(:disabled) {
     color: var(--text-primary);
-    border-color: var(--border-hover);
-    background: var(--bg-tertiary);
+    background: var(--bg-hover);
   }
 
   .card .actions .iconButton:global(.btn-danger):hover:not(:disabled) {
-    color: var(--danger-color);
-    border-color: color-mix(in srgb, var(--danger-color) 45%, transparent);
-    background: var(--destructive-10);
+    color: var(--status-danger-text);
+    background: var(--status-danger-bg);
   }
 }
 
-/* 按压反馈：所有可点元素 scale 0.96（reduced-motion 下豁免） */
-.actions :global(.btn) {
-  transition:
-    transform var(--dur-press, 160ms) var(--ease-out-strong, ease-out),
-    background-color $transition-fast,
-    border-color $transition-fast,
-    color $transition-fast;
-}
-
-.actions :global(.btn:active:not(:disabled)) {
-  transform: scale(0.96);
+.card .actions .iconButton:disabled {
+  color: var(--text-disabled);
 }
 
 .toggleWrap {
@@ -468,28 +472,26 @@
 }
 
 .toggleLabel {
-  font-size: 11px;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
-@include mobile {
-  .toggleWrap {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .actionsMain {
-    width: 100%;
-  }
-
-  .actionsMain > :global(.btn) {
-    flex: 1 1 auto;
-    min-width: 0;
+/* Narrow cards: the switch's accessible name stays; the visible label gives way so the
+   footer fits on one row. */
+@container (max-width: 360px) {
+  .toggleLabel {
+    display: none;
   }
 }
 
-/* ---------- 降级 ---------- */
+@include mobile {
+  .card {
+    padding: 16px;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .card {
@@ -498,13 +500,5 @@
 
   .cardEnter {
     animation: none;
-  }
-
-  .actions :global(.btn) {
-    transition: none;
-  }
-
-  .actions :global(.btn:active:not(:disabled)) {
-    transform: none;
   }
 }

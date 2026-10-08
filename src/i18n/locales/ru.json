@@ -95,7 +95,12 @@
     "spec_title": "Подключение",
     "spec_backend": "Бэкенд",
     "spec_backend_value": "CLIProxyAPI v8 или новее",
-    "spec_panel": "Версия панели"
+    "spec_panel": "Версия панели",
+    "key_label": "Ключ управления",
+    "custom_connection_toggle": "Использовать свой URL сервера",
+    "custom_connection_field": "URL сервера",
+    "submit_sign_in": "Войти",
+    "submitting_sign_in": "Вход…"
   },
   "header": {
     "refresh_all": "Обновить всё",
@@ -208,7 +213,22 @@
     "cta_system_desc": "Информация о версии и центре управления.",
     "window_m": "{{minutes}} мин",
     "window_h": "{{hours}} ч",
-    "window_hm": "{{hours}} ч {{minutes}} мин"
+    "window_hm": "{{hours}} ч {{minutes}} мин",
+    "status_healthy": "Запросы за последние {{window}} проходят успешно.",
+    "status_degraded": "Часть запросов завершается ошибкой. Проверьте провайдеров и журналы.",
+    "status_failing": "Многие запросы завершаются ошибкой. Проверьте провайдеров и журналы.",
+    "status_idle": "В текущем окне нет запросов.",
+    "status_offline": "Нет подключения к серверу.",
+    "status_connecting": "Подключение к серверу…",
+    "kpi_requests": "Запросы",
+    "kpi_window": "За последние {{window}}",
+    "kpi_no_window": "Трафика пока нет",
+    "rate_degraded": "Снижена",
+    "rate_failing": "Много ошибок",
+    "traffic_heading": "Запросы во времени",
+    "traffic_caption": "Успешные и неудачные запросы по 10-минутным интервалам за последние {{window}}.",
+    "fleet_heading": "Трафик по провайдерам",
+    "shortcuts_title": "Быстрые ссылки"
   },
   "basic_settings": {
     "debug_enable": "Включить режим отладки",
@@ -444,7 +464,9 @@
     "quota_refresh_single": "Обновить квоту",
     "quota_refresh_hint": "Обновить квоту только для этих учётных данных",
     "quota_refresh_success": "Квота для \"{{name}}\" обновлена",
-    "quota_refresh_failed": "Не удалось обновить квоту для \"{{name}}\": {{message}}"
+    "quota_refresh_failed": "Не удалось обновить квоту для \"{{name}}\": {{message}}",
+    "search_placeholder_short": "Поиск учётных данных",
+    "health_status_unavailable": "Недоступен"
   },
   "antigravity_subscription": {
     "plan_unknown": "Неизвестно",
@@ -791,7 +813,8 @@
     "provider_required": "Сначала укажите провайдера",
     "upgrade_required": "Эта функция требует более новой версии CLI Proxy API (CPA). Обновите систему.",
     "upgrade_required_title": "Пожалуйста, обновите CLI Proxy API",
-    "upgrade_required_desc": "Текущая версия сервера не поддерживает API псевдонимов моделей OAuth. Обновите CLI Proxy API (CPA) до последней версии."
+    "upgrade_required_desc": "Текущая версия сервера не поддерживает API псевдонимов моделей OAuth. Обновите CLI Proxy API (CPA) до последней версии.",
+    "view_mode_label": "Вид"
   },
   "auth_login": {
     "devin_oauth_cancel": "Отменить вход в Devin",
@@ -935,7 +958,9 @@
     "iflow_oauth_status_error": "Ошибка аутентификации:",
     "iflow_oauth_start_error": "Не удалось запустить iFlow OAuth:",
     "iflow_oauth_polling_error": "Не удалось проверить статус аутентификации:",
-    "remote_access_disabled": "Этот способ входа недоступен при удалённом доступе. Подключитесь с localhost."
+    "remote_access_disabled": "Этот способ входа недоступен при удалённом доступе. Подключитесь с localhost.",
+    "card_status_idle": "Готово к входу",
+    "page_subtitle": "Войдите у провайдера, чтобы сохранить его учётные данные как файл авторизации."
   },
   "stats": {
     "success": "Успех",
@@ -1031,7 +1056,16 @@
     "search_empty_desc": "Попробуйте другой запрос или сбросьте фильтры.",
     "double_click_copy_hint": "Дважды нажмите, чтобы скопировать строку журнала",
     "copy_success": "Строка журнала скопирована",
-    "copy_failed": "Не удалось скопировать"
+    "copy_failed": "Не удалось скопировать",
+    "pause_live": "Приостановить",
+    "resume_live": "Возобновить",
+    "level_all": "Все",
+    "level_trace": "Trace",
+    "level_debug": "Отладка",
+    "level_info": "Инфо",
+    "level_warn": "Предупр.",
+    "level_error": "Ошибка",
+    "level_fatal": "Критично"
   },
   "config_management": {
     "title": "Панель конфигурации",
@@ -1552,7 +1586,12 @@
         "update": "Обновить",
         "add": "Добавить"
       }
-    }
+    },
+    "field_modified": "Изменено",
+    "unsaved_changes_count_one": "{{count}} несохранённое изменение",
+    "unsaved_changes_count_few": "{{count}} несохранённых изменения",
+    "unsaved_changes_count_many": "{{count}} несохранённых изменений",
+    "unsaved_changes_count_other": "{{count}} несохранённых изменения"
   },
   "quota_management": {
     "search_label": "Поиск аккаунтов",
@@ -1599,7 +1638,8 @@
     "weekday_wed": "Ср",
     "weekday_thu": "Чт",
     "weekday_fri": "Пт",
-    "weekday_sat": "Сб"
+    "weekday_sat": "Сб",
+    "provider_label": "Провайдер"
   },
   "plugin_management": {
     "title": "Управление плагинами",
@@ -1658,7 +1698,13 @@
     "invalid_json": "Введите корректный JSON",
     "expected_array": "Введите JSON-массив",
     "expected_object": "Введите JSON-объект",
-    "invalid_enum": "Выберите одно из объявленных значений enum"
+    "invalid_enum": "Выберите одно из объявленных значений enum",
+    "browse_store": "Открыть магазин",
+    "status_disabled": "Отключён",
+    "status_global_off": "Ожидает глобального включения",
+    "no_matches": "Нет подходящих плагинов",
+    "no_matches_desc": "Ни один установленный плагин не соответствует поиску.",
+    "clear_search": "Очистить поиск"
   },
   "plugin_store": {
     "title": "Магазин плагинов",
@@ -1755,7 +1801,9 @@
     "gate_step2_action": "Я прочитал и понимаю эти риски",
     "gate_step3_prompt": "Для подтверждения введите «{{token}}» в поле ниже",
     "gate_step3_action": "Установить этот плагин",
-    "gate_step3_hint": "Введите точный идентификатор, показанный выше, чтобы включить установку."
+    "gate_step3_hint": "Введите точный идентификатор, показанный выше, чтобы включить установку.",
+    "view_installed": "Установленные плагины",
+    "tags_label": "Теги"
   },
   "system_info": {
     "title": "Информация о центре управления",
@@ -1783,7 +1831,12 @@
     "clear_login_title": "Локальные данные входа",
     "clear_login_desc": "Очистите локально сохранённые данные входа и выполните выход.",
     "clear_login_button": "Очистить данные входа",
-    "clear_login_confirm": "Очистить локальные данные входа и выйти?"
+    "clear_login_confirm": "Очистить локальные данные входа и выйти?",
+    "subtitle": "Версии, сведения о подключении и модели, которые обслуживает прокси.",
+    "about_tagline": "Панель управления CLI Proxy API",
+    "connection_title": "Подключение",
+    "connection_status": "Статус",
+    "server_address": "Адрес сервера"
   },
   "notification": {
     "trusted_proxies_restart_required": "Настройки доверенных прокси сохранены. Перезапустите бэкенд для их применения.",
@@ -1829,7 +1882,9 @@
     "collapse": "Свернуть",
     "subtitle": "Консоль управления",
     "auth_files_count": "Файлов аутентификации: {{count}}",
-    "nav_label": "Основная навигация"
+    "nav_label": "Основная навигация",
+    "workspace_menu": "Настройки рабочего пространства",
+    "breadcrumb": "Навигационная цепочка"
   },
   "footer": {
     "api_version": "Версия CLI Proxy API",
@@ -1925,7 +1980,9 @@
       "title": "AI Провайдеры",
       "activeResources": "{{active}}/{{total}} активных",
       "providerFamilies": "{{count}} семейств",
-      "updatedAt": "Обновлено {{time}}"
+      "updatedAt": "Обновлено {{time}}",
+      "subtitle": "Ключи API и эндпоинты апстримов, сгруппированные по провайдерам.",
+      "quickStartSubtitle": "Один ключ APIKEY.FUN настраивает все поддерживаемые протоколы."
     },
     "actions": {
       "refresh": "Обновить",
@@ -1976,7 +2033,8 @@
       "cliProfileTag": "CLI-профиль",
       "empty": "Нет ресурсов, нажмите \"Создать\".",
       "filterPlaceholder": "Поиск по ключам, URL, префиксам…",
-      "description": "Управление ресурсами {{route}}"
+      "description": "Управление ресурсами {{route}}",
+      "searchLabel": "Поиск ресурсов"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -2048,7 +2106,8 @@
         "openai": "OpenAI-compatible",
         "gemini": "Gemini",
         "codexResponses": "Codex API (Responses)"
-      }
+      },
+      "emptyDescription": "Добавьте сюда ключ APIKEY.FUN или сначала зарегистрируйтесь."
     },
     "status": {
       "active": "Активен",
@@ -2207,6 +2266,13 @@
     },
     "modelCatalog": {
       "notLoaded": "Не загружено"
+    },
+    "empty": {
+      "title": "Ключей {{provider}} пока нет",
+      "description": "Добавьте ключ API, чтобы запросы начали проходить через этого провайдера.",
+      "noMatchTitle": "Ничего не найдено",
+      "noMatchDescription": "Измените запрос или сбросьте фильтр моделей.",
+      "clearFilters": "Сбросить фильтры"
     }
   },
   "claude_reset": {

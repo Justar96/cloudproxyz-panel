@@ -31,6 +31,12 @@ import {
 } from './pluginResources';
 import { PluginInstallGateModal } from './components/PluginInstallGateModal';
 import {
+  PluginCallout,
+  PluginLogo,
+  PluginRuntimeSummary,
+  StatusDot,
+} from './components/PluginPageParts';
+import {
   buildGitHubReleasesPageURL,
   fetchPluginReleaseVersions,
   isValidManualReleaseTag,
@@ -89,17 +95,6 @@ const formatReleaseDate = (value: string, locale: string) => {
     day: '2-digit',
   }).format(date);
 };
-
-function StoreCardLogo({ src }: { src: string }) {
-  const [failed, setFailed] = useState(false);
-  const showImage = Boolean(src) && !failed;
-
-  return showImage ? (
-    <img src={src} alt="" onError={() => setFailed(true)} />
-  ) : (
-    <IconPlug size={18} />
-  );
-}
 
 interface PluginInstallOptionsModalProps {
   entry: PluginStoreEntry | null;
@@ -261,6 +256,38 @@ function PluginInstallOptionsModal({
     (supportsVersionSelection && versionMode === 'manual' && !isValidManualReleaseTag(version)) ||
     currentVersionSelected;
 
+  const versionModeOptions: Array<{
+    mode: InstallVersionMode;
+    label: string;
+    hint: string;
+    disabled: boolean;
+  }> = [
+    {
+      mode: 'latest',
+      label: t('plugin_store.install_version_latest_mode'),
+      hint: t('plugin_store.install_version_latest_hint', { version: latestVersionLabel }),
+      disabled: installing,
+    },
+    ...(supportsVersionSelection
+      ? [
+          {
+            mode: 'release' as const,
+            label: t('plugin_store.install_version_release_mode'),
+            hint: releaseLoading
+              ? t('plugin_store.install_versions_loading')
+              : t('plugin_store.install_version_release_hint'),
+            disabled: releaseModeDisabled,
+          },
+          {
+            mode: 'manual' as const,
+            label: t('plugin_store.install_version_manual_mode'),
+            hint: t('plugin_store.install_version_manual_hint'),
+            disabled: installing,
+          },
+        ]
+      : []),
+  ];
+
   const handleVersionModeChange = (nextMode: InstallVersionMode) => {
     if (installing) return;
     if (!supportsVersionSelection && nextMode !== 'latest') return;
@@ -290,73 +317,32 @@ function PluginInstallOptionsModal({
             {t('plugin_store.install_version_label')}
           </span>
           <div
-            className={styles.installVersionModes}
+            className={`option-group ${styles.installVersionModes}`}
             role="radiogroup"
             aria-labelledby="plugin-store-install-version-mode"
           >
-            <label
-              className={`${styles.installVersionMode} ${
-                versionMode === 'latest' ? styles.installVersionModeActive : ''
-              } ${installing ? styles.installVersionModeDisabled : ''}`}
-            >
-              <input
-                type="radio"
-                name="plugin-store-install-version-mode"
-                checked={versionMode === 'latest'}
-                onChange={() => handleVersionModeChange('latest')}
-                disabled={installing}
-              />
-              <span className={styles.installVersionModeText}>
-                <strong>{t('plugin_store.install_version_latest_mode')}</strong>
-                <small>
-                  {t('plugin_store.install_version_latest_hint', {
-                    version: latestVersionLabel,
-                  })}
-                </small>
-              </span>
-            </label>
-            {supportsVersionSelection ? (
-              <>
-                <label
-                  className={`${styles.installVersionMode} ${
-                    versionMode === 'release' ? styles.installVersionModeActive : ''
-                  } ${releaseModeDisabled ? styles.installVersionModeDisabled : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="plugin-store-install-version-mode"
-                    checked={versionMode === 'release'}
-                    onChange={() => handleVersionModeChange('release')}
-                    disabled={releaseModeDisabled}
-                  />
-                  <span className={styles.installVersionModeText}>
-                    <strong>{t('plugin_store.install_version_release_mode')}</strong>
-                    <small>
-                      {releaseLoading
-                        ? t('plugin_store.install_versions_loading')
-                        : t('plugin_store.install_version_release_hint')}
-                    </small>
-                  </span>
-                </label>
-                <label
-                  className={`${styles.installVersionMode} ${
-                    versionMode === 'manual' ? styles.installVersionModeActive : ''
-                  } ${installing ? styles.installVersionModeDisabled : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="plugin-store-install-version-mode"
-                    checked={versionMode === 'manual'}
-                    onChange={() => handleVersionModeChange('manual')}
-                    disabled={installing}
-                  />
-                  <span className={styles.installVersionModeText}>
-                    <strong>{t('plugin_store.install_version_manual_mode')}</strong>
-                    <small>{t('plugin_store.install_version_manual_hint')}</small>
-                  </span>
-                </label>
-              </>
-            ) : null}
+            {versionModeOptions.map((option) => (
+              <label
+                key={option.mode}
+                className={`option-row ${styles.installVersionMode} ${
+                  versionMode === option.mode ? 'selected' : ''
+                } ${option.disabled ? styles.installVersionModeDisabled : ''}`}
+              >
+                <input
+                  type="radio"
+                  className={styles.visuallyHiddenRadio}
+                  name="plugin-store-install-version-mode"
+                  checked={versionMode === option.mode}
+                  onChange={() => handleVersionModeChange(option.mode)}
+                  disabled={option.disabled}
+                />
+                <span className="option-radio" aria-hidden="true" />
+                <span className="option-label">
+                  {option.label}
+                  <span className="option-description">{option.hint}</span>
+                </span>
+              </label>
+            ))}
           </div>
 
           {supportsVersionSelection && versionMode === 'release' ? (
@@ -805,7 +791,6 @@ export function PluginStorePage() {
       ? t('plugin_store.cli_proxy_api_source')
       : entry.sourceName;
     const sourceText = sourceName ? t('plugin_store.source_name', { source: sourceName }) : '';
-    const metaItems = [versionText, sourceText, entry.author, entry.license].filter(Boolean);
     const isInstalling = installingKey === entryKey;
     const hasPendingInstall = Boolean(installingKey);
     const missingAuth = entry.authRequired && !entry.authConfigured;
@@ -821,45 +806,33 @@ export function PluginStorePage() {
               .join(', '),
           })
         : '';
-    const authText = entry.authRequired
-      ? entry.authConfigured
-        ? t('plugin_store.auth_configured')
-        : t('plugin_store.auth_required')
-      : '';
+    const detailItems = [
+      sourceText,
+      entry.license,
+      installTypeText ? t('plugin_store.install_type', { type: installTypeText }) : '',
+      platformText,
+    ].filter(Boolean);
     const actionDisabled = !connected || missingAuth || (hasPendingInstall && !isInstalling);
     const actionTitle = missingAuth ? t('plugin_store.auth_required_hint') : undefined;
 
     return (
-      <article key={entryKey} className={styles.card}>
+      <li key={entryKey} className={styles.card}>
         <div className={styles.cardHeader}>
-          <div className={styles.logoBox} aria-hidden="true">
-            <StoreCardLogo src={logo} />
-          </div>
+          <PluginLogo src={logo} />
           <div className={styles.cardTitleBlock}>
             <h2 className={styles.cardTitle}>{getStoreEntryTitle(entry)}</h2>
-            <span className={styles.cardId}>{entry.id}</span>
+            <div className={styles.cardByline}>
+              {entry.author ? <span>{entry.author}</span> : null}
+              {versionText ? <span className={styles.cardVersion}>{versionText}</span> : null}
+            </div>
           </div>
-          <div className={styles.cardBadges}>
-            {!isOfficial ? (
-              <span className={styles.badgeUntrusted}>
-                <IconAlertTriangle size={11} />
-                {t('plugin_store.badge_untrusted')}
-              </span>
-            ) : null}
-            {isUpdate ? (
-              <span className={styles.badgeWarning}>{t('plugin_store.badge_update')}</span>
-            ) : entry.installed ? (
-              <span className={styles.badgeSuccess}>{t('plugin_store.badge_installed')}</span>
-            ) : null}
-            {entry.installed && entry.effectiveEnabled ? (
-              <span className={styles.badge}>{t('plugin_store.badge_effective')}</span>
-            ) : null}
-            {entry.authRequired ? (
-              <span className={entry.authConfigured ? styles.badge : styles.badgeWarning}>
-                {authText}
-              </span>
-            ) : null}
-          </div>
+          {isUpdate ? (
+            <span className={`badge badge-warning ${styles.cardState}`}>
+              {t('plugin_store.badge_update')}
+            </span>
+          ) : entry.installed ? (
+            <span className={`badge ${styles.cardState}`}>{t('plugin_store.badge_installed')}</span>
+          ) : null}
         </div>
 
         {entry.description ? (
@@ -891,37 +864,57 @@ export function PluginStorePage() {
           </div>
         ) : null}
 
-        {metaItems.length > 0 || installTypeText || platformText ? (
-          <div className={styles.cardMeta}>
-            {installTypeText ? (
-              <span className={styles.metaItem}>
-                {t('plugin_store.install_type', { type: installTypeText })}
+        {!isOfficial || entry.authRequired || (entry.installed && entry.effectiveEnabled) ? (
+          <div className={styles.cardFlags}>
+            {entry.installed && entry.effectiveEnabled ? (
+              <span className={styles.flag}>
+                <StatusDot tone="success" />
+                {t('plugin_store.badge_effective')}
               </span>
             ) : null}
-            {platformText ? <span className={styles.metaItem}>{platformText}</span> : null}
-            {metaItems.map((item, index) => (
-              <span key={`${entryKey}-meta-${index}`} className={styles.metaItem}>
-                {index > 0 ? <span className={styles.metaDot} aria-hidden="true" /> : null}
-                {index === 0 && versionText ? <strong>{item}</strong> : item}
+            {entry.authRequired ? (
+              <span className={styles.flag}>
+                <StatusDot tone={entry.authConfigured ? 'success' : 'attention'} />
+                {entry.authConfigured
+                  ? t('plugin_store.auth_configured')
+                  : t('plugin_store.auth_required')}
               </span>
+            ) : null}
+            {!isOfficial ? (
+              <span className={styles.flag}>
+                <IconAlertTriangle size={12} />
+                {t('plugin_store.badge_untrusted')}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+
+        {detailItems.length > 0 ? (
+          <div className={styles.cardMeta}>
+            {detailItems.map((item, index) => (
+              <span key={`${entryKey}-meta-${index}`}>{item}</span>
             ))}
           </div>
         ) : null}
 
         {entry.tags.length > 0 ? (
-          <div className={styles.tagRow}>
+          <ul
+            className={styles.tagRow}
+            aria-label={t('plugin_store.tags_label', { defaultValue: 'Tags' })}
+          >
             {entry.tags.map((tag) => (
-              <span key={`${entryKey}-tag-${tag}`} className={styles.tag}>
+              <li key={`${entryKey}-tag-${tag}`} className={styles.tag}>
                 {tag}
-              </span>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : null}
 
         <div className={styles.cardFooter}>
           <div className={styles.cardActions}>
             {!entry.installed ? (
               <Button
+                variant="secondary"
                 size="sm"
                 onClick={() => handleInstall(entry)}
                 disabled={actionDisabled}
@@ -935,6 +928,7 @@ export function PluginStorePage() {
               <>
                 {entry.updateAvailable ? (
                   <Button
+                    variant="secondary"
                     size="sm"
                     onClick={() => handleInstall(entry)}
                     disabled={actionDisabled}
@@ -945,7 +939,7 @@ export function PluginStorePage() {
                     {t('plugin_store.update')}
                   </Button>
                 ) : null}
-                <Button variant="secondary" size="sm" onClick={() => navigate('/plugins')}>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/plugins')}>
                   <IconSettings size={14} />
                   {t('plugin_store.manage')}
                 </Button>
@@ -962,7 +956,7 @@ export function PluginStorePage() {
                 title={t('plugin_store.open_repository')}
                 aria-label={t('plugin_store.open_repository')}
               >
-                <IconGithub size={14} />
+                <IconGithub size={16} />
               </a>
             ) : null}
             {homepageURL ? (
@@ -974,47 +968,59 @@ export function PluginStorePage() {
                 title={t('plugin_store.open_homepage')}
                 aria-label={t('plugin_store.open_homepage')}
               >
-                <IconExternalLink size={14} />
+                <IconExternalLink size={16} />
               </a>
             ) : null}
           </div>
         </div>
-      </article>
+      </li>
     );
   };
 
   return (
-    <div className={styles.page}>
-      {/* ── Page Header ── */}
-      <div className={styles.pageHeader}>
-        <h1 className={styles.title}>{t('plugin_store.title')}</h1>
-        <p className={styles.description}>{t('plugin_store.description')}</p>
-      </div>
-
-      {/* ── Security Banner ── */}
-      <div className={styles.securityBanner} role="note">
-        <IconShield size={20} />
-        <div className={styles.securityBannerText}>
-          <strong>{t('plugin_store.security_banner_title')}</strong>
-          <p>{t('plugin_store.security_banner_text')}</p>
+    <div className={`page ${styles.page}`}>
+      <header className="page-header">
+        <div className="page-heading">
+          <h1 className="page-title">{t('plugin_store.title')}</h1>
+          <p className="page-subtitle">{t('plugin_store.description')}</p>
         </div>
-      </div>
+        <div className="page-actions">
+          <Button variant="secondary" onClick={() => navigate('/plugins')}>
+            <IconPlug size={16} />
+            {t('plugin_store.view_installed', { defaultValue: 'Installed plugins' })}
+          </Button>
+        </div>
+      </header>
 
-      {/* ── Alerts ── */}
       {error ? (
-        <div className={styles.errorBox}>
-          <span>{error.message}</span>
-          {error.kind !== 'unsupported' ? (
-            <Button variant="secondary" size="sm" onClick={loadStore} disabled={loading}>
-              {t('plugin_store.retry')}
-            </Button>
-          ) : null}
-        </div>
+        <PluginCallout
+          tone="danger"
+          role="alert"
+          icon={<IconAlertTriangle size={16} />}
+          action={
+            error.kind !== 'unsupported' ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={loadStore}
+                disabled={loading}
+                loading={loading}
+              >
+                {t('plugin_store.retry')}
+              </Button>
+            ) : undefined
+          }
+        >
+          {error.message}
+        </PluginCallout>
       ) : null}
 
       {data?.sourceErrors.length ? (
-        <div className={styles.warningBox}>
-          <strong>{t('plugin_store.source_errors_title')}</strong>
+        <PluginCallout
+          tone="attention"
+          icon={<IconAlertTriangle size={16} />}
+          title={t('plugin_store.source_errors_title')}
+        >
           <ul className={styles.sourceErrorList}>
             {data.sourceErrors.map((sourceError, index) => {
               const sourceLabel =
@@ -1027,150 +1033,135 @@ export function PluginStorePage() {
               );
             })}
           </ul>
-        </div>
+        </PluginCallout>
       ) : null}
 
       {data && !data.pluginsEnabled ? (
-        <div className={styles.warningBox}>{t('plugin_store.global_disabled_hint')}</div>
+        <PluginCallout tone="attention" icon={<IconAlertTriangle size={16} />}>
+          {t('plugin_store.global_disabled_hint')}
+        </PluginCallout>
       ) : null}
 
       {restartNames.length > 0 ? (
-        <div className={styles.warningBox}>
+        <PluginCallout tone="attention" role="status" icon={<IconRefreshCw size={16} />}>
           {t('plugin_store.restart_required_banner', { plugins: restartNames.join(', ') })}
-        </div>
+        </PluginCallout>
       ) : null}
 
-      {/* ── Status Bar ── */}
       {data ? (
-        <div className={styles.statusBar}>
-          <div className={styles.statusPill}>
-            <span
-              className={`${styles.statusDot} ${
-                data.pluginsEnabled ? styles.statusDotOn : styles.statusDotOff
-              }`}
-            />
-            <span className={styles.statusLabel}>{t('plugin_store.global_status')}</span>
-            <span className={styles.statusValue}>
-              {data.pluginsEnabled
-                ? t('plugin_store.global_enabled')
-                : t('plugin_store.global_disabled')}
-            </span>
-          </div>
-
-          <span className={styles.statusDivider} />
-
-          <div className={styles.statusPill}>
-            <span className={styles.statusLabel}>{t('plugin_store.plugins_dir')}</span>
-            <span
-              className={`${styles.statusValue} ${styles.statusPathValue}`}
-              title={data.pluginsDir || 'plugins'}
-            >
-              {data.pluginsDir || 'plugins'}
-            </span>
-          </div>
-
-          <span className={styles.statusDivider} />
-
-          <div className={styles.statusPill}>
-            <span className={styles.statusLabel}>{t('plugin_store.stat_available')}</span>
-            <span className={styles.statusValue}>{stats.total}</span>
-          </div>
-        </div>
+        <PluginRuntimeSummary
+          statusLabel={t('plugin_store.global_status')}
+          enabled={data.pluginsEnabled}
+          enabledLabel={t('plugin_store.global_enabled')}
+          disabledLabel={t('plugin_store.global_disabled')}
+          items={[
+            {
+              label: t('plugin_store.plugins_dir'),
+              value: data.pluginsDir || 'plugins',
+              title: data.pluginsDir || 'plugins',
+              mono: true,
+            },
+            { label: t('plugin_store.stat_available'), value: stats.total },
+            { label: t('plugin_store.filter_installed'), value: stats.installed },
+            { label: t('plugin_store.filter_updates'), value: stats.updates },
+          ]}
+        />
       ) : null}
 
-      {/* ── Toolbar ── */}
-      <div className={styles.toolbar}>
-        <Input
-          type="search"
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
-          placeholder={t('plugin_store.search_placeholder')}
-          aria-label={t('plugin_store.search_label')}
-          rightElement={<IconSearch size={16} />}
-        />
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={loadStore}
-          disabled={!connected || loading}
-          loading={loading}
-        >
-          <IconRefreshCw size={16} />
-          {t('plugin_store.refresh')}
-        </Button>
-      </div>
+      <PluginCallout
+        tone="neutral"
+        role="note"
+        icon={<IconShield size={16} />}
+        title={t('plugin_store.security_banner_title')}
+      >
+        {t('plugin_store.security_banner_text')}
+      </PluginCallout>
 
-      {/* ── Status Filter Chips ── */}
-      <div className={styles.filterChips} role="group" aria-label={t('plugin_store.filter_label')}>
-        {statusFilters.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            className={`${styles.filterChip} ${
-              statusFilter === item.key ? styles.filterChipActive : ''
-            }`}
-            onClick={() => setStatusFilter(item.key)}
-            aria-pressed={statusFilter === item.key}
+      <section className={styles.catalog} aria-busy={loading}>
+        <div className={`on-canvas ${styles.toolbar}`}>
+          <Input
+            type="search"
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+            placeholder={t('plugin_store.search_placeholder')}
+            aria-label={t('plugin_store.search_label')}
+            rightElement={<IconSearch size={16} />}
+          />
+          <div
+            className={`segmented ${styles.filterSegments}`}
+            role="group"
+            aria-label={t('plugin_store.filter_label')}
           >
-            {item.label}
-            <span className={styles.filterChipCount}>{item.count}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* ── Plugin Cards ── */}
-      {loading ? (
-        <div className={styles.cardGrid}>
-          {Array.from({ length: 6 }, (_, index) => (
-            <div key={index} className={styles.skeletonCard}>
-              <div className={styles.skeletonHeader}>
-                <div className={styles.skeletonAvatar} />
-                <div className={styles.skeletonText}>
-                  <div className={styles.skeletonLine} />
-                  <div className={styles.skeletonLine} />
-                </div>
-              </div>
-              <div className={styles.skeletonBody} />
-            </div>
-          ))}
+            {statusFilters.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className={`segmented-item ${statusFilter === item.key ? 'active' : ''}`}
+                onClick={() => setStatusFilter(item.key)}
+                aria-pressed={statusFilter === item.key}
+              >
+                {item.label}
+                <span className={styles.filterCount}>{item.count}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      ) : visiblePlugins.length === 0 ? (
-        !error ? (
-          stats.total === 0 ? (
-            <EmptyState
-              title={t('plugin_store.no_plugins')}
-              description={t('plugin_store.no_plugins_desc')}
-              action={
-                <Button variant="secondary" size="sm" onClick={loadStore} disabled={!connected}>
-                  <IconRefreshCw size={16} />
-                  {t('plugin_store.refresh')}
-                </Button>
-              }
-            />
-          ) : (
-            <EmptyState
-              title={t('plugin_store.no_matches')}
-              description={t('plugin_store.no_matches_desc')}
-              action={
-                hasActiveFilters ? (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                      setFilter('');
-                      setStatusFilter('all');
-                    }}
-                  >
-                    {t('plugin_store.clear_filters')}
-                  </Button>
-                ) : undefined
-              }
-            />
-          )
-        ) : null
-      ) : (
-        <div className={styles.cardGrid}>{visiblePlugins.map((entry) => renderCard(entry))}</div>
-      )}
+
+        {loading && !data ? (
+          <ul className={styles.cardGrid} aria-hidden="true">
+            {Array.from({ length: 6 }, (_, index) => (
+              <li key={index} className={styles.skeletonCard}>
+                <div className={styles.skeletonHeader}>
+                  <div className={styles.skeletonAvatar} />
+                  <div className={styles.skeletonText}>
+                    <div className={styles.skeletonLine} />
+                    <div className={styles.skeletonLine} />
+                  </div>
+                </div>
+                <div className={styles.skeletonBody} />
+              </li>
+            ))}
+          </ul>
+        ) : visiblePlugins.length === 0 ? (
+          !error ? (
+            <div className="on-canvas">
+              {stats.total === 0 ? (
+                <EmptyState
+                  title={t('plugin_store.no_plugins')}
+                  description={t('plugin_store.no_plugins_desc')}
+                  action={
+                    <Button variant="secondary" size="sm" onClick={loadStore} disabled={!connected}>
+                      <IconRefreshCw size={16} />
+                      {t('plugin_store.refresh')}
+                    </Button>
+                  }
+                />
+              ) : (
+                <EmptyState
+                  title={t('plugin_store.no_matches')}
+                  description={t('plugin_store.no_matches_desc')}
+                  action={
+                    hasActiveFilters ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          setFilter('');
+                          setStatusFilter('all');
+                        }}
+                      >
+                        {t('plugin_store.clear_filters')}
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              )}
+            </div>
+          ) : null
+        ) : (
+          <ul className={styles.cardGrid}>{visiblePlugins.map((entry) => renderCard(entry))}</ul>
+        )}
+      </section>
 
       <PluginInstallGateModal
         open={gateOpen}

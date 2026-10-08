@@ -6,7 +6,7 @@ import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { useRevealOnScroll } from '@/hooks/motion';
 import { usePageTransitionLayer } from '@/components/common/PageTransitionLayer';
 import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { IconInbox, IconSearch } from '@/components/ui/icons';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { copyToClipboard } from '@/utils/clipboard';
 import { getQuotaCacheKey } from '@/utils/quota/identity';
@@ -32,7 +32,6 @@ import { OAuthExcludedCard } from '@/features/authFiles/components/OAuthExcluded
 import { OAuthModelAliasCard } from '@/features/authFiles/components/OAuthModelAliasCard';
 import { ProviderTabs } from '@/features/authFiles/components/ProviderTabs';
 import { VaultHeader } from '@/features/authFiles/components/VaultHeader';
-import { VaultPulse } from '@/features/authFiles/components/VaultPulse';
 import { invalidateAuthFileDerivedCaches } from '@/features/authFiles/cacheInvalidation';
 import {
   buildWildcardSearch,
@@ -122,7 +121,6 @@ export function AuthFilesPage() {
     selectedFiles,
     selectionCount,
     loading,
-    refreshing,
     error,
     uploading,
     deleting,
@@ -585,17 +583,15 @@ export function AuthFilesPage() {
     .join(' ');
 
   return (
-    <div className={styles.page}>
+    <div className={`page ${styles.page}`}>
       <VaultHeader
         totalCount={files.length}
         activeCount={activeCount}
         problemCount={problemCount}
         loading={loading}
-        refreshing={refreshing}
         uploading={uploading}
         disableControls={disableControls}
         onUpload={handleUploadClick}
-        onRefresh={() => void handleHeaderRefresh()}
         refreshingCredentials={refreshingAllCredentials}
         credentialRefreshDisabled={Object.keys(manualRefreshing).length > 0}
         onRefreshCredentials={handleRefreshAllCredentials}
@@ -610,19 +606,19 @@ export function AuthFilesPage() {
         onChange={handleFileChange}
       />
 
-      <VaultPulse files={files} statusBarCache={statusBarCache} />
-
       <section className={styles.workbench} aria-label={t('auth_files.title_section')}>
-        <ProviderTabs
-          types={existingTypes}
-          counts={typeCounts}
-          active={normalizedFilter}
-          resolvedTheme={resolvedTheme}
-          onChange={(type) => {
-            setFilter(type);
-            setPage(1);
-          }}
-        />
+        {existingTypes.length > 1 && (
+          <ProviderTabs
+            types={existingTypes}
+            counts={typeCounts}
+            active={normalizedFilter}
+            resolvedTheme={resolvedTheme}
+            onChange={(type) => {
+              setFilter(type);
+              setPage(1);
+            }}
+          />
+        )}
 
         <AuthFilesToolbar
           search={search}
@@ -667,38 +663,43 @@ export function AuthFilesPage() {
         {loading ? (
           <div className={gridClasses} aria-hidden="true">
             {Array.from({ length: SKELETON_CARD_COUNT }, (_, index) => (
-              <Skeleton key={index} height={206} rounded={14} />
+              <Skeleton key={index} height={220} rounded={18} />
             ))}
           </div>
         ) : isFirstRunEmpty ? (
-          <EmptyState
-            title={t('auth_files.empty_title')}
-            description={t('auth_files.empty_desc')}
-            action={
-              <div className={styles.emptyActions}>
-                <Button
-                  size="sm"
-                  onClick={handleUploadClick}
-                  disabled={disableControls || uploading}
-                >
-                  {t('auth_files.upload_button')}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/oauth')}>
-                  {t('auth_files.empty_oauth_link')}
-                </Button>
-              </div>
-            }
-          />
+          <div className={styles.emptyCard}>
+            <span className={styles.emptyIcon} aria-hidden="true">
+              <IconInbox size={20} />
+            </span>
+            <h2 className={styles.emptyTitle}>{t('auth_files.empty_title')}</h2>
+            <p className={styles.emptyDesc}>{t('auth_files.empty_desc')}</p>
+            <div className={styles.emptyActions}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleUploadClick}
+                disabled={disableControls || uploading}
+              >
+                {t('auth_files.upload_button')}
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => navigate('/oauth')}>
+                {t('auth_files.empty_oauth_link')}
+              </Button>
+            </div>
+          </div>
         ) : isNoResults ? (
-          <EmptyState
-            title={t('auth_files.search_empty_title')}
-            description={t('auth_files.search_empty_desc')}
-            action={
+          <div className={styles.emptyCard}>
+            <span className={styles.emptyIcon} aria-hidden="true">
+              <IconSearch size={20} />
+            </span>
+            <h2 className={styles.emptyTitle}>{t('auth_files.search_empty_title')}</h2>
+            <p className={styles.emptyDesc}>{t('auth_files.search_empty_desc')}</p>
+            <div className={styles.emptyActions}>
               <Button variant="secondary" size="sm" onClick={clearFilters}>
                 {t('auth_files.no_results_clear')}
               </Button>
-            }
-          />
+            </div>
+          </div>
         ) : (
           <div className={gridClasses}>
             {pageItems.map((file, index) => (
@@ -730,7 +731,7 @@ export function AuthFilesPage() {
         )}
 
         {!loading && sorted.length > pageSize && (
-          <div className={styles.pagination}>
+          <div className={`on-canvas ${styles.pagination}`}>
             <Button
               variant="secondary"
               size="sm"

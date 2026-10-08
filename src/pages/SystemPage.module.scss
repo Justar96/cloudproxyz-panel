@@ -1,371 +1,461 @@
-.container {
-  width: 100%;
-}
+@use '../styles/mixins' as *;
 
-.pageTitle {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 $spacing-xl 0;
-}
+// System info: the page frame comes from the global .page / .page-header helpers.
 
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xl;
-}
-
-.aboutCard {
-  overflow: hidden;
-}
-
-.aboutHeader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  gap: $spacing-md;
-  padding: $spacing-lg 0 $spacing-xl;
-}
-
-.aboutLogo {
-  width: 108px;
-  height: 108px;
-  border-radius: 26px;
-  object-fit: cover;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
-}
-
-.aboutTitle {
-  width: min(100%, 920px);
-  font-size: clamp(28px, 4.2vw, 44px);
-  font-weight: 800;
-  line-height: 1.12;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-  text-align: center;
-  text-wrap: balance;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.aboutInfoGrid {
+.grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: $spacing-md;
+  align-items: stretch;
+  gap: $spacing-lg;
 
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
+  @media (max-width: 1024px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @include mobile {
+    gap: $spacing-md;
   }
 }
 
-.infoTile {
+.card {
   display: flex;
+  min-width: 0;
   flex-direction: column;
-  gap: 6px;
-  min-height: 120px;
-  padding: $spacing-md $spacing-lg;
-  border-radius: $radius-lg;
-  border: 1px solid var(--border-color);
-  background: color-mix(in srgb, var(--bg-secondary) 82%, transparent);
-  text-align: left;
-}
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
 
-.tapTile {
-  border: 1px solid var(--border-color);
-  background: color-mix(in srgb, var(--bg-secondary) 82%, transparent);
-  color: inherit;
-  padding: $spacing-md $spacing-lg;
-  cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    border-color: var(--primary-color);
-    box-shadow: 0 8px 18px rgba($primary-color, 0.18);
-  }
-
-  &:active {
-    transform: translateY(0);
+  @include mobile {
+    padding: $spacing-md;
   }
 }
 
-.tileLabel {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
+.wide {
+  grid-column: 1 / -1;
 }
 
-.tileHeader {
+.cardHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: $spacing-sm;
-  min-height: 40px;
-}
-
-.tileAction {
-  flex-shrink: 0;
-  white-space: nowrap;
-  margin: -4px -8px 0 0;
-}
-
-.tileValue {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.25;
-  word-break: break-word;
-}
-
-.tileSub {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  line-height: 1.4;
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
   gap: $spacing-md;
 }
 
-.sectionTitle {
+.cardHeading {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.015em;
+}
+
+.cardDescription {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+// ─── About ──────────────────────────────────────────────
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brandMark {
+  flex: 0 0 auto;
+  color: var(--text-primary);
+}
+
+.brandText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+// Deliberately smaller than the 24px page title.
+.brandName {
+  margin: 0;
+  color: var(--text-primary);
   font-size: 20px;
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 $spacing-md 0;
+  line-height: 28px;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
 }
 
-.sectionDescription {
-  font-size: 14px;
+.brandTagline {
+  margin: 0;
   color: var(--text-secondary);
-  margin: 0 0 $spacing-md 0;
+  font-size: 14px;
+  line-height: 20px;
 }
 
-.clearLoginActions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
+// ─── Key/value rows ─────────────────────────────────────
 
-.infoGrid {
-  display: grid;
-  gap: $spacing-sm;
-
-  .infoRow {
-    display: flex;
-    justify-content: space-between;
-    padding: $spacing-sm $spacing-md;
-    background-color: var(--bg-secondary);
-    border-radius: $radius-md;
-
-    .label {
-      font-weight: 500;
-      color: var(--text-secondary);
-    }
-
-    .value {
-      color: var(--text-primary);
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    }
-  }
-}
-
-.modelsList {
+.kvList {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  max-height: 400px;
-  overflow-y: auto;
+  margin: 0;
 }
 
-.modelItem {
-  padding: $spacing-sm $spacing-md;
-  background-color: var(--bg-secondary);
-  border-radius: $radius-md;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 13px;
+.kvRow {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: 10px 0;
 
-  &:hover {
-    background-color: var(--bg-hover);
+  & + & {
+    border-top: 1px solid var(--border-color);
   }
+
+  dt {
+    flex: 0 0 auto;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  dd {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $spacing-sm;
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: end;
+    overflow-wrap: anywhere;
+  }
+}
+
+.mono {
+  font-family: $font-mono;
+  font-size: 13px !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.versionTap {
+  margin: -4px -8px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font-family: $font-mono;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: default;
+  transition: background-color var(--dur-hover) var(--ease-out-strong);
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--bg-hover);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 0;
+  }
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: $radius-full;
+}
+
+.dotSuccess {
+  background: var(--status-success-solid);
+}
+
+.dotAttention {
+  background: var(--status-attention-solid);
+}
+
+.dotDanger {
+  background: var(--status-danger-solid);
+}
+
+.dotNeutral {
+  background: var(--viz-neutral);
+}
+
+// ─── Session ────────────────────────────────────────────
+
+.sessionBlock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.sessionText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+
+  h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 16px;
+  }
+}
+
+// ─── Models ─────────────────────────────────────────────
+
+.modelStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.errorBox {
+  padding: $spacing-sm 12px;
+  border-radius: var(--radius-sm);
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.emptyHint {
+  margin: 0;
+  padding: $spacing-md;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.modelGroups {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.modelGroup {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px $spacing-md;
+  padding: 12px 0;
+
+  & + & {
+    border-top: 1px solid var(--border-color);
+  }
+
+  @include mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.groupHeading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: 24px;
+}
+
+.groupIcon,
+.groupIconBlank {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.groupLabel {
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.groupCount {
+  padding: 0 6px;
+  border-radius: $radius-full;
+  background: var(--count-badge-bg);
+  color: var(--count-badge-text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
 }
 
 .modelTags {
   display: flex;
+  min-width: 0;
   flex-wrap: wrap;
-  flex: 0 0 100%;
-  gap: $spacing-sm;
-}
-
-.groupTitle {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-}
-
-.groupIcon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .modelTag {
   display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: 4px 10px;
-  border-radius: $radius-full;
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
-  font-family:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-    monospace;
+  max-width: 100%;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  font-family: $font-mono;
+  font-size: 12px;
+  line-height: 20px;
 }
 
 .modelName {
+  min-width: 0;
   color: var(--text-primary);
-  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .modelAlias {
   color: var(--text-secondary);
-  font-size: 12px;
 }
 
-.versionCheck {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
+// ─── Links ──────────────────────────────────────────────
 
-.versionInfo {
+.links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: $spacing-md;
-
-  .versionItem {
-    padding: $spacing-md;
-    background-color: var(--bg-secondary);
-    border-radius: $radius-md;
-
-    .label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: $spacing-xs;
-    }
-
-    .version {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-primary);
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    }
-  }
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.quickLinks {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: $spacing-md;
-}
-
-.linkCard {
+.linkRow {
   display: flex;
+  min-width: 0;
   align-items: center;
-  gap: $spacing-md;
-  padding: $spacing-md $spacing-lg;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: $radius-lg;
-  text-decoration: none;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
   color: inherit;
-  transition: all 0.2s ease;
+  text-decoration: none;
+  transition: background-color var(--dur-hover) var(--ease-out-strong);
 
-  &:hover {
-    background-color: var(--bg-hover);
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--bg-hover);
+    }
   }
 
-  &:active {
-    transform: translateY(0);
+  @media (prefers-reduced-motion: no-preference) {
+    transition-property: background-color, translate;
+
+    &:active {
+      translate: 0 1px;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
   }
 }
 
 .linkIcon {
-  display: flex;
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: $radius-md;
-  background-color: #24292f;
-  color: white;
-  flex-shrink: 0;
-
-  &.github,
-  &.docs {
-    background-color: #24292f;
-  }
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
-.linkContent {
-  flex: 1;
+.linkText {
+  display: flex;
   min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
 }
 
 .linkTitle {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  font-size: 15px;
-  font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 2px;
-
-  svg {
-    opacity: 0.5;
-    flex-shrink: 0;
-  }
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
 }
 
 .linkDesc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  white-space: nowrap;
   overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 16px;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-@media (max-width: 768px) {
-  .aboutLogo {
-    width: 92px;
-    height: 92px;
-    border-radius: 22px;
-  }
-
-  .aboutTitle {
-    width: min(100%, 24ch);
-    font-size: clamp(22px, 6.6vw, 34px);
-    font-weight: 700;
-    line-height: 1.18;
-    letter-spacing: -0.012em;
-  }
+.linkArrow {
+  flex: 0 0 auto;
+  color: var(--text-quaternary);
 }
 
-@media (max-width: 520px) {
-  .aboutTitle {
-    width: min(100%, 19ch);
-    font-size: clamp(20px, 7.2vw, 28px);
-    font-weight: 600;
-    line-height: 1.22;
-    letter-spacing: -0.006em;
-  }
+// ─── Request-log modal ──────────────────────────────────
+
+.attentionNote {
+  padding: $spacing-sm 12px;
+  border-radius: var(--radius-sm);
+  background: var(--status-attention-bg);
+  color: var(--status-attention-text);
+  font-size: 14px;
+  line-height: 20px;
 }

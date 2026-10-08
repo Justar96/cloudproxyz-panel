@@ -1,20 +1,32 @@
 @use '../../../styles/mixins' as *;
 
-.pageContent {
-  width: 100%;
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: $spacing-xs $spacing-lg $spacing-2xl;
+/* ============================================================
+ * OAuth model disablement / alias editors (secondary screens).
+ * Page heading, then raised cards with section headers; rows inside cards are
+ * separated by hairlines rather than outlined boxes.
+ * ============================================================ */
 
-  @include mobile {
-    padding: 0 $spacing-md $spacing-xl;
-  }
+.pageContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  padding-bottom: 48px;
 }
 
-.topBar {
+/* The shared shell's top bar: no rule, 600 title. Element-qualified so it outranks the
+   shell module's own .topBar rule regardless of stylesheet order. */
+div.topBar {
+  border-bottom: 0;
+
+  > :nth-child(2) {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
   @include mobile {
     grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: $spacing-sm;
+    gap: 8px;
 
     button {
       white-space: nowrap;
@@ -23,109 +35,73 @@
 }
 
 .intro {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-md;
-  padding: $spacing-xs 0;
-}
-
-.introIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border-color);
-  border-radius: $radius-lg;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-}
-
-.introTitle {
-  margin: 0 0 6px;
-  font-size: 22px;
-  font-weight: 650;
-  letter-spacing: -0.5px;
-  line-height: 1.3;
-  color: var(--text-primary);
+  padding-top: 8px;
 }
 
 .description {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
+  text-wrap: pretty;
 }
 
 .settingsCard {
   min-width: 0;
   padding: 0;
   overflow: visible;
-  box-shadow: none;
 }
 
 .providerSection,
 .editorBody {
-  padding: $spacing-lg;
+  padding: 24px;
 
   @include mobile {
-    padding: $spacing-md;
+    padding: 16px;
   }
 }
 
 .providerSection {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: 16px;
 }
 
 .providerRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: $spacing-lg;
+  gap: 24px;
 
   @include mobile {
     flex-direction: column;
     align-items: stretch;
-    gap: $spacing-md;
+    gap: 12px;
   }
 }
 
 .sectionHeading {
   display: flex;
   align-items: flex-start;
-  gap: $spacing-sm;
+  gap: 8px;
   min-width: 0;
 }
 
-.stepNumber {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border-color);
-  border-radius: $radius-sm;
-  color: var(--text-tertiary);
-  font-family: $font-mono;
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-}
-
 .headingCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-width: 0;
 }
 
 .sectionTitle {
   display: block;
-  margin: 2px 0 4px;
-  font-size: 15px;
-  font-weight: 650;
-  line-height: 1.5;
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--text-primary);
 }
 
@@ -139,34 +115,38 @@
   }
 }
 
+/* ---------- Provider shortcuts ---------- */
+
 .providerOptions {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-sm;
+  gap: 8px;
 }
 
 .providerOption {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-sm;
-  min-height: 38px;
+  gap: 8px;
+  min-height: 36px;
   max-width: 100%;
-  padding: 7px 10px;
-  border: 1px solid var(--border-color);
-  border-radius: $radius-md;
-  background: var(--bg-secondary);
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
   color: var(--text-secondary);
-  font-size: 13px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 500;
   cursor: pointer;
   transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    color 160ms ease;
+    background-color var(--dur-hover) var(--ease-out-strong),
+    color var(--dur-hover) var(--ease-out-strong),
+    translate var(--dur-hover) var(--ease-out-strong);
 
   img {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     object-fit: contain;
   }
 
@@ -180,60 +160,73 @@
     min-width: 0;
   }
 
+  &:active:not(:disabled) {
+    translate: 0 1px;
+  }
+
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 3px;
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
   }
 
   &:disabled {
-    opacity: 0.55;
+    color: var(--text-disabled);
     cursor: not-allowed;
   }
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) {
-      border-color: var(--primary-color);
-      background: var(--bg-tertiary);
+      background: var(--bg-hover);
       color: var(--text-primary);
     }
   }
 }
 
 .providerCheck {
-  visibility: hidden;
+  display: none;
 }
 
+/* Selected = accent ring + check, readable in both themes. */
 .providerOptionActive {
-  border-color: var(--primary-color);
-  background: var(--primary-10);
+  background: var(--bg-primary);
   color: var(--text-primary);
+  box-shadow: inset 0 0 0 2px var(--accent);
 
   .providerCheck {
-    visibility: visible;
+    display: block;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      background: var(--bg-primary);
+    }
   }
 }
 
+/* ---------- Editor card ---------- */
+
 .editorHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: $spacing-md;
-  padding: $spacing-lg;
-  border-bottom: 1px solid var(--border-color);
+  gap: 16px;
+  padding: 24px 24px 0;
 
   @include mobile {
-    padding: $spacing-md;
+    padding: 16px 16px 0;
   }
 }
 
 .countBadge {
   flex-shrink: 0;
-  padding: 4px 9px;
-  border-radius: $radius-full;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--count-badge-bg);
+  color: var(--count-badge-text);
   font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -242,62 +235,73 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: 8px;
   margin: 0;
-  padding: $spacing-2xl $spacing-md;
-  border: 1px dashed var(--border-color);
-  border-radius: $radius-md;
-  color: var(--text-tertiary);
+  padding: 48px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   text-align: center;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .catalogHint {
   display: flex;
   align-items: flex-start;
-  gap: $spacing-sm;
-  padding: $spacing-md $spacing-lg;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  gap: 8px;
+  margin: 16px 24px 0;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
 
   svg {
-    margin-top: 3px;
+    margin-top: 2px;
     flex-shrink: 0;
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
   }
 
   @include mobile {
-    padding: $spacing-md;
+    margin-inline: 16px;
   }
 }
+
+/* ---------- Alias mapping rows ---------- */
 
 .mappingsBody {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md;
+  padding: 8px 24px 16px;
+
+  @include mobile {
+    padding: 8px 16px 12px;
+  }
 }
 
 .mappingRow {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr) auto;
   align-items: center;
-  gap: $spacing-md;
-  padding: $spacing-md;
-  border: 1px solid var(--border-color);
-  border-radius: $radius-md;
-  background: var(--bg-secondary);
+  gap: 16px;
+  padding: 16px 0;
+
+  & + & {
+    border-top: 1px solid var(--border-color);
+  }
 
   @include mobile {
     grid-template-columns: 20px minmax(0, 1fr);
-    gap: $spacing-sm;
+    gap: 8px;
   }
 }
 
 .mappingNumber {
-  color: var(--text-tertiary);
-  font-family: $font-mono;
-  font-size: 11px;
+  align-self: end;
+  padding-bottom: 10px;
+  color: var(--text-quaternary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -305,7 +309,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr);
   align-items: end;
-  gap: $spacing-sm;
+  gap: 8px;
   min-width: 0;
 
   @media (max-width: 540px) {
@@ -322,13 +326,15 @@
 
   label {
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     color: var(--text-secondary);
     font-size: 12px;
+    line-height: 16px;
     font-weight: 500;
   }
 }
 
+/* Model IDs are identifiers. */
 .modelInput {
   width: 100%;
   min-width: 0;
@@ -340,8 +346,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 38px;
-  color: var(--text-tertiary);
+  height: 40px;
+  color: var(--text-quaternary);
 
   @media (max-width: 540px) {
     display: none;
@@ -351,29 +357,28 @@
 .mappingFooter {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
+  gap: 8px;
   align-self: end;
-  min-height: 38px;
+  min-height: 40px;
 
   @include mobile {
     grid-column: 2;
     justify-content: space-between;
-    padding-top: $spacing-xs;
-    border-top: 1px solid var(--border-color);
   }
 }
 
 .removeMapping {
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  min-height: 36px;
+  height: 36px;
   padding: 0;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover:not(:disabled) {
-      color: var(--error-color);
-      background: var(--bg-error-light);
+    &:not(:disabled):hover {
+      color: var(--status-danger-text);
+      background: var(--status-danger-bg);
     }
   }
 }
@@ -381,5 +386,9 @@
 @media (prefers-reduced-motion: reduce) {
   .providerOption {
     transition: none;
+  }
+
+  .providerOption:active:not(:disabled) {
+    translate: none;
   }
 }

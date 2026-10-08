@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/Button';
 import { IconRefreshCw } from '@/components/ui/icons';
 import { useCountUp } from '@/hooks/motion';
 import styles from './QuotaHeader.module.scss';
@@ -13,11 +14,11 @@ export type QuotaHeaderProps = {
 };
 
 /**
- * 额度页头部：标题领衔 + ▍mono 遥测 meta 行 + 墨色药丸「刷新全部」。
- * 与凭证库头部同语汇（无 eyebrow —— ▍游标挂在 meta 行开头）。
+ * 额度页头部：h1 + 一行中性计数副标题 + 「刷新全部」主按钮。
+ * 只有「需关注」（额度读取失败）带状态色：attention 圆点 + 文字，不单靠颜色。
  *
  * 入场：三处 `data-reveal` 交给页面壳的 useRevealGroup 统一编排
- * （标题 0ms → meta 70ms → 动作 140ms → tabs 210ms）。
+ * （标题 0ms → meta 70ms → 动作 140ms → 工具栏 210ms）。
  */
 export function QuotaHeader(props: QuotaHeaderProps) {
   const { totalCount, loadedCount, attentionCount, refreshing, disableControls, onRefreshAll } =
@@ -27,43 +28,39 @@ export function QuotaHeader(props: QuotaHeaderProps) {
   const displayLoadedCount = useCountUp(loadedCount);
 
   return (
-    <header className={styles.header}>
-      <div className={styles.copy}>
-        <h1 className={styles.title} data-reveal>
+    <header className="page-header">
+      <div className="page-heading">
+        <h1 className="page-title" data-reveal>
           {t('quota_management.title')}
         </h1>
-        <p className={styles.meta} data-reveal>
-          <span className={styles.metaTotal}>
-            {t('quota_management.meta_credentials', { count: totalCount })}
-          </span>
+        <p className={`page-subtitle ${styles.meta}`} data-reveal>
+          <span>{t('quota_management.meta_credentials', { count: totalCount })}</span>
           <span className={styles.metaDot} aria-hidden="true">
             ·
           </span>
-          <span className={loadedCount > 0 ? styles.metaLoaded : styles.metaMuted}>
-            {t('quota_management.meta_loaded', { count: displayLoadedCount })}
-          </span>
+          <span>{t('quota_management.meta_loaded', { count: displayLoadedCount })}</span>
           {attentionCount > 0 && (
             <>
               <span className={styles.metaDot} aria-hidden="true">
                 ·
               </span>
               <span className={styles.metaAttention}>
+                <span className={styles.attentionDot} aria-hidden="true" />
                 {t('quota_management.meta_attention', { count: attentionCount })}
               </span>
             </>
           )}
         </p>
       </div>
-      <div className={styles.actions} data-reveal>
-        <button
-          type="button"
-          className={styles.primaryAction}
-          onClick={onRefreshAll}
-          disabled={disableControls || refreshing}
-        >
-          <IconRefreshCw size={14} className={refreshing ? styles.spinning : undefined} />
+      <div className="page-actions" data-reveal>
+        <Button onClick={onRefreshAll} disabled={disableControls || refreshing}>
+          <IconRefreshCw
+            size={16}
+            aria-hidden="true"
+            className={refreshing ? styles.spinning : undefined}
+          />
           {t('quota_management.refresh_all_credentials')}
-        </button>
+        </Button>
       </div>
     </header>
   );

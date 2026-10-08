@@ -23,6 +23,7 @@ import {
   countTotalErrors,
   readSavedMode,
   readSavedSection,
+  resolveDirtyFieldIds,
   resolveDirtyTabs,
   resolveStatus,
 } from './uiState';
@@ -30,6 +31,7 @@ import { findConfigFieldById } from './searchIndex';
 import { shouldReloadVisualDraft, useConfigDocument } from './hooks/useConfigDocument';
 import { useFieldJump } from './hooks/useFieldJump';
 import { useSourceSearch } from './hooks/useSourceSearch';
+import { ConfigFieldStateContext, type ConfigFieldState } from './components/fields/fieldState';
 import { ConfigHeader } from './components/ConfigHeader';
 import { ConfigSearch } from './components/ConfigSearch';
 import { ConfigTabs } from './components/ConfigTabs';
@@ -233,6 +235,13 @@ export function ConfigPage() {
     [visualHasPayloadValidationErrors, visualValidationErrors]
   );
   const dirtyTabs = useMemo(() => resolveDirtyTabs(visualDirtyFields), [visualDirtyFields]);
+  const fieldState = useMemo<ConfigFieldState>(
+    () => ({
+      dirtyFieldIds: resolveDirtyFieldIds(visualDirtyFields),
+      modifiedLabel: t('config_management.field_modified', { defaultValue: 'Modified' }),
+    }),
+    [t, visualDirtyFields]
+  );
   const totalErrors = useMemo(
     () => countTotalErrors(visualValidationErrors, visualHasPayloadValidationErrors),
     [visualHasPayloadValidationErrors, visualValidationErrors]
@@ -254,6 +263,19 @@ export function ConfigPage() {
     sourceDirty: doc.sourceDirty,
     errorCount: mode === 'visual' ? totalErrors : 0,
   });
+
+  // 保存栏的状态文案：普通未保存态显示「N 处未保存的更改」，其余状态沿用状态机文案。
+  const saveBarStatusText = doc.recoveryRequired
+    ? t('config_management.precise_save_recovery_required')
+    : status.key === 'dirty' && doc.sourceDirty
+      ? t('config_management.meta_dirty_source')
+      : status.key === 'dirty' && visualDirtyFields.size > 0
+        ? t('config_management.unsaved_changes_count', {
+            count: visualDirtyFields.size,
+            defaultValue_one: '{{count}} unsaved change',
+            defaultValue_other: '{{count}} unsaved changes',
+          })
+        : t(isMobile ? status.shortLabelKey : status.labelKey);
 
   const saveDisabled =
     disableControls ||
@@ -299,13 +321,22 @@ export function ConfigPage() {
     }
   };
 
+  const modeSwitch = (
+    <ModeSwitch
+      mode={mode}
+      disabled={doc.saving || doc.loading || doc.diffModalOpen || doc.recoveryRequired}
+      onChange={handleModeChange}
+    />
+  );
+
   return (
-    <div className={styles.page} ref={revealRef}>
+    <div className={`page ${styles.page}`} ref={revealRef}>
       <ConfigHeader
         meta={headerMeta}
         reloadDisabled={doc.loading || doc.saving}
         reloading={doc.loading}
         onReload={doc.handleReload}
+        extraActions={modeSwitch}
       />
 
       {doc.error && (
@@ -319,58 +350,48 @@ export function ConfigPage() {
         </div>
       )}
 
-      <div className={styles.toolbar} data-reveal>
-        {mode === 'visual' ? (
-          <ConfigSearch disabled={disableControls || doc.loading} onJump={jumpToField} />
-        ) : (
-          <SourceSearchBar search={sourceSearch} disabled={disableControls || doc.loading} />
-        )}
-        <ModeSwitch
-          mode={mode}
-          disabled={doc.saving || doc.loading || doc.diffModalOpen || doc.recoveryRequired}
-          onChange={handleModeChange}
-        />
-      </div>
-
       {mode === 'visual' ? (
-        <>
-          <div className={styles.tabsRow} data-reveal>
-            <ConfigTabs
-              active={activeSection}
-              errorCounts={errorCounts}
-              dirtyTabs={dirtyTabs}
-              disabled={doc.saving || doc.loading}
-              onChange={handleSectionChange}
-            />
+        <ConfigFieldStateContext.Provider value={fieldState}>
+          <div className={styles.layout}>
+            <div className={`on-canvas ${styles.nav}`} data-reveal>
+              <ConfigSearch disabled={disableControls || doc.loading} onJump={jumpToField} />
+              <ConfigTabs
+                active={activeSection}
+                errorCounts={errorCounts}
+                dirtyTabs={dirtyTabs}
+                disabled={doc.saving || doc.loading}
+                onChange={handleSectionChange}
+              />
+            </div>
+            <div
+              className={styles.panel}
+              role="tabpanel"
+              id={configPanelDomId(activeSection)}
+              aria-labelledby={configTabDomId(activeSection)}
+            >
+              {renderActiveSection()}
+            </div>
           </div>
-          <div
-            className={styles.panel}
-            role="tabpanel"
-            id={configPanelDomId(activeSection)}
-            aria-labelledby={configTabDomId(activeSection)}
-          >
-            {renderActiveSection()}
-          </div>
-        </>
+        </ConfigFieldStateContext.Provider>
       ) : (
-        <SourcePanel
-          search={sourceSearch}
-          value={doc.content}
-          onChange={doc.handleChange}
-          theme={resolvedTheme}
-          editable={!disableControls && !doc.loading && !doc.saving && !doc.diffModalOpen}
-        />
+        <section className={styles.sourceCard} aria-label={t('config_management.mode.source')}>
+          <div className={styles.sourceToolbar}>
+            <span className={styles.sourceFile}>config.yaml</span>
+            <SourceSearchBar search={sourceSearch} disabled={disableControls || doc.loading} />
+          </div>
+          <SourcePanel
+            search={sourceSearch}
+            value={doc.content}
+            onChange={doc.handleChange}
+            theme={resolvedTheme}
+            editable={!disableControls && !doc.loading && !doc.saving && !doc.diffModalOpen}
+          />
+        </section>
       )}
 
       <FloatingSaveBar
         visible={isCurrentLayer && doc.isDirty}
-        statusText={t(
-          doc.recoveryRequired
-            ? 'config_management.precise_save_recovery_required'
-            : isMobile
-              ? status.shortLabelKey
-              : status.labelKey
-        )}
+        statusText={saveBarStatusText}
         statusTone={status.tone}
         saving={doc.saving}
         saveDisabled={saveDisabled}

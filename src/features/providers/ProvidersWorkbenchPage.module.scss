@@ -1,39 +1,21 @@
-@use '../../styles/mixins' as *;
-@use '../../styles/variables' as *;
-
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%;
-  padding: 24px;
-  box-sizing: border-box;
-}
-
+// Two panes: flat provider navigation on the canvas, the selected provider's panel on a card.
 .layout {
   display: grid;
   align-items: start;
-  gap: 16px;
-  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  grid-template-columns: 220px minmax(0, 1fr);
 
-  @media (min-width: 1280px) {
-    grid-template-columns: 240px minmax(0, 1fr);
+  @media (max-width: 1100px) {
+    grid-template-columns: 196px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
   }
 }
 
 .layoutSingle {
-  @media (min-width: 1280px) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.modelCatalogSlot {
-  margin-top: 4px;
-}
-
-@media (max-width: 768px) {
-  .page {
-    padding: 16px;
-    gap: 16px;
-  }
+  grid-template-columns: minmax(0, 1fr);
 }

@@ -9,7 +9,7 @@ const TOP_PADDING = 3;
 
 interface SparklineProps {
   points: number[];
-  /** 折线/填充色，默认取主色 */
+  /** 折线/填充色，默认取石墨主色 */
   color?: string;
   ariaLabel: string;
   className?: string;
@@ -54,9 +54,7 @@ export function Sparkline({ points, color, ariaLabel, className }: SparklineProp
     );
   }
 
-  const strokeColor = geometry.isFlat
-    ? 'var(--text-quaternary)'
-    : (color ?? 'var(--primary-color)');
+  const strokeColor = geometry.isFlat ? 'var(--text-disabled)' : (color ?? 'var(--accent)');
 
   return (
     <svg
@@ -68,7 +66,7 @@ export function Sparkline({ points, color, ariaLabel, className }: SparklineProp
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={strokeColor} stopOpacity="0.16" />
+          <stop offset="0%" stopColor={strokeColor} stopOpacity="0.12" />
           <stop offset="100%" stopColor={strokeColor} stopOpacity="0.01" />
         </linearGradient>
       </defs>
@@ -77,7 +75,7 @@ export function Sparkline({ points, color, ariaLabel, className }: SparklineProp
         d={geometry.line}
         fill="none"
         stroke={strokeColor}
-        strokeWidth={2}
+        strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"

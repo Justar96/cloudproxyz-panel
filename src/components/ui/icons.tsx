@@ -433,80 +433,120 @@ export function IconCode({ size = 20, ...props }: IconProps) {
   );
 }
 
+// Sidebar navigation set: one geometric family on a 24px grid (live area 3–21), 1.6px strokes,
+// round caps and joins, 2px+ corner radii. Keep new nav icons in this family.
+const navSvgProps: SVGProps<SVGSVGElement> = { ...baseSvgProps, strokeWidth: 1.6 };
+
 export function IconSidebarDashboard({ size = 20, ...props }: IconProps) {
   return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <rect width="7" height="9" x="3" y="3" rx="1" />
-      <rect width="7" height="5" x="14" y="3" rx="1" />
-      <rect width="7" height="9" x="14" y="12" rx="1" />
-      <rect width="7" height="5" x="3" y="16" rx="1" />
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="2" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="2" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="2" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="2" />
     </svg>
   );
 }
 
 export function IconSidebarQuickStart({ size = 20, ...props }: IconProps) {
   return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <path d="M13 3 5.5 13.5H12L11 21l7.5-10.5H12L13 3Z" />
     </svg>
   );
 }
 
-export const IconSidebarConfig = IconSlidersHorizontal;
-
-export const IconSidebarPlugins = IconPlug;
-
-export function IconSidebarStore({ size = 20, ...props }: IconProps) {
+export function IconSidebarProviders({ size = 20, ...props }: IconProps) {
   return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
-      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
-      <path d="M2 7h20" />
-      <path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" />
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <path d="m12 3.5 8.5 4.25L12 12 3.5 7.75 12 3.5Z" />
+      <path d="m3.5 12 8.5 4.25L20.5 12" />
+      <path d="m3.5 16.25 8.5 4.25 8.5-4.25" />
     </svg>
   );
 }
-
-export const IconSidebarProviders = IconNetwork;
 
 export function IconSidebarAuthFiles({ size = 20, ...props }: IconProps) {
   return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-      <path d="m9 12 2 2 4-4" />
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <circle cx="8" cy="15.5" r="4.5" />
+      <path d="m11.25 12.25 8.25-8.25" />
+      <path d="m16.5 7 2.5 2.5" />
+      <path d="m14 9.5 2 2" />
     </svg>
   );
 }
 
 export function IconSidebarOauth({ size = 20, ...props }: IconProps) {
   return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <path d="M2 21a8 8 0 0 1 13.292-6" />
-      <circle cx="10" cy="8" r="5" />
-      <path d="m16 19 2 2 4-4" />
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <path d="M14 3.5h3.5a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H14" />
+      <path d="M3.5 12h11" />
+      <path d="m11 8.5 3.5 3.5-3.5 3.5" />
     </svg>
   );
 }
 
 export function IconSidebarQuota({ size = 20, ...props }: IconProps) {
   return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <path d="m12 14 4-4" />
-      <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <path d="M4.5 18.5a8.5 8.5 0 1 1 15 0" />
+      <path d="m12 14 3.5-4" />
+      <circle cx="12" cy="14" r="0.75" fill="currentColor" />
     </svg>
   );
 }
 
-export const IconSidebarLogs = IconScrollText;
+export function IconSidebarLogs({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <rect x="3.5" y="4" width="17" height="16" rx="3" />
+      <path d="m7.5 9.5 2.5 2.5-2.5 2.5" />
+      <path d="M12.5 15h4" />
+    </svg>
+  );
+}
+
+export function IconSidebarConfig({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <path d="M4 7.5h7" />
+      <path d="M15 7.5h5" />
+      <circle cx="13" cy="7.5" r="2" />
+      <path d="M4 16.5h3" />
+      <path d="M11 16.5h9" />
+      <circle cx="9" cy="16.5" r="2" />
+    </svg>
+  );
+}
+
+export function IconSidebarPlugins({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="2" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="2" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="2" />
+      <path d="M17 3.5v7" />
+      <path d="M13.5 7h7" />
+    </svg>
+  );
+}
+
+export function IconSidebarStore({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <path d="M5.5 8h13l-.9 10.2a2.5 2.5 0 0 1-2.5 2.3H8.9a2.5 2.5 0 0 1-2.5-2.3L5.5 8Z" />
+      <path d="M9 10.5V7a3 3 0 0 1 6 0v3.5" />
+    </svg>
+  );
+}
 
 export function IconSidebarSystem({ size = 20, ...props }: IconProps) {
   return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <rect width="20" height="8" x="2" y="2" rx="2" />
-      <rect width="20" height="8" x="2" y="14" rx="2" />
-      <line x1="6" x2="6.01" y1="6" y2="6" />
-      <line x1="6" x2="6.01" y1="18" y2="18" />
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 11v5" />
+      <circle cx="12" cy="7.75" r="0.75" fill="currentColor" />
     </svg>
   );
 }

@@ -1,18 +1,18 @@
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import { IconSearch, IconSlidersHorizontal, IconTrash2 } from '@/components/ui/icons';
-import {
-  MAX_CARD_PAGE_SIZE,
-  MIN_CARD_PAGE_SIZE,
-} from '@/features/authFiles/constants';
-import type {
-  AuthFilesSortMode,
-  AuthFilesStatusFilterMode,
-} from '@/features/authFiles/uiState';
+import { MAX_CARD_PAGE_SIZE, MIN_CARD_PAGE_SIZE } from '@/features/authFiles/constants';
+import type { AuthFilesSortMode, AuthFilesStatusFilterMode } from '@/features/authFiles/uiState';
 import styles from './AuthFilesToolbar.module.scss';
 
 export type AuthFilesToolbarProps = {
@@ -36,8 +36,9 @@ export type AuthFilesToolbarProps = {
 };
 
 /**
- * 工作区工具栏：搜索 · 状态分段 · 排序 · 显示设置 popover。
- * 「删除筛选结果」放在工具栏最右端——与限定它作用域的过滤器相邻（映射原则）。
+ * One toolbar row: search · status segmented control · sort · display options.
+ * The scoped "Delete all / filtered" action is a quiet danger-text button pushed to the end,
+ * next to the filters that define its scope.
  */
 export function AuthFilesToolbar(props: AuthFilesToolbarProps) {
   const {
@@ -62,6 +63,25 @@ export function AuthFilesToolbar(props: AuthFilesToolbarProps) {
   const { t } = useTranslation();
   const [displaySettingsOpen, setDisplaySettingsOpen] = useState(false);
   const displaySettingsRef = useRef<HTMLDivElement>(null);
+  const statusGroupRef = useRef<HTMLDivElement>(null);
+
+  // Radio-group keyboard model: arrows move the selection, Home/End jump to the ends.
+  const handleStatusKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    const index = statusFilterOptions.findIndex((option) => option.value === statusFilterMode);
+    const last = statusFilterOptions.length - 1;
+    let next = -1;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+      next = index >= last ? 0 : index + 1;
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
+      next = index <= 0 ? last : index - 1;
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = last;
+    if (next < 0) return;
+    event.preventDefault();
+    onStatusFilterChange(statusFilterOptions[next].value);
+    const buttons = statusGroupRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
+    buttons?.[next]?.focus();
+  };
 
   useEffect(() => {
     if (!displaySettingsOpen) return;
@@ -86,35 +106,42 @@ export function AuthFilesToolbar(props: AuthFilesToolbarProps) {
   }, [displaySettingsOpen]);
 
   return (
-    <div className={styles.toolbar}>
+    <div className={`on-canvas ${styles.toolbar}`}>
       <div className={styles.search}>
         <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={t('auth_files.search_placeholder')}
+          placeholder={t('auth_files.search_placeholder_short', {
+            defaultValue: 'Search credentials',
+          })}
+          title={t('auth_files.search_placeholder')}
           aria-label={t('auth_files.search_label')}
           rightElement={<IconSearch className={styles.searchIcon} size={16} />}
         />
       </div>
 
       <div
-        className={styles.segmented}
-        role="group"
+        ref={statusGroupRef}
+        className={`segmented ${styles.statusFilter}`}
+        role="radiogroup"
         aria-label={t('auth_files.problem_filter_label')}
+        onKeyDown={handleStatusKeyDown}
       >
         {statusFilterOptions.map((option) => {
           const isActive = statusFilterMode === option.value;
-          const isProblem = option.value === 'problem';
           return (
             <button
               key={option.value}
               type="button"
-              className={`${styles.segment} ${isActive ? styles.segmentActive : ''} ${
-                isProblem ? styles.segmentProblem : ''
-              }`}
-              aria-pressed={isActive}
+              role="radio"
+              aria-checked={isActive}
+              tabIndex={isActive ? 0 : -1}
+              className={`segmented-item ${isActive ? 'active' : ''}`}
               onClick={() => onStatusFilterChange(option.value)}
             >
+              {option.value === 'problem' && (
+                <span className={styles.problemDot} aria-hidden="true" />
+              )}
               {option.label}
             </button>
           );
@@ -138,10 +165,10 @@ export function AuthFilesToolbar(props: AuthFilesToolbarProps) {
           aria-expanded={displaySettingsOpen}
           aria-controls="auth-files-display-settings"
           title={t('auth_files.display_options_label')}
-        onClick={() => setDisplaySettingsOpen((open) => !open)}
+          onClick={() => setDisplaySettingsOpen((open) => !open)}
         >
-          <IconSlidersHorizontal size={15} />
-          <span>{t('auth_files.display_options_label')}</span>
+          <IconSlidersHorizontal size={16} />
+          <span className={styles.displayLabel}>{t('auth_files.display_options_label')}</span>
         </button>
 
         {displaySettingsOpen && (
@@ -183,7 +210,7 @@ export function AuthFilesToolbar(props: AuthFilesToolbarProps) {
         onClick={onDelete}
         disabled={deleteDisabled}
       >
-        {deleteLoading ? <LoadingSpinner size={13} /> : <IconTrash2 size={14} />}
+        {deleteLoading ? <LoadingSpinner size={14} /> : <IconTrash2 size={16} />}
         {deleteLabel}
       </button>
     </div>

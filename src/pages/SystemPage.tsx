@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
@@ -17,7 +16,7 @@ import { useApiKeysForModels } from '@/hooks/useApiKeysForModels';
 import { formatDateTimeValue } from '@/utils/format';
 import { classifyModels } from '@/utils/models';
 import { STORAGE_KEY_AUTH } from '@/utils/constants';
-import { BRAND_MARK_DATA_URI } from '@/assets/brandMark';
+import { BrandMark } from '@/components/common/BrandMark';
 import iconGemini from '@/assets/icons/gemini.svg';
 import iconClaude from '@/assets/icons/claude.svg';
 import iconMeta from '@/assets/icons/meta.svg';
@@ -293,122 +292,146 @@ export function SystemPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.connectionStatus, auth.apiBase]);
 
+  const connectionTone =
+    auth.connectionStatus === 'connected'
+      ? styles.dotSuccess
+      : auth.connectionStatus === 'connecting'
+        ? styles.dotAttention
+        : styles.dotDanger;
+
+  const modelStatusTone = modelStatus
+    ? {
+        success: styles.dotSuccess,
+        warning: styles.dotAttention,
+        error: styles.dotDanger,
+        muted: styles.dotNeutral,
+      }[modelStatus.type]
+    : '';
+
+  const quickLinks = [
+    {
+      href: 'https://github.com/router-for-me/CLIProxyAPI',
+      icon: <IconGithub size={18} />,
+      title: t('system_info.link_main_repo'),
+      description: t('system_info.link_main_repo_desc'),
+    },
+    {
+      href: 'https://github.com/router-for-me/Cli-Proxy-API-Management-Center',
+      icon: <IconCode size={18} />,
+      title: t('system_info.link_webui_repo'),
+      description: t('system_info.link_webui_repo_desc'),
+    },
+    {
+      href: 'https://help.router-for.me/',
+      icon: <IconBookOpen size={18} />,
+      title: t('system_info.link_docs'),
+      description: t('system_info.link_docs_desc'),
+    },
+  ];
+
   return (
-    <div className={styles.container}>
-      <h1 className={styles.pageTitle}>{t('system_info.title')}</h1>
-      <div className={styles.content}>
-        <Card className={styles.aboutCard}>
-          <div className={styles.aboutHeader}>
-            <img src={BRAND_MARK_DATA_URI} alt="" className={styles.aboutLogo} />
-            <div className={styles.aboutTitle}>{t('system_info.about_title')}</div>
-          </div>
+    <div className="page">
+      <header className="page-header">
+        <div className="page-heading">
+          <h1 className="page-title">{t('nav.system_info')}</h1>
+          <p className="page-subtitle">
+            {t('system_info.subtitle', {
+              defaultValue: 'Versions, connection details, and the models this proxy serves.',
+            })}
+          </p>
+        </div>
+        <div className="page-actions">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => void handleVersionCheck()}
+            loading={checkingVersion}
+          >
+            {t('system_info.version_check_button')}
+          </Button>
+        </div>
+      </header>
 
-          <div className={styles.aboutInfoGrid}>
-            <button
-              type="button"
-              className={`${styles.infoTile} ${styles.tapTile}`}
-              onClick={handleInfoVersionTap}
-            >
-              <div className={styles.tileHeader}>
-                <div className={styles.tileLabel}>{t('footer.version')}</div>
-              </div>
-              <div className={styles.tileValue}>{appVersion}</div>
-            </button>
-
-            <div className={styles.infoTile}>
-              <div className={styles.tileHeader}>
-                <div className={styles.tileLabel}>{t('footer.api_version')}</div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className={styles.tileAction}
-                  onClick={() => void handleVersionCheck()}
-                  loading={checkingVersion}
-                  title={t('system_info.version_check_button')}
-                  aria-label={t('system_info.version_check_button')}
-                >
-                  {t('system_info.version_check_button')}
-                </Button>
-              </div>
-              <div className={styles.tileValue}>{apiVersion}</div>
-            </div>
-
-            <div className={styles.infoTile}>
-              <div className={styles.tileLabel}>{t('footer.build_date')}</div>
-              <div className={styles.tileValue}>{buildTime}</div>
-            </div>
-
-            <div className={styles.infoTile}>
-              <div className={styles.tileLabel}>{t('connection.status')}</div>
-              <div className={styles.tileValue}>{t(`common.${auth.connectionStatus}_status`)}</div>
-              <div className={styles.tileSub}>{auth.apiBase || '-'}</div>
+      <div className={styles.grid}>
+        <section className={styles.card} aria-labelledby="system-about-title">
+          <div className={styles.brand}>
+            <BrandMark className={styles.brandMark} size={32} />
+            <div className={styles.brandText}>
+              <h2 id="system-about-title" className={styles.brandName}>
+                {t('system_info.about_title')}
+              </h2>
+              <p className={styles.brandTagline}>
+                {t('system_info.about_tagline', {
+                  defaultValue: 'Management panel for CLI Proxy API',
+                })}
+              </p>
             </div>
           </div>
-        </Card>
 
-        <Card title={t('system_info.quick_links_title')}>
-          <p className={styles.sectionDescription}>{t('system_info.quick_links_desc')}</p>
-          <div className={styles.quickLinks}>
-            <a
-              href="https://github.com/router-for-me/CLIProxyAPI"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.linkCard}
-            >
-              <div className={`${styles.linkIcon} ${styles.github}`}>
-                <IconGithub size={22} />
-              </div>
-              <div className={styles.linkContent}>
-                <div className={styles.linkTitle}>
-                  {t('system_info.link_main_repo')}
-                  <IconExternalLink size={14} />
-                </div>
-                <div className={styles.linkDesc}>{t('system_info.link_main_repo_desc')}</div>
-              </div>
-            </a>
+          <dl className={styles.kvList}>
+            <div className={styles.kvRow}>
+              <dt>{t('footer.version')}</dt>
+              <dd>
+                {/* Tapping the version seven times opens the hidden request-log switch. */}
+                <button type="button" className={styles.versionTap} onClick={handleInfoVersionTap}>
+                  {appVersion}
+                </button>
+              </dd>
+            </div>
+            <div className={styles.kvRow}>
+              <dt>{t('footer.api_version')}</dt>
+              <dd className={styles.mono}>{apiVersion}</dd>
+            </div>
+            <div className={styles.kvRow}>
+              <dt>{t('footer.build_date')}</dt>
+              <dd className={styles.mono}>{buildTime}</dd>
+            </div>
+          </dl>
+        </section>
 
-            <a
-              href="https://github.com/router-for-me/Cli-Proxy-API-Management-Center"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.linkCard}
-            >
-              <div className={`${styles.linkIcon} ${styles.github}`}>
-                <IconCode size={22} />
-              </div>
-              <div className={styles.linkContent}>
-                <div className={styles.linkTitle}>
-                  {t('system_info.link_webui_repo')}
-                  <IconExternalLink size={14} />
-                </div>
-                <div className={styles.linkDesc}>{t('system_info.link_webui_repo_desc')}</div>
-              </div>
-            </a>
+        <section className={styles.card} aria-labelledby="system-connection-title">
+          <h2 id="system-connection-title" className={styles.cardTitle}>
+            {t('system_info.connection_title', { defaultValue: 'Connection' })}
+          </h2>
+          <dl className={styles.kvList}>
+            <div className={styles.kvRow}>
+              <dt>{t('system_info.connection_status', { defaultValue: 'Status' })}</dt>
+              <dd>
+                <span className={`${styles.dot} ${connectionTone}`} aria-hidden="true" />
+                {t(`common.${auth.connectionStatus}_status`)}
+              </dd>
+            </div>
+            <div className={styles.kvRow}>
+              <dt>{t('system_info.server_address', { defaultValue: 'Server address' })}</dt>
+              <dd className={styles.mono} title={auth.apiBase || undefined}>
+                {auth.apiBase || '-'}
+              </dd>
+            </div>
+          </dl>
 
-            <a
-              href="https://help.router-for.me/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.linkCard}
-            >
-              <div className={`${styles.linkIcon} ${styles.docs}`}>
-                <IconBookOpen size={22} />
-              </div>
-              <div className={styles.linkContent}>
-                <div className={styles.linkTitle}>
-                  {t('system_info.link_docs')}
-                  <IconExternalLink size={14} />
-                </div>
-                <div className={styles.linkDesc}>{t('system_info.link_docs_desc')}</div>
-              </div>
-            </a>
+          <div className={styles.sessionBlock}>
+            <div className={styles.sessionText}>
+              <h3>{t('system_info.clear_login_title')}</h3>
+              <p>{t('system_info.clear_login_desc')}</p>
+            </div>
+            <Button variant="danger" size="sm" onClick={handleClearLoginStorage}>
+              {t('system_info.clear_login_button')}
+            </Button>
           </div>
-        </Card>
+        </section>
 
-        <Card
-          title={t('system_info.models_title')}
-          extra={
+        <section
+          className={`${styles.card} ${styles.wide}`}
+          aria-labelledby="system-models-title"
+          aria-busy={modelsLoading}
+        >
+          <div className={styles.cardHeader}>
+            <div className={styles.cardHeading}>
+              <h2 id="system-models-title" className={styles.cardTitle}>
+                {t('system_info.models_title')}
+              </h2>
+              <p className={styles.cardDescription}>{t('system_info.models_desc')}</p>
+            </div>
             <Button
               variant="secondary"
               size="sm"
@@ -417,59 +440,89 @@ export function SystemPage() {
             >
               {t('common.refresh')}
             </Button>
-          }
-        >
-          <p className={styles.sectionDescription}>{t('system_info.models_desc')}</p>
-          {modelStatus && (
-            <div className={`status-badge ${modelStatus.type}`}>{modelStatus.message}</div>
-          )}
-          {modelsError && <div className="error-box">{modelsError}</div>}
+          </div>
+
+          {modelStatus &&
+          !(models.length === 0 && modelStatus.message === t('system_info.models_empty')) ? (
+            <p className={styles.modelStatus} role="status">
+              <span className={`${styles.dot} ${modelStatusTone}`} aria-hidden="true" />
+              {modelStatus.message}
+            </p>
+          ) : null}
+          {modelsError ? <div className={styles.errorBox}>{modelsError}</div> : null}
+
           {modelsLoading ? (
-            <div className="hint">{t('common.loading')}</div>
+            <p className={styles.emptyHint}>{t('common.loading')}</p>
           ) : models.length === 0 ? (
-            <div className="hint">{t('system_info.models_empty')}</div>
+            <p className={styles.emptyHint}>{t('system_info.models_empty')}</p>
           ) : (
-            <div className="item-list">
+            <ul className={styles.modelGroups}>
               {groupedModels.map((group) => {
                 const iconSrc = getIconForCategory(group.id);
                 return (
-                  <div key={group.id} className="item-row">
-                    <div className="item-meta">
-                      <div className={styles.groupTitle}>
-                        {iconSrc && <img src={iconSrc} alt="" className={styles.groupIcon} />}
-                        <span className="item-title">{group.label}</span>
-                      </div>
-                      <div className="item-subtitle">
-                        {t('system_info.models_count', { count: group.items.length })}
-                      </div>
+                  <li key={group.id} className={styles.modelGroup}>
+                    <div className={styles.groupHeading}>
+                      {iconSrc ? (
+                        <img src={iconSrc} alt="" className={styles.groupIcon} />
+                      ) : (
+                        <span className={styles.groupIconBlank} aria-hidden="true" />
+                      )}
+                      <span className={styles.groupLabel}>{group.label}</span>
+                      <span className={styles.groupCount}>{group.items.length}</span>
                     </div>
-                    <div className={styles.modelTags}>
+                    <ul
+                      className={styles.modelTags}
+                      aria-label={t('system_info.models_count', { count: group.items.length })}
+                    >
                       {group.items.map((model) => (
-                        <span
+                        <li
                           key={`${model.name}-${model.alias ?? 'default'}`}
                           className={styles.modelTag}
-                          title={model.description || ''}
+                          title={model.description || undefined}
                         >
                           <span className={styles.modelName}>{model.name}</span>
-                          {model.alias && <span className={styles.modelAlias}>{model.alias}</span>}
-                        </span>
+                          {model.alias ? (
+                            <span className={styles.modelAlias}>{model.alias}</span>
+                          ) : null}
+                        </li>
                       ))}
-                    </div>
-                  </div>
+                    </ul>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           )}
-        </Card>
+        </section>
 
-        <Card title={t('system_info.clear_login_title')}>
-          <p className={styles.sectionDescription}>{t('system_info.clear_login_desc')}</p>
-          <div className={styles.clearLoginActions}>
-            <Button variant="danger" onClick={handleClearLoginStorage}>
-              {t('system_info.clear_login_button')}
-            </Button>
+        <section className={`${styles.card} ${styles.wide}`} aria-labelledby="system-links-title">
+          <div className={styles.cardHeading}>
+            <h2 id="system-links-title" className={styles.cardTitle}>
+              {t('system_info.quick_links_title')}
+            </h2>
+            <p className={styles.cardDescription}>{t('system_info.quick_links_desc')}</p>
           </div>
-        </Card>
+          <ul className={styles.links}>
+            {quickLinks.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.linkRow}
+                >
+                  <span className={styles.linkIcon} aria-hidden="true">
+                    {link.icon}
+                  </span>
+                  <span className={styles.linkText}>
+                    <span className={styles.linkTitle}>{link.title}</span>
+                    <span className={styles.linkDesc}>{link.description}</span>
+                  </span>
+                  <IconExternalLink size={14} className={styles.linkArrow} aria-hidden="true" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
 
       <Modal
@@ -492,7 +545,7 @@ export function SystemPage() {
         }
       >
         <div className="request-log-modal">
-          <div className="status-badge warning">{t('basic_settings.request_log_warning')}</div>
+          <div className={styles.attentionNote}>{t('basic_settings.request_log_warning')}</div>
           <ToggleSwitch
             label={t('basic_settings.request_log_enable')}
             labelPosition="left"

@@ -284,6 +284,14 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
         ? APIKEY_FUN_DISPLAY_NAME
         : t('nav.quick_start')
       : undefined;
+  const headerSubtitle =
+    fixedBrand === 'apikeyFun'
+      ? t('providersPage.header.quickStartSubtitle', {
+          defaultValue: 'One APIKEY.FUN key sets up every supported protocol for you.',
+        })
+      : t('providersPage.header.subtitle', {
+          defaultValue: 'Upstream API keys and endpoints, grouped by provider.',
+        });
   const errorBanner = workbench.errorMessage ? (
     <div className="error-box">{workbench.errorMessage}</div>
   ) : null;
@@ -374,8 +382,8 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
   // 加载状态
   if (!workbench.snapshot && workbench.isPending) {
     return (
-      <div className={styles.page}>
-        <Skeleton height={120} />
+      <div className="page">
+        <Skeleton height={72} />
         <div className={styles.layout}>
           <Skeleton height={420} />
           <Skeleton height={420} />
@@ -386,9 +394,10 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
 
   if (!activeGroup) {
     return (
-      <div className={styles.page}>
+      <div className="page">
         <ProviderHeaderCard
           title={headerTitle}
+          subtitle={headerSubtitle}
           totalActive={0}
           totalResources={0}
           providerFamilies={0}
@@ -406,9 +415,10 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
   }
 
   return (
-    <div className={styles.page}>
+    <div className="page">
       <ProviderHeaderCard
         title={headerTitle}
+        subtitle={headerSubtitle}
         totalActive={totalActive}
         totalResources={totalResources}
         providerFamilies={providerFamilies}
@@ -418,7 +428,6 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
         showNewAction={!fixedBrand}
         showSummary={fixedBrand !== 'apikeyFun'}
         newLabel={t('providersPage.actions.new')}
-        variant={fixedBrand === 'apikeyFun' ? 'quickStart' : undefined}
         onRefresh={() => void handleRefresh()}
         onNew={openCreate}
       />

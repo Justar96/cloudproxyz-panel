@@ -1,11 +1,12 @@
 import { toneForSuccessRate, type MeterTone } from '../utils';
 import styles from './Meter.module.scss';
 
+/** 健康时用中性石墨；只有需要处理时才上状态色（数值文本始终可见） */
 const TONE_COLORS: Record<MeterTone, string> = {
-  good: 'var(--viz-success, #10b981)',
-  warning: 'var(--amber-color)',
-  critical: 'var(--viz-failure, #c65746)',
-  idle: 'var(--text-quaternary)',
+  good: 'var(--viz-neutral)',
+  warning: 'var(--viz-warning)',
+  critical: 'var(--viz-failure)',
+  idle: 'var(--text-disabled)',
 };
 
 interface MeterProps {
@@ -17,8 +18,7 @@ interface MeterProps {
 }
 
 /**
- * 细条计量器：填充色承载严重度，轨道是同色淡化步阶，
- * 因此在整条上都能读出状态。
+ * 细条计量器：健康时为中性石墨，降级/失败时换成状态色。
  */
 export function Meter({ value, tone, ariaLabel, className }: MeterProps) {
   const resolvedTone = tone ?? toneForSuccessRate(value);

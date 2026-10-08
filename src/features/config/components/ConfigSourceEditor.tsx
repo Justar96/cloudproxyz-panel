@@ -3,6 +3,7 @@ import CodeMirror, { type ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { yaml } from '@codemirror/lang-yaml';
 import { search, searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { keymap } from '@codemirror/view';
+import { configEditorTheme } from './configEditorTheme';
 
 type ConfigSourceEditorProps = {
   value: string;
@@ -32,7 +33,7 @@ export default function ConfigSourceEditor({
       value={value}
       onChange={onChange}
       extensions={extensions}
-      theme={theme}
+      theme={configEditorTheme(theme)}
       editable={editable}
       placeholder={placeholder}
       height="100%"

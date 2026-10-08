@@ -1,120 +1,65 @@
 @use '../../../styles/mixins' as *;
 
-/* 分区卡片：自然高度，无固定高度/无滚动吸附（旧轮播已退役） */
+/* 分区卡片：抬升表面，无描边无阴影；行分隔线由设置行自己绘制 */
 
 .card {
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 2vw, 22px);
   min-width: 0;
   box-sizing: border-box;
-  padding: clamp(20px, 2.4vw, 28px);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  padding: 24px 24px 8px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
 
   @include mobile {
-    gap: 14px;
-    padding: 16px;
+    padding: 16px 16px 4px;
   }
 }
 
-/* 首载入场：0.45s 强减速上浮（与全站卡片入场同拍），排在头部级联
-   （标题 0 / meta 70 / 动作 140 / 工具栏 210 / tabs 280ms）之后收尾，仅首载播一次 */
+/* 首载入场：360ms 大位移曲线轻上浮，仅首载播一次 */
 .cardEnter {
-  animation: config-card-in 0.45s var(--ease-out-strong, ease-out) 0.32s backwards;
+  animation: config-card-in var(--dur-large, 360ms) var(--ease-large) 120ms backwards;
 }
 
 @keyframes config-card-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 24px, 0);
+    transform: translate3d(0, 8px, 0);
   }
 }
 
 .header {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 10px;
-  align-items: start;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border-color);
-
-  @include mobile {
-    grid-template-columns: minmax(0, 1fr);
-    padding-bottom: 12px;
-  }
-}
-
-.badges {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.indexBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 28px;
-  padding: 0 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-family: $font-mono;
-  font-size: 11px;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-.iconBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  flex: 0 0 auto;
-}
-
-.heading {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
+  padding-bottom: 16px;
 }
 
 .title {
   margin: 0;
   color: var(--text-primary);
-  font-size: clamp(18px, 1.6vw, 22px);
-  font-weight: 680;
-  line-height: 1.18;
-  letter-spacing: -0.01em;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 .description {
   margin: 0;
-  max-width: 72ch;
+  max-width: 68ch;
   color: var(--text-secondary);
   font-size: 13px;
-  line-height: 1.65;
-
-  @include mobile {
-    max-width: none;
-  }
+  line-height: 18px;
+  text-wrap: pretty;
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
   width: 100%;
   min-width: 0;
+  container-type: inline-size;
 }
 
 @media (prefers-reduced-motion: reduce) {

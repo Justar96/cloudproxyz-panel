@@ -25,3 +25,20 @@ describe('ConfigTabs accessibility', () => {
     expect(markup).toContain(`aria-label="${accessibleLabel}"`);
   });
 });
+
+describe('ConfigTabs navigation', () => {
+  test('renders a vertical tablist plus a compact select fallback', () => {
+    const markup = renderToStaticMarkup(
+      createElement(ConfigTabs, {
+        active: 'network',
+        errorCounts: {},
+        dirtyTabs: new Set(),
+        onChange: noop,
+      })
+    );
+    expect(markup).toContain('role="tablist"');
+    expect(markup).toContain('aria-orientation="vertical"');
+    expect(markup).toContain('aria-selected="true"');
+    expect(markup).toContain(i18n.t('config_management.visual.sections.network.title'));
+  });
+});

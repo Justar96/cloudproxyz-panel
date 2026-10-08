@@ -8,7 +8,8 @@ $lane-width: 210px;
 .timeline {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 12px;
+  min-width: 0;
 }
 
 .head {
@@ -21,15 +22,18 @@ $lane-width: 210px;
 
 .title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 650;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--text-primary);
 }
 
 .range {
-  margin: 2px 0 0;
+  margin: 0;
   font-size: 12px;
-  color: var(--text-quaternary);
+  line-height: 16px;
+  color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -40,47 +44,57 @@ $lane-width: 210px;
   flex-wrap: wrap;
 }
 
-.nav,
-.modes {
+/* Period stepper: a recessed tray of three plain buttons. */
+.nav {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 3px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
+  padding: 2px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-recessed);
 
   button {
-    padding: 4px 12px;
-    font: inherit;
-    font-size: 12.5px;
-    color: var(--text-secondary);
+    min-width: 32px;
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 10px;
     background: transparent;
-    border: 1px solid transparent;
-    border-radius: 999px;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
     cursor: pointer;
-    transition: all $transition-fast;
-
-    &:hover:not(:disabled) {
-      color: var(--text-primary);
-    }
+    transition:
+      background-color var(--dur-hover) var(--ease-out-strong),
+      color var(--dur-hover) var(--ease-out-strong);
 
     &:disabled {
-      opacity: 0.5;
+      color: var(--text-primary);
+      background: var(--bg-selected);
       cursor: default;
     }
 
-    &[aria-pressed='true'] {
-      background: var(--floating-surface, var(--bg-primary));
-      border-color: var(--border-hover);
-      color: var(--text-primary);
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 0;
     }
   }
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .nav button:hover:not(:disabled) {
+    color: var(--text-primary);
+  }
+}
+
+.modes {
+  flex: none;
+}
+
 .chart {
-  border: 1px solid var(--border-color);
-  border-radius: $radius-lg;
+  border-radius: var(--radius-xl);
   background: var(--bg-primary);
   overflow: hidden;
 }
@@ -106,12 +120,11 @@ $lane-width: 210px;
 }
 
 .axisLabel {
-  padding: 8px 12px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-quaternary);
+  padding: 8px 16px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
   display: flex;
   align-items: flex-end;
 }
@@ -131,24 +144,28 @@ $lane-width: 210px;
   border-left: 1px solid var(--border-color);
 
   &[data-weekend='1'] {
-    background: rgba(255, 255, 255, 0.014);
+    background: var(--bg-quinary);
   }
 
   // The current day is the reference point for reading the whole chart.
   &[data-today='1'] {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-tertiary);
+
+    .axisDate {
+      color: var(--text-primary);
+    }
   }
 }
 
 .axisWeekday {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-quaternary);
   min-height: 12px;
 }
 
 .axisDate {
-  font-size: 11.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -156,17 +173,13 @@ $lane-width: 210px;
 
 .lane {
   border-top: 1px solid var(--border-color);
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.012);
-  }
 }
 
 .laneHead {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding: 9px 12px;
+  padding: 10px 16px;
   min-width: 0;
 }
 
@@ -177,17 +190,16 @@ $lane-width: 210px;
   min-width: 0;
 }
 
-.laneDot {
+.laneIcon {
   flex: none;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--provider-accent, var(--text-quaternary));
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
 }
 
 .laneName {
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -198,10 +210,11 @@ $lane-width: 210px;
   flex: none;
   padding: 0 6px;
   border-radius: 999px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--count-badge-text, var(--text-secondary));
-  background: var(--count-badge-bg, var(--bg-tertiary));
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--count-badge-text);
+  background: var(--count-badge-bg);
 }
 
 .laneLimits {
@@ -211,14 +224,16 @@ $lane-width: 210px;
 }
 
 .laneLimit {
-  padding: 1px 6px;
-  border-radius: $radius-sm;
-  font-size: 10.5px;
-  color: var(--text-quaternary);
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--text-secondary);
   background: var(--bg-tertiary);
 
   b {
-    color: var(--text-secondary);
+    font-weight: 500;
+    color: var(--text-primary);
     font-variant-numeric: tabular-nums;
   }
 }
@@ -240,7 +255,7 @@ $lane-width: 210px;
     border-left: 1px solid var(--border-color);
 
     &[data-weekend='1'] {
-      background: rgba(255, 255, 255, 0.014);
+      background: var(--bg-quinary);
     }
   }
 }
@@ -252,8 +267,8 @@ $lane-width: 210px;
   top: 0;
   bottom: 0;
   width: 1px;
-  background: var(--text-tertiary, var(--text-quaternary));
-  opacity: 0.8;
+  background: var(--accent);
+  opacity: 0.6;
   z-index: 1;
 }
 
@@ -266,29 +281,28 @@ $lane-width: 210px;
   padding: 0 8px;
   border-radius: 999px;
   overflow: hidden;
-  font-size: 10.5px;
+  font-size: 11px;
   white-space: nowrap;
   position: absolute;
 }
 
-// Current window: solid, in the provider's colour — the row's focal point.
+// Current window: graphite, the row's focal point. Consumed share is drawn
+// darker behind the label; the label carries the remaining percentage.
 .windowLive {
-  background: color-mix(in srgb, var(--provider-accent) 26%, transparent);
-  border: 1px solid color-mix(in srgb, var(--provider-accent) 45%, transparent);
+  background: var(--chart-fill);
   color: var(--text-primary);
 }
 
-// Upcoming: dashed outline, nothing consumed yet.
+// Upcoming: a faint tray, nothing consumed yet.
 .windowNext {
   background: transparent;
-  border: 1px dashed color-mix(in srgb, var(--provider-accent) 32%, transparent);
-  color: var(--text-quaternary);
+  box-shadow: inset 0 0 0 1px var(--border-primary);
+  color: var(--text-secondary);
 }
 
 // Elapsed: recedes.
 .windowPast {
-  background: color-mix(in srgb, var(--provider-accent) 8%, transparent);
-  border: 1px solid transparent;
+  background: var(--bg-tertiary);
   color: var(--text-quaternary);
 }
 
@@ -298,7 +312,7 @@ $lane-width: 210px;
   left: 0;
   top: 0;
   bottom: 0;
-  background: color-mix(in srgb, var(--provider-accent) 34%, transparent);
+  background: var(--chart-fill);
   pointer-events: none;
 }
 
@@ -319,7 +333,7 @@ $lane-width: 210px;
   width: 2px;
   transform: translateX(-50%);
   border-radius: 999px;
-  background: var(--amber-color);
+  background: var(--viz-warning);
   box-shadow: 0 0 0 1px var(--bg-primary);
   cursor: help;
 
@@ -331,8 +345,8 @@ $lane-width: 210px;
 .laneIdle {
   position: relative;
   z-index: 2;
-  padding-left: 10px;
-  font-size: 11px;
+  padding-left: 12px;
+  font-size: 12px;
   color: var(--text-quaternary);
 }
 
@@ -340,9 +354,10 @@ $lane-width: 210px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: $spacing-md;
-  font-size: 11px;
-  color: var(--text-quaternary);
+  gap: 8px 16px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
 }
 
 .legendItem {
@@ -358,28 +373,34 @@ $lane-width: 210px;
 }
 
 .swatchLive {
-  background: color-mix(in srgb, var(--text-tertiary, #888) 34%, transparent);
-  border: 1px solid color-mix(in srgb, var(--text-tertiary, #888) 50%, transparent);
+  background: color-mix(in oklab, var(--accent) 28%, transparent);
 }
 
 .swatchNext {
-  border: 1px dashed color-mix(in srgb, var(--text-tertiary, #888) 45%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-primary);
 }
 
 .swatchPast {
-  background: color-mix(in srgb, var(--text-tertiary, #888) 12%, transparent);
+  background: var(--bg-tertiary);
 }
 
 .swatchCredit {
   width: 2px;
   height: 14px;
   border-radius: 999px;
-  background: var(--amber-color);
+  background: var(--viz-warning);
 }
 
 .legendNote {
   flex: 1 1 320px;
   min-width: 0;
+  color: var(--text-quaternary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav button {
+    transition: none;
+  }
 }
 
 @include mobile {

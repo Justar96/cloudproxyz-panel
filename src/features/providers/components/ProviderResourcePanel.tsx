@@ -1,11 +1,14 @@
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconExternalLink, IconPlus, IconSearch } from '@/components/ui/icons';
+import { Button } from '@/components/ui/Button';
+import { IconExternalLink, IconKey, IconPlus, IconSearch, IconX } from '@/components/ui/icons';
 import type { ProviderRecentUsageMap } from '@/components/providers/utils';
 import { PROVIDER_LOGOS } from '../brandLogos';
 import { getKimiAffiliateUrl } from '../kimi';
 import { APIKEY_FUN_AFFILIATE_URL, APIKEY_FUN_DASHBOARD_URL } from '../sponsor';
 import { getSponsorProviderDefinition } from '../sponsorDefinitions';
 import type { ProviderGroup, ProviderResource } from '../types';
+import { ProviderLogo } from './ProviderLogo';
 import { ProviderResourceTable } from './ProviderResourceTable';
 import { ProviderResourceToolbar } from './ProviderResourceToolbar';
 import type { ProviderSortBy, SortDir } from '../types';
@@ -53,9 +56,11 @@ export function ProviderResourcePanel({
   onCreate,
 }: ProviderResourcePanelProps) {
   const { t, i18n } = useTranslation();
-  const logo = PROVIDER_LOGOS[group.id];
+  const titleId = useId();
   const providerTitle = t(`providersPage.providerNames.${group.id}`);
   const hasProviderInfo = group.resources.length > 0;
+  const totalCount = group.resources.length;
+  const activeCount = group.resources.filter((r) => !r.disabled).length;
   const showSponsorRegistrationLink = group.id === 'apikeyFun' && !hasProviderInfo;
   const showSponsorDashboardLink = group.id === 'apikeyFun' && hasProviderInfo;
   const registrationUrl =
@@ -67,47 +72,94 @@ export function ProviderResourcePanel({
   const registrationLabel = t(
     group.id === 'kimi' ? 'providersPage.sponsor.registerNow' : 'providersPage.sponsor.registerLink'
   );
-  const emptyText = showSponsorRegistrationLink
-    ? t('providersPage.sponsor.emptyRegisterHint')
-    : t('providersPage.table.empty');
-  const logoClassName = [
-    styles.logo,
-    logo?.themeSurface ? styles.logoThemeSurface : '',
-    logo?.darkSrc ? styles.logoThemeLight : '',
-    logo?.invertOnDark ? styles.logoInvertOnDark : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-  const darkLogoClassName = [
-    styles.logo,
-    logo?.themeSurface ? styles.logoThemeSurface : '',
-    styles.logoThemeDark,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const isFilteredOut = hasProviderInfo && filteredResources.length === 0;
+
+  const clearFilters = () => {
+    onFilterChange('');
+    toolbarControls?.onSelectedModelsChange(new Set());
+  };
 
   const titleContent = (
     <>
-      {logo ? (
-        <>
-          <img src={logo.src} alt="" aria-hidden="true" className={logoClassName} />
-          {logo.darkSrc ? (
-            <img src={logo.darkSrc} alt="" aria-hidden="true" className={darkLogoClassName} />
-          ) : null}
-        </>
-      ) : null}
-      <h2 className={styles.title}>{providerTitle}</h2>
+      <h2 className={styles.title} id={titleId}>
+        {providerTitle}
+      </h2>
       {showSponsorDashboardLink ? (
-        <IconExternalLink className={styles.titleExternalIcon} size={16} />
+        <IconExternalLink className={styles.titleExternalIcon} size={14} />
       ) : null}
     </>
   );
 
+  const renderEmpty = () => {
+    if (isFilteredOut) {
+      return (
+        <div className={styles.empty}>
+          <span className={styles.emptyIcon} aria-hidden="true">
+            <IconSearch size={18} />
+          </span>
+          <div className={styles.emptyText}>
+            <p className={styles.emptyTitle}>
+              {t('providersPage.empty.noMatchTitle', { defaultValue: 'No matching resources' })}
+            </p>
+            <p className={styles.emptyDescription}>
+              {t('providersPage.empty.noMatchDescription', {
+                defaultValue: 'Try another search or clear the model filter.',
+              })}
+            </p>
+          </div>
+          <Button variant="secondary" size="sm" onClick={clearFilters}>
+            <IconX size={14} />
+            {t('providersPage.empty.clearFilters', { defaultValue: 'Clear filters' })}
+          </Button>
+        </div>
+      );
+    }
+    return (
+      <div className={styles.empty}>
+        <span className={styles.emptyIcon} aria-hidden="true">
+          <IconKey size={18} />
+        </span>
+        <div className={styles.emptyText}>
+          <p className={styles.emptyTitle}>
+            {showSponsorRegistrationLink
+              ? t('providersPage.sponsor.emptyRegisterHint')
+              : t('providersPage.empty.title', {
+                  provider: providerTitle,
+                  defaultValue: 'No {{provider}} keys yet',
+                })}
+          </p>
+          <p className={styles.emptyDescription}>
+            {t('providersPage.empty.description', {
+              defaultValue: 'Add an API key to start routing requests through this provider.',
+            })}
+          </p>
+        </div>
+        {showSponsorRegistrationLink ? (
+          <a
+            className="btn btn-secondary btn-sm"
+            href={APIKEY_FUN_AFFILIATE_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <IconExternalLink size={14} />
+            <span>{t('providersPage.sponsor.registerLink')}</span>
+          </a>
+        ) : (
+          <Button variant="secondary" size="sm" onClick={onCreate}>
+            <IconPlus size={14} />
+            {t('providersPage.actions.new')}
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <section className={styles.panel}>
+    <section className={styles.panel} aria-labelledby={titleId}>
       <div className={styles.header}>
-        <div className={styles.headerMain}>
-          <div className={styles.titleArea}>
+        <div className={styles.identity}>
+          <ProviderLogo logo={PROVIDER_LOGOS[group.id]} size="lg" />
+          <div className={styles.identityText}>
             {showSponsorDashboardLink ? (
               <a
                 className={`${styles.titleRow} ${styles.titleLink}`}
@@ -121,92 +173,77 @@ export function ProviderResourcePanel({
             ) : (
               <div className={styles.titleRow}>{titleContent}</div>
             )}
-            {showSponsorDashboardLink ? (
-              <a
-                className={styles.sponsorLink}
-                href={APIKEY_FUN_DASHBOARD_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span className={styles.sponsorLinkText}>
-                  {t('providersPage.sponsor.dashboardLink')}
-                </span>
-                <IconExternalLink className={styles.sponsorLinkIcon} size={14} />
-              </a>
-            ) : registrationUrl ? (
-              <>
-                <a
-                  className={[
-                    styles.sponsorLink,
-                    styles.sponsorLinkEmphasis,
-                    group.id === 'kimi' ? styles.sponsorLinkKimi : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  href={registrationUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span className={styles.sponsorLinkText}>{registrationLabel}</span>
-                  <IconExternalLink className={styles.sponsorLinkIcon} size={14} />
-                </a>
-                {group.id === 'kimi' ? (
-                  <p className={styles.kimiPromo}>{t('providersPage.sponsor.kimiPromo')}</p>
-                ) : null}
-              </>
-            ) : null}
-          </div>
-          <div className={styles.searchWrap}>
-            <span className={styles.searchIcon} aria-hidden="true">
-              <IconSearch size={16} />
-            </span>
-            <input
-              type="search"
-              className={styles.searchInput}
-              value={filter}
-              onChange={(event) => onFilterChange(event.target.value)}
-              placeholder={t('providersPage.table.filterPlaceholder')}
-            />
+            <p className={styles.summary}>
+              <span
+                className={[styles.dot, activeCount > 0 ? styles.dotActive : '']
+                  .filter(Boolean)
+                  .join(' ')}
+                aria-hidden="true"
+              />
+              {t('providersPage.categories.activeCount', {
+                active: activeCount,
+                total: totalCount,
+              })}
+            </p>
           </div>
         </div>
+        {showSponsorDashboardLink ? (
+          <a
+            className="btn btn-ghost btn-sm"
+            href={APIKEY_FUN_DASHBOARD_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span>{t('providersPage.sponsor.dashboardLink')}</span>
+            <IconExternalLink size={14} />
+          </a>
+        ) : registrationUrl ? (
+          <a
+            className="btn btn-secondary btn-sm"
+            href={registrationUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span>{registrationLabel}</span>
+            <IconExternalLink size={14} />
+          </a>
+        ) : null}
+      </div>
+
+      {registrationUrl && group.id === 'kimi' ? (
+        <p className={styles.promo}>{t('providersPage.sponsor.kimiPromo')}</p>
+      ) : null}
+
+      <div className={styles.toolbar}>
+        <div className={styles.searchWrap}>
+          <span className={styles.searchIcon} aria-hidden="true">
+            <IconSearch size={16} />
+          </span>
+          <input
+            type="search"
+            className={`input ${styles.searchInput}`}
+            value={filter}
+            onChange={(event) => onFilterChange(event.target.value)}
+            placeholder={t('providersPage.table.filterPlaceholder')}
+            aria-label={t('providersPage.table.searchLabel', { defaultValue: 'Search resources' })}
+          />
+        </div>
         {toolbarControls ? (
-          <div className={styles.headerToolbarRow}>
-            <ProviderResourceToolbar
-              key={group.id}
-              sortBy={toolbarControls.sortBy}
-              sortDir={toolbarControls.sortDir}
-              onSortBy={toolbarControls.onSortBy}
-              onSortDir={toolbarControls.onSortDir}
-              availableModels={toolbarControls.availableModels}
-              selectedModels={toolbarControls.selectedModels}
-              onSelectedModelsChange={toolbarControls.onSelectedModelsChange}
-            />
-          </div>
+          <ProviderResourceToolbar
+            key={group.id}
+            sortBy={toolbarControls.sortBy}
+            sortDir={toolbarControls.sortDir}
+            onSortBy={toolbarControls.onSortBy}
+            onSortDir={toolbarControls.onSortDir}
+            availableModels={toolbarControls.availableModels}
+            selectedModels={toolbarControls.selectedModels}
+            onSelectedModelsChange={toolbarControls.onSelectedModelsChange}
+          />
         ) : null}
       </div>
 
       {filteredResources.length === 0 ? (
-        <div className={styles.empty}>
-          <div>{emptyText}</div>
-          <div className={styles.emptyAction}>
-            {showSponsorRegistrationLink ? (
-              <a
-                className={`${styles.emptyActionButton} ${styles.emptyActionButtonEmphasis}`}
-                href={APIKEY_FUN_AFFILIATE_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <IconExternalLink size={16} />
-                <span>{t('providersPage.sponsor.registerLink')}</span>
-              </a>
-            ) : (
-              <button type="button" className={styles.emptyActionButton} onClick={onCreate}>
-                <IconPlus size={16} />
-                <span>{t('providersPage.actions.new')}</span>
-              </button>
-            )}
-          </div>
-        </div>
+        renderEmpty()
       ) : (
         <ProviderResourceTable
           resources={filteredResources}

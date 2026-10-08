@@ -68,7 +68,7 @@ export function ConfigSearch({ disabled = false, onJump }: ConfigSearchProps) {
     <div className={styles.searchBox} ref={searchBoxRef}>
       <Input
         className={styles.searchControl}
-        placeholder={t('config_management.visual.search.placeholder')}
+        placeholder={t('config_management.search_placeholder')}
         aria-label={t('config_management.visual.search.placeholder')}
         role="combobox"
         aria-autocomplete="list"

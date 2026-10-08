@@ -57,27 +57,32 @@ export function OAuthModelAliasCard(props: OAuthModelAliasCardProps) {
   return (
     <section className={styles.panel}>
       <header className={styles.panelHead}>
-        <h3 className={styles.panelTitle}>{t('oauth_model_alias.title')}</h3>
+        <div className={styles.panelHeading}>
+          <h2 className={styles.panelTitle}>{t('oauth_model_alias.title')}</h2>
+          <p className={styles.panelDescription}>{t('oauth_model_alias.editor_description')}</p>
+        </div>
         <div className={styles.panelExtra}>
-          <div className={styles.viewModeSwitch}>
-            <Button
-              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => onViewModeChange('list')}
-              disabled={disableControls || modelAliasError !== null}
-              aria-pressed={viewMode === 'list'}
-            >
-              {t('oauth_model_alias.view_mode_list')}
-            </Button>
-            <Button
-              variant={viewMode === 'diagram' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => onViewModeChange('diagram')}
-              disabled={disableControls || modelAliasError !== null}
-              aria-pressed={viewMode === 'diagram'}
-            >
-              {t('oauth_model_alias.view_mode_diagram')}
-            </Button>
+          <div
+            className={`segmented ${styles.viewModeSwitch}`}
+            role="group"
+            aria-label={t('oauth_model_alias.view_mode_label', { defaultValue: 'View' })}
+          >
+            {(['list', 'diagram'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={`segmented-item ${viewMode === mode ? 'active' : ''}`}
+                onClick={() => onViewModeChange(mode)}
+                disabled={disableControls || modelAliasError !== null}
+                aria-pressed={viewMode === mode}
+              >
+                {t(
+                  mode === 'list'
+                    ? 'oauth_model_alias.view_mode_list'
+                    : 'oauth_model_alias.view_mode_diagram'
+                )}
+              </button>
+            ))}
           </div>
           <Button size="sm" onClick={onAdd} disabled={disableControls || modelAliasError !== null}>
             {t('oauth_model_alias.add')}
@@ -107,7 +112,7 @@ export function OAuthModelAliasCard(props: OAuthModelAliasCardProps) {
           ) : (
             <div className={styles.aliasChartSection}>
               <div className={styles.aliasChartHeader}>
-                <h4 className={styles.aliasChartTitle}>{t('oauth_model_alias.chart_title')}</h4>
+                <h3 className={styles.aliasChartTitle}>{t('oauth_model_alias.chart_title')}</h3>
                 <Button
                   variant="ghost"
                   size="sm"

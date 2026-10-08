@@ -24,12 +24,15 @@
 }
 
 .track {
-  width: 44px;
+  width: 40px;
   height: 24px;
-  background: var(--border-color);
+  background: var(--bg-hover);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
   border-radius: $radius-full;
   position: relative;
-  transition: background $transition-fast;
+  transition:
+    background-color var(--dur-hover) var(--ease-out-strong),
+    box-shadow var(--dur-hover) var(--ease-out-strong);
 }
 
 .thumb {
@@ -40,19 +43,27 @@
   height: 18px;
   background: #fff;
   border-radius: $radius-full;
-  box-shadow: $shadow-sm;
-  transition: transform $transition-fast;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  transition: transform var(--dur-hover) var(--ease-out-strong);
 }
 
 .root input:checked + .track {
-  background: var(--primary-color);
+  background: var(--accent);
+  box-shadow: none;
 }
 
 .root input:checked + .track .thumb {
-  transform: translateX(20px);
+  transform: translateX(16px);
+  background: var(--accent-contrast);
+}
+
+.root input:focus-visible + .track {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .label {
   color: var(--text-primary);
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
 }

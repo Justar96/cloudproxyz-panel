@@ -1,5 +1,7 @@
 @use '../../../styles/mixins' as *;
 
+// Stacked columns: success is the graphite main series, failures are the only status colour.
+
 .chart {
   --chart-height: 208px;
   --bar-max-width: 24px;
@@ -7,53 +9,54 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 12px;
 }
 
-/* ---------- 图例 ---------- */
+/* ---------- Legend ---------- */
 
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-lg;
-  font-size: 13px;
+  gap: 4px $spacing-lg;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--text-secondary);
 }
 
 .legendItem {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-xs;
+  gap: 6px;
 }
 
 .legendValue {
-  font-weight: 650;
+  font-weight: 600;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
 
 .legendSwatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
   flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-xs);
 }
 
 .swatchSuccess {
-  background: var(--viz-success);
+  background: var(--viz-neutral);
 }
 
 .swatchFailure {
   background: var(--viz-failure);
 }
 
-/* ---------- 绘图区 ---------- */
+/* ---------- Plot ---------- */
 
 .plot {
   display: flex;
   gap: $spacing-sm;
-  /* 给峰值直标留出空间：柱子顶到 100% 时标签仍落在这段留白里 */
-  padding-top: 22px;
+  /* Room for the peak label when a column reaches 100% */
+  padding-top: 20px;
 }
 
 .yAxis {
@@ -63,16 +66,17 @@
   flex: none;
 
   @include mobile {
-    width: 30px;
+    width: 28px;
   }
 }
 
 .yTick {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   transform: translateY(-50%);
-  font-size: 11px;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-quaternary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -95,23 +99,16 @@
   right: 0;
   height: 1px;
   background: var(--border-color);
-
-  &:last-child {
-    background: var(--border-primary);
-  }
 }
 
-/* ---------- 柱体 ---------- */
+/* ---------- Columns ---------- */
 
 .columns {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: flex-end;
-  /*
-   * 相邻柱体之间同样保持 2px 表面色间隙。窄屏时槽位宽度小于 24px，
-   * 柱体会填满槽位，没有这个 gap 就会连成一片、读起来像面积图。
-   */
+  /* Keep a 2px surface gap between neighbours so narrow columns never merge */
   gap: 2px;
 }
 
@@ -122,7 +119,6 @@
   height: 100%;
   display: flex;
   align-items: flex-end;
-  /* 命中区域比柱体本身更大：整列高度都可悬停 */
   cursor: default;
 }
 
@@ -135,111 +131,83 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  animation: barGrow 0.42s cubic-bezier(0.4, 0, 0.2, 1) both;
-  /* 级差由 TSX 按桶数归一化写入，整波 ≤360ms */
+  animation: barGrow var(--dur-large) var(--ease-large) both;
   animation-delay: var(--bar-delay, 0ms);
   transform-origin: bottom center;
-  transition: filter 120ms ease-out;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
-    transition: none;
   }
-}
-
-.columnActive .stack {
-  filter: brightness(1.06);
 }
 
 .segment {
   display: block;
   width: 100%;
-  /* 数据末端 4px 圆角，基线端保持直角 */
-  border-radius: $radius-sm $radius-sm 0 0;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  transition: background-color var(--dur-hover) var(--ease-out-strong);
 }
 
 .segmentSuccess {
-  background: var(--viz-success);
+  background: var(--viz-neutral);
+}
+
+.columnActive .segmentSuccess {
+  background: var(--accent);
 }
 
 .segmentFailure {
   background: var(--viz-failure);
 }
 
-/* 堆叠段之间留 2px 表面色间隙 —— 用留白而不是描边来分隔 */
+/* 2px surface gap between stacked segments instead of a stroke */
 .segmentGap {
   margin-bottom: 2px;
 }
 
-/* 上方还有失败段时，成功段顶部不再圆角 */
 .segmentSquareTop {
   border-radius: 0;
 }
 
-.idleTick {
-  display: block;
-  width: 100%;
-  height: 2px;
-  border-radius: $radius-full;
-  background: var(--border-primary);
-}
-
-/* bottom 由 TSX 按柱高写入；柱子全部落定后再淡入 */
 .peakLabel {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 6px;
-  font-size: 11px;
-  font-weight: 650;
+  margin-bottom: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   pointer-events: none;
-  animation: peakFade 240ms ease-out 620ms backwards;
+  animation: peakFade 200ms var(--ease-out-strong) 400ms backwards;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
 }
 
-.noRequests {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  display: grid;
-  place-items: center;
-  font-size: 13px;
-  color: var(--text-tertiary);
-  pointer-events: none;
-}
-
-/* ---------- 悬浮提示 ---------- */
+/* ---------- Tooltip (floating layer) ---------- */
 
 .tooltip {
-  --glass-blur: 10px;
-
   position: absolute;
   top: 4px;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: $spacing-sm $spacing-md;
-  min-width: 132px;
-  border-radius: $radius-md;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-backdrop-filter);
-  -webkit-backdrop-filter: var(--glass-backdrop-filter);
-  box-shadow: var(--shadow-lg);
+  gap: 4px;
+  min-width: 140px;
+  padding: $spacing-sm 12px;
+  border-radius: var(--radius-lg);
+  background: var(--floating-surface);
+  box-shadow: var(--floating-shadow);
   font-size: 12px;
+  line-height: 16px;
   color: var(--text-secondary);
   pointer-events: none;
-  /* 悬停换柱时滑到新位置（可中断，CSS transition 自然 retarget），入场只淡入 */
   transition:
-    left 200ms var(--ease-out-strong, ease-out),
-    transform 200ms var(--ease-out-strong, ease-out),
+    left var(--dur-hover) var(--ease-out-strong),
+    transform var(--dur-hover) var(--ease-out-strong),
     opacity 150ms ease-out;
 
   @starting-style {
@@ -252,7 +220,7 @@
 }
 
 .tooltipTime {
-  font-weight: 650;
+  font-weight: 600;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -260,10 +228,11 @@
 .tooltipRow {
   display: flex;
   align-items: center;
-  gap: $spacing-xs;
+  gap: 6px;
 
   b {
-    margin-left: auto;
+    margin-inline-start: auto;
+    font-weight: 600;
     color: var(--text-primary);
     font-variant-numeric: tabular-nums;
   }
@@ -273,88 +242,96 @@
   margin-top: 2px;
   padding-top: 4px;
   border-top: 1px solid var(--border-color);
-  color: var(--text-tertiary);
+  color: var(--text-quaternary);
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- 横轴 ---------- */
+/* ---------- X axis ---------- */
 
 .xAxis {
   position: relative;
   height: 16px;
-  margin-left: 48px;
+  margin-inline-start: 48px;
 
   @include mobile {
-    margin-left: 38px;
+    margin-inline-start: 36px;
   }
 }
 
 .xTick {
   position: absolute;
   transform: translateX(-50%);
-  font-size: 11px;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-quaternary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-/* ---------- 数据表 ---------- */
+/* ---------- Data table ---------- */
 
 .tableToggle {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+  line-height: 16px;
   font-variant-numeric: tabular-nums;
 
   th,
   td {
-    padding: 5px $spacing-sm;
-    text-align: right;
+    padding: 6px $spacing-sm;
+    text-align: end;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-secondary);
   }
 
   thead th {
-    color: var(--text-tertiary);
-    font-weight: 600;
+    color: var(--text-quaternary);
+    font-weight: 500;
     white-space: nowrap;
   }
 
   tbody th[scope='row'] {
-    text-align: left;
+    text-align: start;
     font-weight: 500;
     color: var(--text-primary);
   }
 }
 
-/* ---------- 无数据占位 ---------- */
+/* ---------- Empty state ---------- */
 
 .placeholder {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
-  padding: $spacing-xl;
-  border-radius: $radius-lg;
-  border: 1px dashed var(--border-primary);
-  background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 160px;
+  padding: $spacing-lg;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
   text-align: center;
 }
 
 .placeholderTitle {
   margin: 0;
   font-size: 14px;
+  line-height: 20px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .placeholderHint {
   margin: 0;
-  font-size: 13px;
+  max-width: 48ch;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--text-secondary);
+  text-wrap: pretty;
 }
 
 @keyframes barGrow {

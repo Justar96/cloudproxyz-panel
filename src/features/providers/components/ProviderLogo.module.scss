@@ -1,0 +1,62 @@
+.logo {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  object-fit: contain;
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  padding: 2px;
+}
+
+.sizeSm {
+  width: 20px;
+  height: 20px;
+  padding: 1px;
+}
+
+.sizeMd {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+}
+
+.sizeLg {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+}
+
+.transparent {
+  background: transparent;
+  padding: 0;
+}
+
+// Monochrome marks that need a solid tile: use the graphite solid so the tile
+// follows the theme (charcoal in light, near-white in dark).
+.themeSurface {
+  background: var(--accent-fill);
+  padding: 4px;
+
+  &.sizeSm {
+    padding: 3px;
+  }
+}
+
+.themeDark {
+  display: none;
+
+  [data-theme='dark'] & {
+    display: block;
+  }
+}
+
+.themeLight {
+  [data-theme='dark'] & {
+    display: none;
+  }
+}
+
+.invertOnDark {
+  [data-theme='dark'] & {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}

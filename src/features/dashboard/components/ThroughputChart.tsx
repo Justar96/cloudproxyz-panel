@@ -64,9 +64,10 @@ export function ThroughputChart({ traffic }: ThroughputChartProps) {
   const activeBucket = activeIndex === null ? null : buckets[activeIndex];
   const activeTotal = activeBucket ? activeBucket.success + activeBucket.failed : 0;
 
-  if (buckets.length === 0) {
+  /* 无桶或窗口内零请求：只给一个干净的空状态，不画坐标轴和占位线 */
+  if (buckets.length === 0 || total === 0) {
     return (
-      <div className={styles.placeholder}>
+      <div className={styles.placeholder} role="status">
         <p className={styles.placeholderTitle}>{t('dashboard.traffic_unavailable')}</p>
         <p className={styles.placeholderHint}>{t('dashboard.traffic_unavailable_hint')}</p>
       </div>
@@ -75,7 +76,7 @@ export function ThroughputChart({ traffic }: ThroughputChartProps) {
 
   return (
     <figure className={styles.chart}>
-      {/* 两条序列 → 图例常驻，并直接带上数值（浅色主题下绿色对比度偏低，数值即为补偿） */}
+      {/* 成功为中性石墨主序列，只有失败使用状态色；图例常驻并直接带上数值 */}
       <figcaption className={styles.legend}>
         <span className={styles.legendItem}>
           <span className={`${styles.legendSwatch} ${styles.swatchSuccess}`} aria-hidden="true" />
@@ -164,14 +165,11 @@ export function ThroughputChart({ traffic }: ThroughputChartProps) {
                         style={{ height: `${successHeight}%` }}
                       />
                     )}
-                    {bucketTotal === 0 && <span className={styles.idleTick} />}
                   </div>
                 </div>
               );
             })}
           </div>
-
-          {total === 0 && <p className={styles.noRequests}>{t('status_bar.no_requests')}</p>}
 
           {activeBucket && (
             <div

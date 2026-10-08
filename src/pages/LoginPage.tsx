@@ -10,7 +10,7 @@ import { useAuthStore, useLanguageStore, useNotificationStore } from '@/stores';
 import { detectApiBaseFromLocation, normalizeApiBase } from '@/utils/connection';
 import { LANGUAGE_LABEL_KEYS, LANGUAGE_ORDER } from '@/utils/constants';
 import { isSupportedLanguage } from '@/utils/language';
-import { BRAND_MARK_DATA_URI } from '@/assets/brandMark';
+import { BrandMark } from '@/components/common/BrandMark';
 import { BRAND_NAME } from '@/utils/brand';
 import type { ApiError } from '@/types';
 import { LegacyBackendError } from '@/services/api/legacyBackendProbe';
@@ -212,14 +212,13 @@ export function LoginPage() {
   const showSplash = autoLoading || autoLoginSuccess;
 
   return (
-    <div className={styles.page}>
-      <div className={styles.sheet}>
-        <header className={styles.sheetHeader}>
+    <main className={styles.page}>
+      <div className={styles.card}>
+        <header className={styles.cardHeader}>
           <span className={styles.wordmark}>
-            <img src={BRAND_MARK_DATA_URI} alt="" className={styles.mark} />
+            <BrandMark className={styles.mark} size={24} />
             {BRAND_NAME}
           </span>
-          <span className={styles.swatches} aria-hidden="true" />
           <Select
             className={styles.languageSelect}
             value={language}
@@ -229,12 +228,10 @@ export function LoginPage() {
             ariaLabel={t('language.switch')}
           />
         </header>
-        <div className={styles.halftone} aria-hidden="true" />
 
         {showSplash ? (
           /* 自动登录：短暂的启动画面 */
           <div className={styles.splashContent}>
-            <img src={BRAND_MARK_DATA_URI} alt="" className={styles.splashLogo} />
             <h1 className={styles.splashTitle}>{t('splash.title')}</h1>
             <p className={styles.splashSubtitle}>{t('splash.subtitle')}</p>
             <div className={styles.splashLoader}>
@@ -242,91 +239,95 @@ export function LoginPage() {
             </div>
           </div>
         ) : (
-          <div className={styles.columns}>
-            {/* 登录单：主操作，放在阅读起点 */}
-            <section className={styles.slip} aria-labelledby="login-heading">
-              <h1 id="login-heading" className={styles.title}>
-                {t('login.heading')}
-              </h1>
+          <>
+            <h1 className={styles.title}>{t('login.heading')}</h1>
 
-              <form className={styles.loginForm} onSubmit={handleFormSubmit} noValidate>
-                <Input
-                  ref={keyInputRef}
-                  autoFocus
-                  label={t('login.management_key_label')}
-                  placeholder={t('login.management_key_placeholder')}
-                  type={showKey ? 'text' : 'password'}
-                  name="cpa-management-key"
-                  autoComplete="current-password"
-                  value={managementKey}
-                  onChange={(e) => {
-                    setManagementKey(e.target.value);
-                    if (keyError) setKeyError('');
-                  }}
-                  error={keyError || undefined}
-                  rightElement={
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => setShowKey((prev) => !prev)}
-                      aria-label={showKey ? t('login.hide_key') : t('login.show_key')}
-                      title={showKey ? t('login.hide_key') : t('login.show_key')}
-                    >
-                      {showKey ? <IconEyeOff size={16} /> : <IconEye size={16} />}
-                    </button>
-                  }
+            <form className={styles.loginForm} onSubmit={handleFormSubmit} noValidate>
+              <Input
+                ref={keyInputRef}
+                autoFocus
+                label={t('login.key_label', { defaultValue: 'Management key' })}
+                placeholder={t('login.management_key_placeholder')}
+                type={showKey ? 'text' : 'password'}
+                name="cpa-management-key"
+                autoComplete="current-password"
+                value={managementKey}
+                onChange={(e) => {
+                  setManagementKey(e.target.value);
+                  if (keyError) setKeyError('');
+                }}
+                error={keyError || undefined}
+                rightElement={
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setShowKey((prev) => !prev)}
+                    aria-label={showKey ? t('login.hide_key') : t('login.show_key')}
+                    aria-pressed={showKey}
+                    title={showKey ? t('login.hide_key') : t('login.show_key')}
+                  >
+                    {showKey ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                  </button>
+                }
+              />
+
+              <div className={styles.checkRow}>
+                <SelectionCheckbox
+                  checked={rememberPassword}
+                  onChange={setRememberPassword}
+                  ariaLabel={t('login.remember_password_label')}
+                  label={t('login.remember_password_label')}
+                  labelClassName={styles.toggleLabel}
                 />
+                <SelectionCheckbox
+                  checked={showCustomBase}
+                  onChange={setShowCustomBase}
+                  ariaLabel={t('login.custom_connection_toggle', {
+                    defaultValue: 'Use a custom server URL',
+                  })}
+                  label={t('login.custom_connection_toggle', {
+                    defaultValue: 'Use a custom server URL',
+                  })}
+                  labelClassName={styles.toggleLabel}
+                />
+              </div>
 
-                <div className={styles.checkRow}>
-                  <SelectionCheckbox
-                    checked={rememberPassword}
-                    onChange={setRememberPassword}
-                    ariaLabel={t('login.remember_password_label')}
-                    label={t('login.remember_password_label')}
-                    labelClassName={styles.toggleLabel}
-                  />
-                </div>
+              {showCustomBase && (
+                <Input
+                  label={t('login.custom_connection_field', { defaultValue: 'Server URL' })}
+                  placeholder={t('login.custom_connection_placeholder')}
+                  name="cpa-api-base"
+                  inputMode="url"
+                  autoComplete="url"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  value={apiBase}
+                  onChange={(e) => setApiBase(e.target.value)}
+                  hint={t('login.custom_connection_hint')}
+                />
+              )}
 
-                <div className={styles.checkRow}>
-                  <SelectionCheckbox
-                    checked={showCustomBase}
-                    onChange={setShowCustomBase}
-                    ariaLabel={t('login.custom_connection_label')}
-                    label={t('login.custom_connection_label')}
-                    labelClassName={styles.toggleLabel}
-                  />
-                </div>
+              {/* 常驻的 live region：出错时填入文本，读屏器才能可靠播报 */}
+              <div className={styles.errorBox} role="status" aria-live="polite" aria-atomic="true">
+                {error}
+              </div>
 
-                {showCustomBase && (
-                  <Input
-                    label={t('login.custom_connection_label')}
-                    placeholder={t('login.custom_connection_placeholder')}
-                    value={apiBase}
-                    onChange={(e) => setApiBase(e.target.value)}
-                    hint={t('login.custom_connection_hint')}
-                  />
-                )}
+              <Button type="submit" fullWidth className={styles.submit} loading={loading}>
+                {loading
+                  ? t('login.submitting_sign_in', { defaultValue: 'Signing in…' })
+                  : t('login.submit_sign_in', { defaultValue: 'Sign in' })}
+              </Button>
+            </form>
 
-                <Button type="submit" className={styles.submit} loading={loading}>
-                  {loading ? t('login.submitting') : `${t('login.submit_button')} →`}
-                </Button>
-              </form>
-
-              {error && <div className={styles.errorBox}>{error}</div>}
-            </section>
-
-            {/* 连接规格表 */}
-            <section className={styles.spec} aria-labelledby="login-spec-heading">
-              <h2 id="login-spec-heading" className={styles.specTitle}>
+            {/* 连接信息托盘 */}
+            <section className={styles.tray} aria-labelledby="login-spec-heading">
+              <h2 id="login-spec-heading" className={styles.trayTitle}>
                 {t('login.spec_title')}
               </h2>
-              <dl className={styles.specTable}>
+              <dl className={styles.specList}>
                 <div className={styles.specRow}>
                   <dt>{t('login.connection_current')}</dt>
-                  <dd>
-                    <span className={styles.specValueMono}>{apiBase || detectedBase}</span>
-                    <span className={styles.specHint}>{t('login.connection_auto_hint')}</span>
-                  </dd>
+                  <dd>{apiBase || detectedBase}</dd>
                 </div>
                 <div className={styles.specRow}>
                   <dt>{t('login.spec_backend')}</dt>
@@ -334,15 +335,16 @@ export function LoginPage() {
                 </div>
                 <div className={styles.specRow}>
                   <dt>{t('login.spec_panel')}</dt>
-                  <dd>
-                    <span className={styles.chip}>{__APP_VERSION__ || 'dev'}</span>
-                  </dd>
+                  <dd>{__APP_VERSION__ || 'dev'}</dd>
                 </div>
               </dl>
+              {!showCustomBase && (
+                <p className={styles.trayHint}>{t('login.connection_auto_hint')}</p>
+              )}
             </section>
-          </div>
+          </>
         )}
       </div>
-    </div>
+    </main>
   );
 }

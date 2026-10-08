@@ -90,22 +90,24 @@ export function PluginResourcePage() {
   return (
     <div className={styles.page}>
       {loading ? (
-        <div className={styles.stateShell}>
-          <div className={styles.statusPanel}>{t('common.loading')}</div>
+        <div className={`on-canvas ${styles.stateShell}`}>
+          <div className={styles.statusPanel} role="status">
+            {t('common.loading')}
+          </div>
         </div>
       ) : error ? (
-        <div className={styles.stateShell}>
+        <div className={`on-canvas ${styles.stateShell}`}>
           <EmptyState title={t('plugin_resource.unavailable')} description={error} />
         </div>
       ) : !resource ? (
-        <div className={styles.stateShell}>
+        <div className={`on-canvas ${styles.stateShell}`}>
           <EmptyState
             title={t('plugin_resource.not_found')}
             description={t('plugin_resource.not_found_desc')}
           />
         </div>
       ) : !iframeSrc ? (
-        <div className={styles.stateShell}>
+        <div className={`on-canvas ${styles.stateShell}`}>
           <EmptyState
             title={t('plugin_resource.empty_src')}
             description={t('plugin_resource.empty_src_desc')}

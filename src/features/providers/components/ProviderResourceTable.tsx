@@ -1,20 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  IconAlertTriangle,
-  IconCheckCircle2,
-  IconEye,
-  IconPencil,
-  IconTrash2,
-} from '@/components/ui/icons';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/Table';
+import { IconEye, IconPencil, IconTrash2 } from '@/components/ui/icons';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import { ProviderStatusBar } from '@/components/providers/ProviderStatusBar';
 import {
@@ -42,8 +28,6 @@ interface ProviderResourceTableProps {
   onDelete: (resource: ProviderResource) => void;
   onToggleDisabled?: (resource: ProviderResource, disabled: boolean) => void;
 }
-
-const columnWidths = ['180px', '220px', '72px', '138px', '174px', '176px'];
 
 const isSponsorResource = (resource: ProviderResource): boolean =>
   isMultiProtocolSponsorBrand(resource.brand);
@@ -92,8 +76,8 @@ export function ProviderResourceTable({
 
   const renderMetric = (key: string, label: string, value: number) => (
     <span key={key} className={styles.metric}>
-      <span className={styles.metricLabel}>{label}</span>
       <span className={styles.metricValue}>{value}</span>
+      <span className={styles.metricLabel}>{label}</span>
     </span>
   );
 
@@ -140,50 +124,15 @@ export function ProviderResourceTable({
     return <div className={styles.metricsCell}>{items}</div>;
   };
 
-  const renderStatus = (r: ProviderResource) => {
-    if (r.disabled) {
-      return (
-        <span className={`${styles.statusBadge} ${styles.statusDisabled}`}>
-          <IconAlertTriangle size={14} />
-          {t('providersPage.status.disabled')}
-        </span>
-      );
-    }
-    return (
-      <span className={`${styles.statusBadge} ${styles.statusActive}`}>
-        <IconCheckCircle2 size={14} />
-        {t('providersPage.status.active')}
-      </span>
-    );
-  };
-
-  const renderPrimary = (r: ProviderResource) => {
-    if (isSponsorResource(r)) {
-      return (
-        <div className={styles.primaryCell}>
-          <span className={styles.primaryName}>{r.name ?? r.identifier}</span>
-          <span className={styles.primarySub}>
-            {r.apiKeyPreview ?? t('providersPage.status.notConfigured')}
-          </span>
-        </div>
-      );
-    }
-    if (r.brand === 'openaiCompatibility') {
-      const extra = r.apiKeyEntryCount > 1 ? ` · +${r.apiKeyEntryCount - 1}` : '';
-      return (
-        <div className={styles.primaryCell}>
-          <span className={styles.primaryName}>{r.name ?? r.identifier}</span>
-          <span className={styles.primarySub}>{(r.apiKeyPreview ?? '—') + extra}</span>
-        </div>
-      );
-    }
-    return (
-      <div className={styles.primaryCell}>
-        <span className={styles.primaryName}>{r.apiKeyPreview ?? '—'}</span>
-        {r.authIndex ? <span className={styles.primarySub}>auth: {r.authIndex}</span> : null}
-      </div>
-    );
-  };
+  const renderStatus = (r: ProviderResource) => (
+    <span className={styles.statusLabel}>
+      <span
+        className={`${styles.statusDot} ${r.disabled ? styles.statusDotAttention : styles.statusDotSuccess}`}
+        aria-hidden="true"
+      />
+      {r.disabled ? t('providersPage.status.disabled') : t('providersPage.status.active')}
+    </span>
+  );
 
   const renderBaseUrl = (r: ProviderResource) => {
     if (isSponsorResource(r)) {
@@ -196,138 +145,181 @@ export function ProviderResourceTable({
         </span>
       );
     }
-    return <span className={styles.baseUrl}>{r.baseUrl ?? t('providersPage.status.notSet')}</span>;
+    return (
+      <span className={`${styles.baseUrl} ${r.baseUrl ? '' : styles.muted}`.trim()}>
+        {r.baseUrl ?? t('providersPage.status.notSet')}
+      </span>
+    );
+  };
+
+  const renderPrimary = (r: ProviderResource) => {
+    let name: ReactNode;
+    let sub: ReactNode;
+    if (isSponsorResource(r)) {
+      name = <span className={styles.primaryName}>{r.name ?? r.identifier}</span>;
+      sub = r.apiKeyPreview ?? t('providersPage.status.notConfigured');
+    } else if (r.brand === 'openaiCompatibility') {
+      const extra = r.apiKeyEntryCount > 1 ? ` · +${r.apiKeyEntryCount - 1}` : '';
+      name = <span className={styles.primaryName}>{r.name ?? r.identifier}</span>;
+      sub = (r.apiKeyPreview ?? '—') + extra;
+    } else {
+      name = (
+        <span className={`${styles.primaryName} ${styles.primaryKey}`}>
+          {r.apiKeyPreview ?? '—'}
+        </span>
+      );
+      sub = r.authIndex ? `auth: ${r.authIndex}` : null;
+    }
+    return (
+      <div className={styles.primaryCell}>
+        <div className={styles.primaryLine}>
+          {name}
+          {r.prefix ? (
+            <span className={styles.chip}>
+              <span className={styles.chipLabel}>{t('providersPage.table.prefix')}</span>
+              {r.prefix}
+            </span>
+          ) : null}
+        </div>
+        {renderBaseUrl(r)}
+        {sub ? <span className={styles.primarySub}>{sub}</span> : null}
+      </div>
+    );
   };
 
   return (
-    <Table
-      className={styles.providerTable}
-      cols={columnWidths.map((w, i) => (
-        <col key={i} style={{ width: w }} />
-      ))}
-    >
-      <TableHeader>
-        <TableRow>
-          <TableHead>{t('providersPage.table.key')}</TableHead>
-          <TableHead>{t('providersPage.table.baseUrl')}</TableHead>
-          <TableHead>{t('providersPage.table.prefix')}</TableHead>
-          <TableHead>{t('providersPage.table.models')}</TableHead>
-          <TableHead>{t('providersPage.table.status')}</TableHead>
-          <TableHead alignRight className={styles.actionsHead}>
-            {t('providersPage.table.actions')}
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {resources.map((resource) => {
-          return (
-            <TableRow key={resource.id} selected={resource.id === selectedId}>
-              <TableCell>{renderPrimary(resource)}</TableCell>
-              <TableCell>{renderBaseUrl(resource)}</TableCell>
-              <TableCell>
-                {resource.prefix ? (
-                  <span className={styles.chip}>{resource.prefix}</span>
-                ) : (
-                  <span className={styles.baseUrl}>{t('providersPage.status.none')}</span>
-                )}
-              </TableCell>
-              <TableCell>{renderModelsSummary(resource)}</TableCell>
-              <TableCell>
-                <div className={styles.statusCell}>
-                  {renderStatus(resource)}
-                  {usageByProvider && !isSponsorResource(resource) ? (
-                    <>
-                      {(() => {
-                        const stats = resolveTotalStats(resource, usageByProvider);
-                        return (
-                          <div className={styles.stats}>
-                            <span className={`${styles.statPill} ${styles.statSuccess}`}>
-                              {t('stats.success')}: {stats.success}
-                            </span>
-                            <span className={`${styles.statPill} ${styles.statFailure}`}>
-                              {t('stats.failure')}: {stats.failure}
-                            </span>
-                          </div>
-                        );
-                      })()}
-                      <div className={styles.statusBarWrap}>
-                        <ProviderStatusBar
-                          statusData={resolveStatusBarData(resource, usageByProvider)}
-                          styles={statusBarStyles}
-                        />
-                      </div>
-                    </>
-                  ) : null}
-                </div>
-              </TableCell>
-              <TableCell
-                alignRight
+    <div className={styles.wrap}>
+      <table className={styles.table}>
+        <thead className={styles.head}>
+          <tr>
+            <th scope="col" className={styles.colKey}>
+              {t('providersPage.table.key')}
+            </th>
+            <th scope="col" className={styles.colModels}>
+              {t('providersPage.table.models')}
+            </th>
+            <th scope="col" className={styles.colStatus}>
+              {t('providersPage.table.status')}
+            </th>
+            <th scope="col" className={styles.colActions}>
+              <span className={styles.srOnly}>{t('providersPage.table.actions')}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {resources.map((resource) => {
+            const selected = resource.id === selectedId;
+            return (
+              <tr
+                key={resource.id}
                 className={[
-                  styles.actionsCell,
-                  resource.id === selectedId ? styles.actionsCellSelected : '',
+                  styles.row,
+                  selected ? styles.rowSelected : '',
+                  resource.disabled ? styles.rowDisabled : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
               >
-                <div className={styles.actions}>
-                  {onToggleDisabled ? (
-                    <span className={styles.toggleWrap} onClick={(e) => e.stopPropagation()}>
-                      <ToggleSwitch
-                        checked={!resource.disabled}
-                        disabled={disableMutations}
-                        onChange={(value) => onToggleDisabled(resource, !value)}
-                        ariaLabel={
-                          resource.disabled
-                            ? t('providersPage.actions.enable')
-                            : t('providersPage.actions.disable')
-                        }
-                      />
-                    </span>
-                  ) : null}
-                  <button
-                    type="button"
-                    className={styles.iconBtn}
-                    aria-label={t('providersPage.actions.view')}
-                    title={t('providersPage.actions.view')}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onView(resource);
-                    }}
-                  >
-                    <IconEye size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.iconBtn}
-                    aria-label={t('providersPage.actions.edit')}
-                    title={t('providersPage.actions.edit')}
-                    disabled={disableMutations}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit(resource);
-                    }}
-                  >
-                    <IconPencil size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                    aria-label={t('providersPage.actions.delete')}
-                    title={t('providersPage.actions.delete')}
-                    disabled={disableMutations}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(resource);
-                    }}
-                  >
-                    <IconTrash2 size={16} />
-                  </button>
-                </div>
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+                <td className={styles.cellKey}>{renderPrimary(resource)}</td>
+                <td className={styles.cellModels}>{renderModelsSummary(resource)}</td>
+                <td className={styles.cellStatus}>
+                  <div className={styles.statusCell}>
+                    {renderStatus(resource)}
+                    {usageByProvider && !isSponsorResource(resource) ? (
+                      <>
+                        {(() => {
+                          const stats = resolveTotalStats(resource, usageByProvider);
+                          return (
+                            <span className={styles.stats}>
+                              <span className={styles.stat}>
+                                {t('stats.success')}{' '}
+                                <span className={styles.statValue}>{stats.success}</span>
+                              </span>
+                              <span
+                                className={[
+                                  styles.stat,
+                                  stats.failure > 0 ? styles.statFailure : '',
+                                ]
+                                  .filter(Boolean)
+                                  .join(' ')}
+                              >
+                                {t('stats.failure')}{' '}
+                                <span className={styles.statValue}>{stats.failure}</span>
+                              </span>
+                            </span>
+                          );
+                        })()}
+                        <div className={styles.statusBarWrap}>
+                          <ProviderStatusBar
+                            statusData={resolveStatusBarData(resource, usageByProvider)}
+                            styles={statusBarStyles}
+                          />
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+                </td>
+                <td className={styles.cellActions}>
+                  <div className={styles.actions}>
+                    {onToggleDisabled ? (
+                      <span className={styles.toggleWrap} onClick={(e) => e.stopPropagation()}>
+                        <ToggleSwitch
+                          checked={!resource.disabled}
+                          disabled={disableMutations}
+                          onChange={(value) => onToggleDisabled(resource, !value)}
+                          ariaLabel={
+                            resource.disabled
+                              ? t('providersPage.actions.enable')
+                              : t('providersPage.actions.disable')
+                          }
+                        />
+                      </span>
+                    ) : null}
+                    <button
+                      type="button"
+                      className={styles.iconBtn}
+                      aria-label={t('providersPage.actions.view')}
+                      title={t('providersPage.actions.view')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onView(resource);
+                      }}
+                    >
+                      <IconEye size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.iconBtn}
+                      aria-label={t('providersPage.actions.edit')}
+                      title={t('providersPage.actions.edit')}
+                      disabled={disableMutations}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(resource);
+                      }}
+                    >
+                      <IconPencil size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                      aria-label={t('providersPage.actions.delete')}
+                      title={t('providersPage.actions.delete')}
+                      disabled={disableMutations}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(resource);
+                      }}
+                    >
+                      <IconTrash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }

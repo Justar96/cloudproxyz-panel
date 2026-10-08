@@ -5,18 +5,18 @@ import type { HeaderMetaSegment } from '../uiState';
 import styles from './ConfigHeader.module.scss';
 
 export type ConfigHeaderProps = {
-  /** ▍mono meta 行的段落序列（uiState.buildHeaderMeta 的产物）。 */
+  /** 副标题状态行的段落序列（uiState.buildHeaderMeta 的产物）。 */
   meta: HeaderMetaSegment[];
   reloadDisabled: boolean;
   reloading: boolean;
   onReload: () => void;
-  /** 移动端上移到头部动作行的 ModeSwitch 槽位（桌面端为 null，ModeSwitch 在 tabs 行右端）。 */
+  /** 页头动作区的额外控件（可视化/源码切换）。 */
   extraActions?: ReactNode;
 };
 
 /**
- * 配置面板头部：标题领衔 + ▍mono 遥测 meta 行 + 重载 ghost。
- * 保存动作不在头部常驻 —— 由 FloatingSaveBar 在 dirty 时承载。
+ * 配置面板页头：h1 + 状态副标题（字段数 · 同步/未保存/错误）+ 动作区（模式切换、重载）。
+ * 保存动作不在页头常驻 —— 由 FloatingSaveBar 在 dirty 时承载。
  */
 export function ConfigHeader({
   meta,
@@ -34,20 +34,20 @@ export function ConfigHeader({
   };
 
   return (
-    <header className={styles.header}>
-      <div className={styles.copy}>
-        <h1 className={styles.title} data-reveal>
+    <header className="page-header">
+      <div className="page-heading">
+        <h1 className="page-title" data-reveal>
           {t('config_management.title')}
         </h1>
-        <p className={styles.meta} data-reveal>
+        <p className={`page-subtitle ${styles.meta}`} data-reveal>
           {meta.map((segment, index) => (
             <Fragment key={segment.key}>
               {index > 0 ? (
-                <span className={styles.metaDot} aria-hidden="true">
+                <span className={styles.metaSeparator} aria-hidden="true">
                   ·
                 </span>
               ) : null}
-              <span className={toneClass[segment.tone]}>
+              <span className={`${styles.metaSegment} ${toneClass[segment.tone]}`}>
                 {segment.count !== undefined
                   ? t(segment.labelKey, { count: segment.count })
                   : t(segment.labelKey)}
@@ -56,16 +56,16 @@ export function ConfigHeader({
           ))}
         </p>
       </div>
-      <div className={styles.actions} data-reveal>
+      <div className="page-actions" data-reveal>
         {extraActions}
         <button
           type="button"
-          className={styles.ghostAction}
+          className="btn btn-secondary"
           onClick={onReload}
           disabled={reloadDisabled}
         >
-          <IconRefreshCw size={14} className={reloading ? styles.spinning : undefined} />
-          {t('config_management.reload')}
+          <IconRefreshCw size={16} className={reloading ? styles.spinning : undefined} />
+          <span>{t('config_management.reload')}</span>
         </button>
       </div>
     </header>

@@ -1,6 +1,6 @@
-import { useEffect, useRef, type KeyboardEvent } from 'react';
+import { useRef, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { prefersReducedMotion } from '@/hooks/motion';
+import { Select } from '@/components/ui/Select';
 import {
   CONFIG_TAB_ICONS,
   CONFIG_TAB_IDS,
@@ -21,8 +21,9 @@ export type ConfigTabsProps = {
 };
 
 /**
- * 分区 tabs：安静的下划线式（与提供商 tabs 同语汇），图标 + 标签 + 错误徽章 + 脏点。
- * 「常用」是首 tab；tab 切换是高频操作，零动画。
+ * 分区导航：宽屏是吸顶的竖向分区列表（Felt 侧栏语汇，激活 = --bg-active），
+ * 窄容器下换成 Select。仍是 tablist/tab 语义：图标 + 标签 + 错误徽章 + 脏点。
+ * 「常用」是首项；切换是高频操作，零动画。
  */
 export function ConfigTabs({
   active,
@@ -32,29 +33,17 @@ export function ConfigTabs({
   onChange,
 }: ConfigTabsProps) {
   const { t } = useTranslation();
-  const listRef = useRef<HTMLDivElement | null>(null);
   const buttonRefs = useRef<Partial<Record<ConfigTabId, HTMLButtonElement | null>>>({});
-
-  // 移动端横滚时把激活 tab 带回视野中央；无溢出时不动，避免无谓的页面滚动。
-  useEffect(() => {
-    const scroller = listRef.current;
-    const button = buttonRefs.current[active];
-    if (!scroller || !button) return;
-    if (scroller.scrollWidth <= scroller.clientWidth) return;
-    button.scrollIntoView({
-      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-      block: 'nearest',
-      inline: 'center',
-    });
-  }, [active]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     const count = CONFIG_TAB_IDS.length;
     const currentIndex = CONFIG_TAB_IDS.indexOf(active);
     let nextIndex = -1;
-    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % count;
-    else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + count) % count;
-    else if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+      nextIndex = (currentIndex + 1) % count;
+    } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+      nextIndex = (currentIndex - 1 + count) % count;
+    } else if (event.key === 'Home') nextIndex = 0;
     else if (event.key === 'End') nextIndex = count - 1;
     if (nextIndex < 0) return;
     event.preventDefault();
@@ -63,56 +52,86 @@ export function ConfigTabs({
     buttonRefs.current[nextId]?.focus();
   };
 
-  return (
-    <div
-      className={styles.tabs}
-      role="tablist"
-      aria-label={t('config_management.title')}
-      ref={listRef}
-    >
-      {CONFIG_TAB_IDS.map((id) => {
-        const Icon = CONFIG_TAB_ICONS[id];
-        const isActive = active === id;
-        const errorCount = errorCounts[id] ?? 0;
-        const isDirty = dirtyTabs.has(id);
-        const tabLabel = t(`config_management.visual.sections.${id}.title`);
-        const accessibleLabel = [
-          tabLabel,
-          errorCount > 0 ? t('config_management.meta_errors', { count: errorCount }) : null,
-          isDirty ? t('config_management.status_dirty_short') : null,
-        ]
-          .filter(Boolean)
-          .join(', ');
+  const describeTab = (id: ConfigTabId) => {
+    const errorCount = errorCounts[id] ?? 0;
+    const isDirty = dirtyTabs.has(id);
+    const tabLabel = t(`config_management.visual.sections.${id}.title`);
+    const accessibleLabel = [
+      tabLabel,
+      errorCount > 0 ? t('config_management.meta_errors', { count: errorCount }) : null,
+      isDirty ? t('config_management.status_dirty_short') : null,
+    ]
+      .filter(Boolean)
+      .join(', ');
+    return { errorCount, isDirty, tabLabel, accessibleLabel };
+  };
 
-        return (
-          <button
-            key={id}
-            ref={(node) => {
-              buttonRefs.current[id] = node;
-            }}
-            type="button"
-            role="tab"
-            id={configTabDomId(id)}
-            aria-selected={isActive}
-            aria-controls={configPanelDomId(id)}
-            aria-label={accessibleLabel}
-            tabIndex={isActive ? 0 : -1}
-            className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
-            disabled={disabled}
-            onClick={() => onChange(id)}
-            onKeyDown={handleKeyDown}
-          >
-            <Icon size={15} className={styles.tabGlyph} />
-            <span className={styles.tabLabel}>{tabLabel}</span>
-            {errorCount > 0 ? (
-              <span className={styles.tabBadge} aria-hidden="true">
-                {errorCount}
+  const selectOptions = CONFIG_TAB_IDS.map((id) => {
+    const { tabLabel, errorCount, isDirty } = describeTab(id);
+    const suffix = [
+      errorCount > 0 ? t('config_management.meta_errors', { count: errorCount }) : null,
+      isDirty ? t('config_management.status_dirty_short') : null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    return { value: id, label: suffix ? `${tabLabel} · ${suffix}` : tabLabel };
+  });
+
+  return (
+    <>
+      <div
+        className={styles.tabs}
+        role="tablist"
+        aria-orientation="vertical"
+        aria-label={t('config_management.title')}
+      >
+        {CONFIG_TAB_IDS.map((id) => {
+          const Icon = CONFIG_TAB_ICONS[id];
+          const isActive = active === id;
+          const { errorCount, isDirty, tabLabel, accessibleLabel } = describeTab(id);
+
+          return (
+            <button
+              key={id}
+              ref={(node) => {
+                buttonRefs.current[id] = node;
+              }}
+              type="button"
+              role="tab"
+              id={configTabDomId(id)}
+              aria-selected={isActive}
+              aria-controls={configPanelDomId(id)}
+              aria-label={accessibleLabel}
+              tabIndex={isActive ? 0 : -1}
+              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
+              disabled={disabled}
+              onClick={() => onChange(id)}
+              onKeyDown={handleKeyDown}
+            >
+              <span className={styles.tabGlyph} aria-hidden="true">
+                <Icon size={18} />
               </span>
-            ) : null}
-            {isDirty ? <span className={styles.tabDirtyDot} aria-hidden="true" /> : null}
-          </button>
-        );
-      })}
-    </div>
+              <span className={styles.tabLabel}>{tabLabel}</span>
+              {errorCount > 0 ? (
+                <span className={styles.tabBadge} aria-hidden="true">
+                  {errorCount}
+                </span>
+              ) : null}
+              {isDirty ? <span className={styles.tabDirtyDot} aria-hidden="true" /> : null}
+            </button>
+          );
+        })}
+      </div>
+      <div className={styles.compact}>
+        <Select
+          value={active}
+          options={selectOptions}
+          onChange={(value) => onChange(value as ConfigTabId)}
+          disabled={disabled}
+          ariaLabel={t('config_management.title')}
+          fullWidth
+        />
+      </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 @use '../../../styles/mixins' as *;
 
-/* 悬浮批量操作条：底部居中的玻璃工具栏（--content-center-x 对齐内容列中心） */
+/* Floating batch bar: bottom-centred over the content column (--content-center-x).
+   The only floating layer on the page, so it carries --floating-shadow. */
 
 .container {
   position: fixed;
@@ -19,43 +20,28 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px 16px;
-  padding: 10px 14px;
-  border-radius: 16px;
-  --glass-blur: 14px;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-backdrop-filter);
-  box-shadow: var(--shadow-lg);
+  padding: 8px 8px 8px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--floating-surface);
+  box-shadow: var(--floating-shadow);
 }
 
 .left,
 .right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
 .count {
-  font-family: $font-mono;
-  font-size: 12px;
-  font-weight: 650;
+  padding-right: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
-  padding-right: 4px;
   white-space: nowrap;
-}
-
-.bar :global(.btn) {
-  transition:
-    transform var(--dur-press, 160ms) var(--ease-out-strong, ease-out),
-    background-color $transition-fast,
-    border-color $transition-fast,
-    color $transition-fast;
-}
-
-.bar :global(.btn:active:not(:disabled)) {
-  transform: scale(0.96);
 }
 
 @include mobile {
@@ -66,20 +52,11 @@
   .bar {
     flex-direction: column;
     align-items: stretch;
+    padding: 8px;
   }
 
   .left,
   .right {
     justify-content: center;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bar :global(.btn) {
-    transition: none;
-  }
-
-  .bar :global(.btn:active:not(:disabled)) {
-    transform: none;
   }
 }

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { Input } from '@/components/ui/Input';
 import type { PluginStoreAuthRule } from '@/types/visualConfig';
-import { CONFIG_TAB_ICONS, SECTION_INDEX_LABELS } from '../../constants';
 import type { ConfigSectionProps } from '../../types';
 import { SectionCard } from '../SectionCard';
 import {
@@ -21,8 +20,6 @@ import { PluginStoreAuthEditor } from '../blocks/PluginStoreAuthEditor';
 import { StringListEditor } from '../blocks/StringListEditor';
 import { getValidationMessage } from '../blocks/shared';
 import { SectionOAuthBehavior } from './SectionOAuthBehavior';
-
-const Icon = CONFIG_TAB_ICONS.advanced;
 
 /** 06 高级与实验：插件源、供应商敏感词、签名缓存与请求头默认值。 */
 export function SectionAdvanced({
@@ -53,8 +50,6 @@ export function SectionAdvanced({
 
   return (
     <SectionCard
-      indexLabel={SECTION_INDEX_LABELS.advanced}
-      icon={<Icon size={16} />}
       title={t('config_management.visual.sections.advanced.title')}
       description={t('config_management.visual.sections.advanced.description')}
       animateIn={animateIn}

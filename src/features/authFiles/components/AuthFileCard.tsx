@@ -21,7 +21,6 @@ import {
   formatModified,
   getAuthFileStatusMessage,
   hasAuthFileStatusWarning,
-  getTypeColor,
   getTypeLabel,
   isRuntimeOnlyAuthFile,
   normalizeProviderKey,
@@ -35,6 +34,15 @@ import type { AuthFileStatusBarData } from '@/features/authFiles/hooks/useAuthFi
 import { AuthFileQuotaSection } from '@/features/authFiles/components/AuthFileQuotaSection';
 import { AuthFileCooldownSection } from './AuthFileCooldownSection';
 import styles from './AuthFileCard.module.scss';
+
+type HealthTone = 'success' | 'neutral' | 'attention' | 'danger';
+
+const STATUS_TONE_CLASS: Record<HealthTone, string> = {
+  success: styles.toneSuccess,
+  neutral: styles.toneNeutral,
+  attention: styles.toneAttention,
+  danger: styles.toneDanger,
+};
 
 export type AuthFileCardProps = {
   file: AuthFileItem;
@@ -66,7 +74,6 @@ export function AuthFileCard(props: AuthFileCardProps) {
     file,
     compact,
     selected,
-    resolvedTheme,
     disableControls,
     deleting,
     statusUpdating,
@@ -92,7 +99,6 @@ export function AuthFileCard(props: AuthFileCardProps) {
   const showManualRefreshButton = !isRuntimeOnly && supportsAuthFileManualRefresh(providerKey);
   const isManualRefreshing = manualRefreshing[getAuthFileRefreshKey(file)] === true;
   const typeLabel = getTypeLabel(t, providerKey);
-  const typeColor = getTypeColor(providerKey, resolvedTheme);
 
   const quotaType = resolveAuthFileQuotaType(file, quotaFilterType);
   const showQuotaLayout = Boolean(quotaType) && !isRuntimeOnly && !compact;
@@ -107,6 +113,22 @@ export function AuthFileCard(props: AuthFileCardProps) {
 
   const rawStatusMessage = getAuthFileStatusMessage(file);
   const hasStatusWarning = hasAuthFileStatusWarning(file);
+  // Attention system: disabled → neutral, failure → danger, warning → attention, else success.
+  const statusKey = typeof file.status === 'string' ? file.status.trim().toLowerCase() : '';
+  const healthTone: HealthTone =
+    file.disabled === true || statusKey === 'disabled'
+      ? 'neutral'
+      : file.unavailable === true || statusKey === 'error'
+        ? 'danger'
+        : hasStatusWarning
+          ? 'attention'
+          : 'success';
+  const healthLabel = {
+    danger: t('auth_files.health_status_unavailable', { defaultValue: 'Unavailable' }),
+    neutral: t('auth_files.health_status_disabled'),
+    attention: t('auth_files.health_status_warning'),
+    success: t('auth_files.health_status_healthy'),
+  }[healthTone];
 
   const priorityValue = Number.isSafeInteger(file.priority) ? file.priority : undefined;
   const weightValue = Number.isSafeInteger(file.weight) ? file.weight : undefined;
@@ -144,32 +166,31 @@ export function AuthFileCard(props: AuthFileCardProps) {
         )}
         <h3 className={styles.identity}>
           <span
-            className={styles.providerBadge}
-            style={{
-              backgroundColor: typeColor.bg,
-              color: typeColor.text,
-              ...(typeColor.border ? { border: typeColor.border } : {}),
-            }}
-          >
-            {typeLabel}
-          </span>
-          <span
             className={`${styles.account} ${identity.kind === 'fileName' ? styles.accountMono : ''}`}
             title={identity.primary}
           >
             {identity.primary}
           </span>
         </h3>
-        {isRuntimeOnly && (
-          <span className={styles.runtimeLabel}>{t('auth_files.type_virtual')}</span>
+        {!isRuntimeOnly && (
+          <span className={`${styles.statusLine} ${STATUS_TONE_CLASS[healthTone]}`}>
+            <span className={styles.statusDot} aria-hidden="true" />
+            {healthLabel}
+          </span>
         )}
       </header>
 
-      {identity.secondary && (
-        <p className={styles.fileName} title={identity.fullName}>
-          {identity.secondary}
-        </p>
-      )}
+      <p className={styles.subline}>
+        <span className={styles.providerChip}>{typeLabel}</span>
+        {isRuntimeOnly && (
+          <span className={styles.runtimeLabel}>{t('auth_files.type_virtual')}</span>
+        )}
+        {identity.secondary && (
+          <span className={styles.fileName} title={identity.fullName}>
+            {identity.secondary}
+          </span>
+        )}
+      </p>
 
       {!compact && noteValue && (
         <p className={styles.note} title={noteValue}>

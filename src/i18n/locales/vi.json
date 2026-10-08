@@ -95,7 +95,12 @@
     "spec_title": "Kết nối",
     "spec_backend": "Backend",
     "spec_backend_value": "CLIProxyAPI v8 trở lên",
-    "spec_panel": "Phiên bản panel"
+    "spec_panel": "Phiên bản panel",
+    "key_label": "Key quản lý",
+    "custom_connection_toggle": "Dùng URL máy chủ tùy chỉnh",
+    "custom_connection_field": "URL máy chủ",
+    "submit_sign_in": "Đăng nhập",
+    "submitting_sign_in": "Đang đăng nhập…"
   },
   "header": {
     "refresh_all": "Làm mới tất cả",
@@ -209,7 +214,22 @@
     "cta_system_desc": "Chi tiết phiên bản và thông tin trung tâm quản lý.",
     "window_m": "{{minutes}}p",
     "window_h": "{{hours}}g",
-    "window_hm": "{{hours}}g {{minutes}}p"
+    "window_hm": "{{hours}}g {{minutes}}p",
+    "status_healthy": "Các yêu cầu trong {{window}} qua đều thành công.",
+    "status_degraded": "Một số yêu cầu bị lỗi. Hãy kiểm tra provider và nhật ký.",
+    "status_failing": "Nhiều yêu cầu bị lỗi. Hãy kiểm tra provider và nhật ký.",
+    "status_idle": "Không có yêu cầu nào trong cửa sổ hiện tại.",
+    "status_offline": "Chưa kết nối tới máy chủ.",
+    "status_connecting": "Đang kết nối tới máy chủ…",
+    "kpi_requests": "Yêu cầu",
+    "kpi_window": "{{window}} gần nhất",
+    "kpi_no_window": "Chưa có lưu lượng",
+    "rate_degraded": "Suy giảm",
+    "rate_failing": "Lỗi nhiều",
+    "traffic_heading": "Yêu cầu theo thời gian",
+    "traffic_caption": "Số yêu cầu thành công và lỗi theo từng khoảng 10 phút, trong {{window}} gần nhất.",
+    "fleet_heading": "Lưu lượng theo provider",
+    "shortcuts_title": "Lối tắt"
   },
   "basic_settings": {
     "debug_enable": "Bật chế độ Debug",
@@ -441,7 +461,9 @@
     "policy_rules_hint": "Các quy tắc tùy chỉnh được ưu tiên theo thứ tự danh sách. Kế thừa hoặc danh sách trống sẽ sử dụng quy tắc kế thừa; điều này không vô hiệu hóa chúng. Mẫu biểu thức chính quy (Regex) dùng cú pháp của Go.",
     "policy_retry_invalid": "Nhập một số nguyên an toàn không âm, hoặc chọn Kế thừa.",
     "policy_aliases_invalid": "Nhập tên model và bí danh không để trống cho mỗi hàng mới hoặc đã chỉnh sửa.",
-    "policy_rules_invalid": "Hoàn thành mỗi quy tắc đã chỉnh sửa với mã trạng thái dương, một hành động và ít nhất một điều kiện khớp không để trống."
+    "policy_rules_invalid": "Hoàn thành mỗi quy tắc đã chỉnh sửa với mã trạng thái dương, một hành động và ít nhất một điều kiện khớp không để trống.",
+    "search_placeholder_short": "Tìm thông tin xác thực",
+    "health_status_unavailable": "Không khả dụng"
   },
   "antigravity_subscription": {
     "plan_unknown": "Không rõ",
@@ -745,7 +767,8 @@
     "edit_title": "Chỉnh sửa bí danh model cho {{provider}}",
     "mapping_hint": "Chọn model gốc, sau đó nhập bí danh mà client của bạn sẽ dùng.",
     "mapping_row": "Ánh xạ bí danh {{number}}",
-    "remove_mapping": "Xóa ánh xạ bí danh {{number}}"
+    "remove_mapping": "Xóa ánh xạ bí danh {{number}}",
+    "view_mode_label": "Chế độ xem"
   },
   "auth_login": {
     "recommended_provider_section": "Provider đề xuất",
@@ -889,7 +912,9 @@
     "kimi_ai_oauth_status_success": "Xác thực thành công!",
     "kimi_ai_oauth_status_error": "Xác thực thất bại:",
     "kimi_ai_oauth_start_error": "Không thể bắt đầu đăng nhập Kimi quốc tế:",
-    "kimi_ai_oauth_polling_error": "Không thể kiểm tra trạng thái xác thực:"
+    "kimi_ai_oauth_polling_error": "Không thể kiểm tra trạng thái xác thực:",
+    "card_status_idle": "Sẵn sàng đăng nhập",
+    "page_subtitle": "Đăng nhập vào nhà cung cấp để lưu thông tin xác thực dưới dạng tệp xác thực."
   },
   "stats": {
     "success": "Thành công",
@@ -985,7 +1010,16 @@
     "clear_search": "Xóa tìm kiếm",
     "reading_enabled": "Đọc liên tục",
     "filter_load_more": "Hiển thị thêm log phù hợp",
-    "wrap_lines": "Tự động xuống dòng dài"
+    "wrap_lines": "Tự động xuống dòng dài",
+    "pause_live": "Tạm dừng trực tiếp",
+    "resume_live": "Tiếp tục trực tiếp",
+    "level_all": "Tất cả",
+    "level_trace": "Trace",
+    "level_debug": "Gỡ lỗi",
+    "level_info": "Thông tin",
+    "level_warn": "Cảnh báo",
+    "level_error": "Lỗi",
+    "level_fatal": "Nghiêm trọng"
   },
   "config_management": {
     "title": "Bảng cấu hình",
@@ -1506,7 +1540,10 @@
     "source_changes_before_visual": "Lưu hoặc hủy các chỉnh sửa mã nguồn chưa lưu trước khi chuyển sang chế độ trực quan.",
     "precise_save_incomplete": "Quá trình lưu chính xác chưa hoàn tất; một số thay đổi có thể đã được áp dụng. Bản nháp của bạn được giữ lại. Hãy lưu lại để xem xét các khác biệt còn lại trên máy chủ.",
     "concurrent_list_conflict": "Danh sách trên máy chủ {{path}} đã thay đổi sau mốc cơ sở bản nháp của bạn. Thao tác lưu bị chặn để tránh ghi đè các thay đổi đó. Bản nháp của bạn được giữ lại; hãy ghi lại các chỉnh sửa, sau đó tải lại cấu hình và hợp nhất.",
-    "precise_save_recovery_required": "Không thể đọc lại kết quả lưu. Đã tạm dừng chỉnh sửa. Lưu lại để khôi phục mốc cơ sở của bản nháp, hoặc tải lại cấu hình."
+    "precise_save_recovery_required": "Không thể đọc lại kết quả lưu. Đã tạm dừng chỉnh sửa. Lưu lại để khôi phục mốc cơ sở của bản nháp, hoặc tải lại cấu hình.",
+    "field_modified": "Đã sửa",
+    "unsaved_changes_count_other": "{{count}} thay đổi chưa lưu",
+    "unsaved_changes_count_one": "{{count}} thay đổi chưa lưu"
   },
   "quota_management": {
     "title": "Quản lý Quota",
@@ -1553,7 +1590,8 @@
     "search_placeholder": "Tìm theo tên file hoặc email",
     "search_empty_title": "Không có tài khoản phù hợp",
     "search_empty_desc": "Hãy thử tên file hoặc email khác, hoặc xóa tìm kiếm.",
-    "search_clear": "Xóa tìm kiếm"
+    "search_clear": "Xóa tìm kiếm",
+    "provider_label": "Nhà cung cấp"
   },
   "plugin_management": {
     "title": "Quản lý Plugin",
@@ -1612,7 +1650,13 @@
     "invalid_json": "Nhập JSON hợp lệ",
     "expected_array": "Nhập mảng JSON",
     "expected_object": "Nhập đối tượng JSON",
-    "invalid_enum": "Chọn một trong các giá trị enum đã khai báo"
+    "invalid_enum": "Chọn một trong các giá trị enum đã khai báo",
+    "browse_store": "Duyệt cửa hàng",
+    "status_disabled": "Đã tắt",
+    "status_global_off": "Đang chờ bật công tắc toàn cục",
+    "no_matches": "Không có plugin phù hợp",
+    "no_matches_desc": "Không có plugin đã cài đặt nào khớp với tìm kiếm này.",
+    "clear_search": "Xóa tìm kiếm"
   },
   "plugin_store": {
     "title": "Cửa hàng Plugin",
@@ -1709,7 +1753,9 @@
     "gate_step2_action": "Tôi đã đọc và hiểu các rủi ro này",
     "gate_step3_prompt": "Để xác nhận, nhập \"{{token}}\" vào ô bên dưới",
     "gate_step3_action": "Cài đặt plugin này",
-    "gate_step3_hint": "Nhập chính xác mã định danh hiển thị ở trên để cho phép cài đặt."
+    "gate_step3_hint": "Nhập chính xác mã định danh hiển thị ở trên để cho phép cài đặt.",
+    "view_installed": "Plugin đã cài đặt",
+    "tags_label": "Thẻ"
   },
   "plugin_resource": {
     "page_count": "{{count}} trang",
@@ -1746,7 +1792,12 @@
     "clear_login_title": "Dữ liệu đăng nhập cục bộ",
     "clear_login_desc": "Xóa dữ liệu đăng nhập đã lưu cục bộ và đăng xuất.",
     "clear_login_button": "Xóa dữ liệu đăng nhập",
-    "clear_login_confirm": "Xóa dữ liệu đăng nhập cục bộ và đăng xuất ngay?"
+    "clear_login_confirm": "Xóa dữ liệu đăng nhập cục bộ và đăng xuất ngay?",
+    "subtitle": "Phiên bản, thông tin kết nối và các mô hình mà proxy này cung cấp.",
+    "about_tagline": "Bảng quản lý cho CLI Proxy API",
+    "connection_title": "Kết nối",
+    "connection_status": "Trạng thái",
+    "server_address": "Địa chỉ máy chủ"
   },
   "notification": {
     "request_log_updated": "Đã cập nhật cài đặt ghi log yêu cầu",
@@ -1792,7 +1843,9 @@
     "collapse": "Thu gọn",
     "subtitle": "Bảng điều khiển quản lý",
     "auth_files_count": "File xác thực: {{count}}",
-    "nav_label": "Điều hướng chính"
+    "nav_label": "Điều hướng chính",
+    "workspace_menu": "Cài đặt không gian làm việc",
+    "breadcrumb": "Đường dẫn điều hướng"
   },
   "footer": {
     "api_version": "Phiên bản CLI Proxy API",
@@ -1804,7 +1857,9 @@
       "title": "AI Provider",
       "activeResources": "{{active}}/{{total}} tài nguyên đang hoạt động",
       "providerFamilies": "{{count}} nhóm provider",
-      "updatedAt": "Cập nhật {{time}}"
+      "updatedAt": "Cập nhật {{time}}",
+      "subtitle": "Khóa API và endpoint thượng nguồn, nhóm theo nhà cung cấp.",
+      "quickStartSubtitle": "Một khóa APIKEY.FUN thiết lập sẵn mọi giao thức được hỗ trợ."
     },
     "actions": {
       "refresh": "Làm mới",
@@ -1859,7 +1914,8 @@
       "empty": "Chưa có tài nguyên nào, nhấn \"Mới\" để thêm.",
       "filterPlaceholder": "Tìm key, URL, tiền tố…",
       "description": "Quản lý tài nguyên trong {{route}}",
-      "cliProfileTag": "Hồ sơ CLI"
+      "cliProfileTag": "Hồ sơ CLI",
+      "searchLabel": "Tìm tài nguyên"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -1931,7 +1987,8 @@
         "gemini": "Gemini",
         "codexResponses": "Codex API (Responses)"
       },
-      "kimiPromo": "Người dùng mới nạp tiền lần đầu thành công sẽ được tặng hạn mức API trị giá 10% số tiền nạp, tối đa ¥1000. Ưu đãi kết thúc vào ngày 30 tháng 9."
+      "kimiPromo": "Người dùng mới nạp tiền lần đầu thành công sẽ được tặng hạn mức API trị giá 10% số tiền nạp, tối đa ¥1000. Ưu đãi kết thúc vào ngày 30 tháng 9.",
+      "emptyDescription": "Thêm khóa APIKEY.FUN tại đây, hoặc đăng ký tài khoản trước."
     },
     "status": {
       "active": "Đang hoạt động",
@@ -2176,6 +2233,13 @@
         "continue": "Tiếp tục",
         "continue-and-cooldown": "Tiếp tục và cooldown"
       }
+    },
+    "empty": {
+      "title": "Chưa có khóa {{provider}}",
+      "description": "Thêm khóa API để bắt đầu định tuyến yêu cầu qua nhà cung cấp này.",
+      "noMatchTitle": "Không có tài nguyên phù hợp",
+      "noMatchDescription": "Thử từ khóa khác hoặc xóa bộ lọc mô hình.",
+      "clearFilters": "Xóa bộ lọc"
     }
   },
   "devin_quota": {

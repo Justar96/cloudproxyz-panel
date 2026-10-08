@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconChevronDown, IconChevronUp, IconSlidersHorizontal } from '@/components/ui/icons';
 import { Select } from '@/components/ui/Select';
@@ -28,6 +28,8 @@ export function ProviderResourceToolbar({
   const { t } = useTranslation();
   const [filterOpen, setFilterOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
 
   const sortOptions = useMemo(
     () => [
@@ -48,8 +50,17 @@ export function ProviderResourceToolbar({
         setFilterOpen(false);
       }
     };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setFilterOpen(false);
+      triggerRef.current?.focus();
+    };
     document.addEventListener('pointerdown', onClickOutside);
-    return () => document.removeEventListener('pointerdown', onClickOutside);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onClickOutside);
+      document.removeEventListener('keydown', onKeyDown);
+    };
   }, [filterOpen]);
 
   const toggleModel = (name: string) => {
@@ -73,13 +84,15 @@ export function ProviderResourceToolbar({
   return (
     <div className={styles.root}>
       <div className={styles.sortGroup}>
-        <span className={styles.label}>{t('providersPage.toolbar.sortBy')}</span>
+        <span className={styles.label} aria-hidden="true">
+          {t('providersPage.toolbar.sortBy')}
+        </span>
         <Select
           value={sortBy}
           options={sortOptions}
           onChange={(value) => onSortBy(value as ProviderSortBy)}
           ariaLabel={t('providersPage.toolbar.sortBy')}
-          size="sm"
+          className={styles.sortSelect}
         />
         <button
           type="button"
@@ -96,23 +109,28 @@ export function ProviderResourceToolbar({
               : t('providersPage.toolbar.sort.directionDesc')
           }
         >
-          {sortDir === 'asc' ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
+          {sortDir === 'asc' ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
         </button>
       </div>
 
       <div className={styles.filterGroup} ref={containerRef}>
         <button
           type="button"
-          className={styles.filterTrigger}
+          ref={triggerRef}
+          className={[styles.filterTrigger, selectedModels.size > 0 ? styles.filterTriggerOn : '']
+            .filter(Boolean)
+            .join(' ')}
           onClick={() => setFilterOpen((v) => !v)}
           disabled={availableModels.length === 0}
+          aria-expanded={filterOpen}
+          aria-controls={filterOpen ? panelId : undefined}
         >
           <IconSlidersHorizontal size={14} />
           <span>{filterLabel}</span>
-          <IconChevronDown size={12} />
+          <IconChevronDown size={14} />
         </button>
         {filterOpen ? (
-          <div className={styles.filterPanel}>
+          <div className={styles.filterPanel} id={panelId}>
             <div className={styles.filterToolbar}>
               <button
                 type="button"

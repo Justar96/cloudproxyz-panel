@@ -19,3 +19,22 @@ export const getPluginLogo = (plugin: PluginListEntry, entries: PluginStoreEntry
   );
   return matches.length === 1 ? matches[0].logo.trim() : '';
 };
+
+// Same matching rule as getPluginLogo: only use store metadata when exactly one entry matches.
+export const findPluginStoreEntry = (
+  plugin: PluginListEntry,
+  entries: PluginStoreEntry[]
+): PluginStoreEntry | undefined => {
+  const repository = plugin.metadata?.githubRepository.trim();
+  const normalizeRepository = (value: string) =>
+    buildRepositoryURL(value)
+      .replace(/\/+$/, '')
+      .replace(/\.git$/i, '')
+      .toLowerCase();
+  const matches = entries.filter(
+    (entry) =>
+      entry.id === plugin.id &&
+      (!repository || normalizeRepository(entry.repository) === normalizeRepository(repository))
+  );
+  return matches.length === 1 ? matches[0] : undefined;
+};

@@ -1,8 +1,9 @@
 /**
  * 额度水位条（原 QuotaProgressBar 的类型化后继）。
  *
- * dataviz 语法：细轨道退居背景，填充按剩余量三档着色（≥70 绿 / ≥30 琥珀 / <30 红），
- * percent === null 渲染空轨道 —— 未知不着色（Medium 类在 width 0 下不可见，行为与旧版一致）。
+ * dataviz 语法：细轨道退居背景，填充按剩余量三档分类（≥70 High / ≥30 Medium / <30 Low），
+ * 颜色由宿主外衣决定。percent === null 渲染空轨道 —— 未知不着色。
+ * `data-level` 额外标出 exhausted（剩余 0，填充宽度为 0，宿主可给轨道着危险色）。
  * `index` 写入 `--meter-index`，供全页外衣做逐行入场级差；紧凑外衣不消费该变量。
  */
 
@@ -35,8 +36,17 @@ export function QuotaMeter({ percent, classes, index }: QuotaMeterProps) {
     style['--meter-index'] = index;
   }
 
+  const level =
+    normalized === null
+      ? 'unknown'
+      : normalized <= 0
+        ? 'exhausted'
+        : normalized < QUOTA_PROGRESS_MEDIUM_THRESHOLD
+          ? 'low'
+          : 'ok';
+
   return (
-    <div className={classes.quotaBar}>
+    <div className={classes.quotaBar} data-level={level}>
       <div className={`${classes.quotaBarFill} ${fillClass}`} style={style} />
     </div>
   );

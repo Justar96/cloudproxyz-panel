@@ -1,461 +1,197 @@
-@use '../../styles/variables' as *;
 @use '../../styles/mixins' as *;
 
-// ─── Page Container ─────────────────────────────────────
+// Layout comes from the global .page / .page-header helpers; this module adds the catalog
+// toolbar, card grid, install dialog and their states.
 
 .page {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-lg;
-  width: 100%;
-}
-
-// ─── Header ─────────────────────────────────────────────
-
-.pageHeader {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.title {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.description {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-// ─── Alert Boxes ────────────────────────────────────────
-
-.errorBox,
-.warningBox {
-  padding: $spacing-md;
-  border-radius: $radius-md;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.errorBox {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $spacing-md;
-  border: 1px solid var(--danger-color);
-  background: rgba($error-color, 0.1);
-  color: var(--danger-color);
-
-  span {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  :global(.btn) {
-    flex-shrink: 0;
-  }
-
   @include mobile {
-    flex-direction: column;
-    align-items: stretch;
+    gap: $spacing-md;
   }
-}
-
-.warningBox {
-  border: 1px solid color-mix(in srgb, var(--warning-color, #c65746) 42%, var(--border-color));
-  background: color-mix(in srgb, var(--warning-color, #c65746) 9%, var(--bg-secondary));
-  color: var(--text-primary);
 }
 
 .sourceErrorList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 8px 0 0;
+  gap: 4px;
+  margin: 4px 0 0;
   padding: 0;
   list-style: none;
 
   li {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
     min-width: 0;
+    flex-direction: column;
   }
 
   span {
-    font-weight: 700;
+    font-weight: 500;
     overflow-wrap: anywhere;
   }
 
   small {
-    color: var(--text-secondary);
     font-size: 12px;
+    line-height: 16px;
     overflow-wrap: anywhere;
   }
 }
 
-// ─── Security Banner (third-party plugin risk) ──────────
+// ─── Catalog toolbar ────────────────────────────────────
 
-.securityBanner {
+.catalog {
   display: flex;
-  align-items: flex-start;
-  gap: $spacing-sm;
-  padding: 12px 14px;
-  border-radius: $radius-md;
-  border: 1px solid color-mix(in srgb, var(--quota-medium-color, #e0aa14) 45%, var(--border-color));
-  background: color-mix(in srgb, var(--quota-medium-color, #e0aa14) 14%, var(--bg-secondary));
-  color: var(--text-primary);
-
-  > svg {
-    flex-shrink: 0;
-    margin-top: 1px;
-    color: var(--quota-medium-color, #e0aa14);
-  }
-}
-
-.securityBannerText {
   min-width: 0;
-
-  strong {
-    display: block;
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1.4;
-  }
-
-  p {
-    margin: 2px 0 0;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--text-secondary);
-  }
+  flex-direction: column;
+  gap: 12px;
 }
-
-// ─── Status Bar ─────────────────────────────────────────
-
-.statusBar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
-  background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
-  flex-wrap: wrap;
-}
-
-.statusPill {
-  display: inline-flex;
-  min-width: 0;
-  max-width: 100%;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: $radius-full;
-  border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
-  background: color-mix(in srgb, var(--bg-primary) 56%, transparent);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.statusDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.statusDotOn {
-  background: $success-color;
-  box-shadow: 0 0 6px rgba($success-color, 0.5);
-}
-
-.statusDotOff {
-  background: var(--text-tertiary);
-}
-
-.statusLabel {
-  color: var(--text-secondary);
-}
-
-.statusValue {
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-.statusPathValue {
-  display: block;
-  min-width: 0;
-  max-width: min(360px, 58vw);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.statusDivider {
-  width: 1px;
-  height: 20px;
-  background: color-mix(in srgb, var(--border-color) 60%, transparent);
-  flex-shrink: 0;
-
-  @include mobile {
-    display: none;
-  }
-}
-
-// ─── Toolbar ────────────────────────────────────────────
 
 .toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: $spacing-sm;
+  justify-content: space-between;
+  gap: 12px;
 
   :global(.form-group) {
-    flex: 1;
-    max-width: 480px;
+    flex: 1 1 280px;
+    max-width: 420px;
     margin: 0;
   }
 
-  :global(.input) {
-    padding-right: 36px;
-  }
-
-  :global(.btn > span) {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  :global(.form-group svg) {
+    display: block;
+    color: var(--text-secondary);
   }
 
   @include mobile {
-    flex-direction: column;
-    align-items: stretch;
-
     :global(.form-group) {
+      flex-basis: 100%;
       max-width: none;
     }
   }
 }
 
-// ─── Status Filter Chips ────────────────────────────────
+.filterSegments {
+  flex: 0 0 auto;
 
-.filterChips {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  flex-wrap: wrap;
-}
+  :global(.segmented-item) {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
 
-.filterChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-  border-radius: $radius-full;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-  cursor: pointer;
-  transition:
-    border-color $transition-fast,
-    background-color $transition-fast,
-    color $transition-fast;
+  @include mobile {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  &:hover {
-    border-color: var(--primary-color);
-    color: var(--text-primary);
+    :global(.segmented-item) {
+      padding-inline: 8px;
+    }
   }
 }
 
-.filterChipActive {
-  border-color: var(--primary-color);
-  background: color-mix(in srgb, var(--primary-color) 12%, var(--bg-primary));
-  color: var(--text-primary);
+.filterCount {
+  color: var(--text-quaternary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+
+  :global(.active) > & {
+    color: var(--text-secondary);
+  }
 }
 
-.filterChipCount {
-  display: inline-flex;
-  min-width: 18px;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
-  border-radius: $radius-full;
-  background: color-mix(in srgb, var(--border-color) 45%, transparent);
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-// ─── Card Grid ──────────────────────────────────────────
+// ─── Card grid ──────────────────────────────────────────
 
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: $spacing-md;
-
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-
-// ─── Plugin Card ────────────────────────────────────────
 
 .card {
   display: flex;
+  min-width: 0;
   flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md;
-  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-  border-radius: $radius-lg;
+  gap: 12px;
+  padding: $spacing-lg;
+  border-radius: var(--radius-xl);
   background: var(--bg-primary);
-  transition:
-    border-color $transition-fast,
-    background-color $transition-fast;
 
-  &:hover {
-    border-color: color-mix(in srgb, var(--primary-color) 45%, var(--border-color));
-    background: var(--bg-hover);
+  @include mobile {
+    padding: $spacing-md;
   }
 }
 
 .cardHeader {
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
+  display: flex;
   align-items: flex-start;
-  column-gap: $spacing-sm;
-  row-gap: 6px;
-}
-
-.logoBox {
-  display: inline-flex;
-  grid-column: 1;
-  grid-row: 1;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
-  background: color-mix(in srgb, var(--bg-tertiary) 60%, transparent);
-  color: var(--text-secondary);
-  flex-shrink: 0;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  gap: 12px;
 }
 
 .cardTitleBlock {
   display: flex;
-  grid-column: 2;
-  grid-row: 1;
-  flex-direction: column;
-  gap: 2px;
   min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
 }
 
 .cardTitle {
   margin: 0;
   color: var(--text-primary);
-  font-size: 15px;
-  font-weight: 650;
-  line-height: 1.3;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.015em;
   overflow-wrap: anywhere;
   @include text-ellipsis-multiline(2);
 }
 
-.cardId {
-  color: var(--text-tertiary);
-  font-family: $font-mono;
-  font-size: 12px;
-  @include text-ellipsis;
-}
-
-.cardBadges {
+.cardByline {
   display: flex;
-  grid-column: 2;
-  grid-row: 2;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 5px;
   min-width: 0;
+  flex-wrap: wrap;
+  column-gap: $spacing-sm;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 16px;
 
-  &:empty {
-    display: none;
+  > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  > span + span::before {
+    content: '·';
+    margin-inline-end: $spacing-sm;
   }
 }
 
-.badge,
-.badgeSuccess,
-.badgeWarning,
-.badgeUntrusted {
-  display: inline-flex;
-  min-height: 22px;
-  align-items: center;
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.25;
+.cardVersion {
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
 }
 
-.badge {
-  background: color-mix(in srgb, var(--bg-secondary) 82%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
-  color: var(--text-secondary);
-}
-
-.badgeSuccess {
-  background: rgba($success-color, 0.1);
-  border: 1px solid rgba($success-color, 0.2);
-  color: var(--success-color);
-}
-
-.badgeWarning {
-  background: rgba($warning-color, 0.1);
-  border: 1px solid rgba($warning-color, 0.2);
-  color: var(--warning-color);
-}
-
-.badgeUntrusted {
-  gap: 4px;
-  background: rgba($warning-color, 0.12);
-  border: 1px solid rgba($warning-color, 0.4);
-  color: var(--danger-color);
-
-  svg {
-    flex-shrink: 0;
-  }
-}
-
-.cardDesc {
-  display: -webkit-box;
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.5;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+.cardState {
+  flex: 0 0 auto;
 }
 
 .cardDescBlock {
   display: flex;
   min-width: 0;
   flex-direction: column;
+  align-items: flex-start;
   gap: 4px;
+}
+
+.cardDesc {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+  @include text-ellipsis-multiline(2);
 }
 
 .cardDescExpanded {
@@ -465,77 +201,85 @@
 }
 
 .cardDescToggle {
-  align-self: flex-start;
   padding: 0;
   border: 0;
+  border-radius: var(--radius-xs);
   background: transparent;
-  color: var(--primary-color);
-  cursor: pointer;
+  color: var(--text-primary);
   font: inherit;
   font-size: 12px;
-  font-weight: 650;
-  line-height: 1.4;
+  font-weight: 500;
+  line-height: 16px;
+  text-decoration: underline;
+  text-decoration-color: var(--border-hover);
+  text-underline-offset: 3px;
+  cursor: pointer;
 
-  &:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: currentColor;
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--primary-color) 45%, transparent);
-    outline-offset: 3px;
-    border-radius: 4px;
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cardFlags {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 12px;
+  row-gap: 4px;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+
+  svg {
+    flex: 0 0 auto;
   }
 }
 
 .cardMeta {
   display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  flex-wrap: wrap;
-}
-
-.metaItem {
-  display: inline-flex;
   min-width: 0;
-  max-width: 100%;
-  align-items: center;
-  gap: $spacing-sm;
-  color: var(--text-tertiary);
+  flex-wrap: wrap;
+  column-gap: 12px;
+  row-gap: 2px;
+  color: var(--text-quaternary);
   font-size: 12px;
-  white-space: nowrap;
+  line-height: 16px;
 
-  strong {
-    color: var(--text-secondary);
-    font-weight: 600;
+  > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
-}
-
-.metaDot {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--text-tertiary) 50%, transparent);
-  flex-shrink: 0;
 }
 
 .tagRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: $radius-full;
-  background: color-mix(in srgb, var(--bg-secondary) 82%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
-  color: var(--text-tertiary);
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.4;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .cardFooter {
@@ -544,54 +288,48 @@
   justify-content: space-between;
   gap: $spacing-sm;
   margin-top: auto;
-  padding-top: $spacing-sm;
+  padding-top: 4px;
 }
 
-.cardActions {
+.cardActions,
+.cardLinks {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: $spacing-sm;
-
-  :global(.btn > span) {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
 }
 
 .cardLinks {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  gap: 4px;
 }
 
 .iconLink {
   display: inline-flex;
-  width: 30px;
-  min-height: 30px;
-  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color);
-  border-radius: $radius-md;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  text-decoration: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
   transition:
-    border-color $transition-fast,
-    background-color $transition-fast,
-    color $transition-fast;
+    background-color var(--dur-hover) var(--ease-out-strong),
+    color var(--dur-hover) var(--ease-out-strong);
 
-  &:hover {
-    border-color: var(--primary-color);
-    background: var(--bg-hover);
-    color: var(--primary-color);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
   }
 }
 
-// ─── Install Options Dialog ───────────────────────────────
+// ─── Install options dialog ─────────────────────────────
 
 .installOptions {
   display: flex;
@@ -603,94 +341,67 @@
   margin: 0;
   color: var(--text-primary);
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 20px;
+  overflow-wrap: anywhere;
 }
 
 .installVersionField {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: $spacing-sm;
 }
 
 .installVersionLabel {
   color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
+  line-height: 16px;
 }
 
 .installVersionModes {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
 }
 
 .installVersionMode {
-  display: flex;
-  min-width: 0;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-  border-radius: $radius-md;
-  background: var(--bg-primary);
-  cursor: pointer;
-  transition:
-    border-color $transition-fast,
-    background-color $transition-fast;
+  position: relative;
+  align-items: flex-start;
 
-  &:hover {
-    border-color: color-mix(in srgb, var(--primary-color) 45%, var(--border-color));
-    background: var(--bg-hover);
+  &:global(.selected) {
+    background: var(--bg-primary);
   }
 
-  input {
+  :global(.option-radio) {
     margin-top: 2px;
-    flex: 0 0 auto;
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
   }
 }
 
-.installVersionModeActive {
-  border-color: var(--primary-color);
-  background: color-mix(in srgb, var(--primary-color) 10%, var(--bg-primary));
+.visuallyHiddenRadio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  opacity: 0;
 }
 
 .installVersionModeDisabled {
   cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.installVersionModeText {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 2px;
-
-  strong {
-    color: var(--text-primary);
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.3;
-  }
-
-  small {
-    color: var(--text-secondary);
-    font-size: 11px;
-    line-height: 1.4;
-    overflow-wrap: anywhere;
-  }
+  opacity: 0.6;
 }
 
 .installVersionPanel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-  border-radius: $radius-md;
-  border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
-  background: color-mix(in srgb, var(--bg-secondary) 65%, transparent);
+  gap: $spacing-sm;
 
   :global(.form-group) {
     margin: 0;
@@ -701,14 +412,17 @@
   margin: 0;
   color: var(--text-secondary);
   font-size: 12px;
-  line-height: 1.45;
+  line-height: 16px;
 }
 
 .installVersionWarning {
   margin: 0;
-  color: var(--warning-color);
+  padding: $spacing-sm 12px;
+  border-radius: var(--radius-sm);
+  background: var(--status-attention-bg);
+  color: var(--status-attention-text);
   font-size: 12px;
-  line-height: 1.45;
+  line-height: 16px;
   overflow-wrap: anywhere;
 }
 
@@ -717,15 +431,16 @@
   width: fit-content;
   max-width: 100%;
   align-items: center;
-  gap: 7px;
+  gap: $spacing-sm;
   color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
+  font-weight: 500;
+  line-height: 16px;
   cursor: pointer;
 
   input {
     flex: 0 0 auto;
+    accent-color: var(--accent);
   }
 }
 
@@ -734,16 +449,25 @@
   width: fit-content;
   max-width: 100%;
   align-items: center;
-  gap: 5px;
-  color: var(--primary-color);
+  gap: 4px;
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
   font-size: 12px;
-  font-weight: 650;
-  line-height: 1.4;
-  text-decoration: none;
+  font-weight: 500;
+  line-height: 16px;
+  text-decoration: underline;
+  text-decoration-color: var(--border-hover);
+  text-underline-offset: 3px;
 
-  &:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
   }
 
   svg {
@@ -768,90 +492,58 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-  padding: $spacing-md;
-  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  border-radius: var(--radius-xl);
   background: var(--bg-primary);
 }
 
 .skeletonHeader {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  gap: 12px;
+}
+
+.skeletonAvatar,
+.skeletonLine,
+.skeletonBody {
+  background: var(--bg-tertiary);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: skeletonPulse 1.4s ease-in-out infinite;
+  }
 }
 
 .skeletonAvatar {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--bg-secondary) 86%, transparent) 25%,
-    color-mix(in srgb, var(--bg-hover) 70%, transparent) 37%,
-    color-mix(in srgb, var(--bg-secondary) 86%, transparent) 63%
-  );
-  background-size: 400% 100%;
-  animation: skeletonPulse 1.35s ease-in-out infinite;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  border-radius: var(--radius-sm);
 }
 
 .skeletonText {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
   flex: 1;
+  flex-direction: column;
+  gap: $spacing-sm;
 }
 
 .skeletonLine {
-  height: 14px;
-  border-radius: 4px;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--bg-secondary) 86%, transparent) 25%,
-    color-mix(in srgb, var(--bg-hover) 70%, transparent) 37%,
-    color-mix(in srgb, var(--bg-secondary) 86%, transparent) 63%
-  );
-  background-size: 400% 100%;
-  animation: skeletonPulse 1.35s ease-in-out infinite;
+  width: 48%;
+  height: 12px;
+  border-radius: var(--radius-xs);
 
-  &:first-child {
-    width: 45%;
-  }
-
-  &:last-child {
-    width: 70%;
-    height: 10px;
+  & + & {
+    width: 30%;
   }
 }
 
 .skeletonBody {
-  height: 56px;
-  border-radius: $radius-md;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--bg-secondary) 86%, transparent) 25%,
-    color-mix(in srgb, var(--bg-hover) 70%, transparent) 37%,
-    color-mix(in srgb, var(--bg-secondary) 86%, transparent) 63%
-  );
-  background-size: 400% 100%;
-  animation: skeletonPulse 1.35s ease-in-out infinite;
+  height: 40px;
+  border-radius: var(--radius-sm);
 }
-
-// ─── Animation ──────────────────────────────────────────
 
 @keyframes skeletonPulse {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: 0 0;
-  }
-}
-
-// ─── Mobile Overrides ───────────────────────────────────
-
-@include mobile {
-  .page {
-    gap: $spacing-md;
+  50% {
+    opacity: 0.5;
   }
 }

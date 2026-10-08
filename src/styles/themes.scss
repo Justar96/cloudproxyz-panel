@@ -2,195 +2,240 @@
  * 主题样式
  */
 
-// CloudProxyz "spec sheet" theme: white sheets on a grey desk, black rules,
-// hard offset shadows and pastel monospace chips. Every text/fill pair below is
-// measured against WCAG AA (text 4.5:1, UI boundaries and focus 3:1).
+// CloudProxyz colour system — Graphical "Felt" structure in a clean charcoal/graphite palette.
+//
+// Ramps (primitives, never used directly in components):
+//   graphite  one neutral ramp, separate light and dark scales, carries ~95% of the UI
+//   green     success: healthy, live, completed
+//   amber     attention: needs the user's action soon (expiring, near limit, unsaved, degraded)
+//   red       danger: failed, error, destructive
+// The accent is the graphite solid (charcoal in light, near-white in dark): primary action,
+// active navigation, selection, checked controls and focus. Status colour appears only where a
+// real state exists, always paired with a label or icon. All text pairs ≥ 4.5:1, indicators ≥ 3:1.
 
-// 浅色主题（默认）：灰色桌面 + 白色纸面
+// ── Primitives ──────────────────────────────────────────────────────────────
 :root {
-  --bg-secondary: #ececea; // 页面背景（桌面）
-  --bg-primary: #ffffff; // 纸面/卡片
-  --bg-tertiary: #f4f4f2; // hover/次级背景
-  --bg-hover: #ebebe8;
-  --bg-quinary: #fafaf8;
-  --bg-error-light: #fbe0dc;
-  --floating-surface: #ffffff;
-  --floating-shadow: 4px 4px 0 #a9a9a5;
+  // graphite (light)
+  --graphite-0: #ffffff;
+  --graphite-1: #f7f7f7;
+  --graphite-2: #f4f4f4;
+  --graphite-3: #ebebeb;
+  --graphite-4: #e2e2e2;
+  --graphite-5: #cfcfcf;
+  --graphite-6: #8a8a8a;
+  --graphite-7: #666666;
+  --graphite-8: #565656;
+  --graphite-9: #3d3d3d;
+  --graphite-10: #202020;
+  --graphite-11: #000000;
 
-  --text-primary: #111111;
-  --text-secondary: #474747;
-  --text-tertiary: #5e5e5e;
-  --text-quaternary: #6b6b6b;
+  // status ramps (light): bg / solid (indicator, ≥3:1 on canvas) / text (≥4.5:1 on bg)
+  --green-bg: #e7f9ec;
+  --green-solid: #2c965d;
+  --green-text: #1f613c;
+  --amber-bg: #fff1da;
+  --amber-solid: #b5791a;
+  --amber-text: #724d0b;
+  --red-bg: #ffedeb;
+  --red-solid: #cf4040;
+  --red-text: #a12628;
+}
+
+[data-theme='dark'] {
+  // graphite (dark): its own scale, not the light ramp reversed
+  --graphite-0: #1c1c1c;
+  --graphite-1: #161616;
+  --graphite-2: #111111;
+  --graphite-3: #262626;
+  --graphite-4: #313131;
+  --graphite-5: #3d3d3d;
+  --graphite-6: #6e6e6e;
+  --graphite-7: #949494;
+  --graphite-8: #a8a8a8;
+  --graphite-9: #e6e6e6;
+  --graphite-10: #f4f4f4;
+  --graphite-11: #ffffff;
+
+  --green-bg: #122d1d;
+  --green-solid: #4ebe7d;
+  --green-text: #a1e3b7;
+  --amber-bg: #372508;
+  --amber-solid: #f5ae39;
+  --amber-text: #fece8c;
+  --red-bg: #421c19;
+  --red-solid: #ef6661;
+  --red-text: #fbb7b0;
+}
+
+// ── Semantic roles (the only tier components use) ───────────────────────────
+:root,
+[data-theme='white'],
+[data-theme='dark'] {
+  // Surfaces: canvas → raised card → filled control → hover → pressed
+  --bg-secondary: var(--graphite-2); // canvas
+  --bg-primary: var(--graphite-0); // raised card
+  --bg-tertiary: var(--graphite-2); // filled controls, recessed trays inside cards
+  --bg-hover: var(--graphite-3);
+  --bg-active: var(--graphite-4);
+  --bg-quinary: var(--graphite-1);
+  --bg-recessed: var(--graphite-3); // segmented track
+  --bg-selected: var(--graphite-0); // selected segment
+  --floating-surface: var(--graphite-0);
+
+  // Text
+  --text-primary: var(--graphite-11);
+  --text-secondary: var(--graphite-8);
+  --text-tertiary: var(--graphite-8);
+  --text-quaternary: var(--graphite-7);
+  --text-disabled: var(--graphite-6);
   --text-muted: var(--text-tertiary);
+  --link-color: var(--text-primary);
 
-  --border-color: #d2d2ce; // 表格网格线/分割线
+  // Lines (decorative separators only; controls are filled, not outlined)
+  --border-color: var(--graphite-3);
   --border-secondary: var(--border-color);
-  --border-primary: #8f8f8b; // 需要 3:1 的组件边界
-  --border-hover: #6f6f6b;
-  --border-strong: #161616; // 按钮、输入框、纸面外框
+  --border-primary: var(--graphite-4);
+  --border-hover: var(--graphite-5);
+  --border-strong: var(--graphite-6); // checkbox / radio / switch edge (≥3:1)
 
-  --primary-color: #0b6b4c; // 行动色：深绿
-  --primary-hover: #095a40;
-  --primary-active: #074a35;
-  --primary-contrast: #ffffff;
+  // Accent = graphite solid
+  --accent: var(--graphite-10);
+  --accent-fill: var(--graphite-10);
+  --accent-fill-hover: var(--graphite-9);
+  --accent-text: var(--graphite-11);
+  --accent-contrast: var(--graphite-0);
+  --accent-soft: color-mix(in oklab, var(--graphite-10) 10%, transparent);
+  --accent-color: var(--accent);
+  --primary-color: var(--accent-fill);
+  --primary-hover: var(--accent-fill-hover);
+  --primary-active: var(--graphite-8);
+  --primary-contrast: var(--accent-contrast);
+  --focus-ring: var(--graphite-10);
+  --focus-ring-color: var(--focus-ring);
+  --chart-fill: color-mix(in oklab, var(--graphite-10) 14%, transparent);
 
-  --link-color: #1d4ed8;
-  --focus-ring: #1d4ed8;
+  // Status — success
+  --status-success-bg: var(--green-bg);
+  --status-success-solid: var(--green-solid);
+  --status-success-text: var(--green-text);
+  // Status — attention (needs action)
+  --status-attention-bg: var(--amber-bg);
+  --status-attention-solid: var(--amber-solid);
+  --status-attention-text: var(--amber-text);
+  // Status — danger
+  --status-danger-bg: var(--red-bg);
+  --status-danger-solid: var(--red-solid);
+  --status-danger-text: var(--red-text);
 
-  --success-color: #127046;
-  --quota-medium-color: #a86a00;
-  --warning-color: #b42318;
-  --error-color: #b42318;
-  --danger-color: var(--error-color);
-  --info-color: var(--link-color);
+  // Legacy role names, mapped onto the status roles
+  --success-color: var(--status-success-text);
+  --quota-medium-color: var(--status-attention-text);
+  --warning-color: var(--status-danger-text);
+  --error-color: var(--status-danger-text);
+  --danger-color: var(--status-danger-text);
+  --info-color: var(--text-secondary);
+  --bg-error-light: var(--status-danger-bg);
 
-  --warning-bg: #fbe0dc;
-  --warning-border: #e3a197;
-  --warning-text: #8f1d13;
+  --warning-bg: var(--status-attention-bg);
+  --warning-border: var(--status-attention-bg);
+  --warning-text: var(--status-attention-text);
 
-  --success-badge-bg: #d7f0df;
-  --success-badge-text: #0d5c36;
-  --success-badge-border: #6fbf8e;
+  --success-badge-bg: var(--status-success-bg);
+  --success-badge-text: var(--status-success-text);
+  --success-badge-border: var(--status-success-bg);
+  --failure-badge-bg: var(--status-danger-bg);
+  --failure-badge-text: var(--status-danger-text);
+  --failure-badge-border: var(--status-danger-bg);
 
-  --failure-badge-bg: #fbe0dc;
-  --failure-badge-text: #8f1d13;
-  --failure-badge-border: #e3a197;
+  --count-badge-bg: var(--graphite-3);
+  --count-badge-text: var(--graphite-10);
 
-  --count-badge-bg: #fff1a6;
-  --count-badge-text: #111111;
+  --chip-bg: var(--bg-tertiary);
+  --chip-text: var(--text-secondary);
+  --chip-border: transparent;
 
-  // 等宽标签（SKU 风格）
-  --chip-yellow: #fff1a6;
-  --chip-pink: #f6d5ef;
-  --chip-blue: #d6e6fb;
-  --chip-green: #d7f0df;
-  --chip-text: #111111;
-  --chip-border: #6b6b6b;
+  --amber-color: var(--status-attention-solid);
+  --amber-10: color-mix(in oklab, var(--amber-solid) 12%, transparent);
+  --amber-30: color-mix(in oklab, var(--amber-solid) 32%, transparent);
+  --destructive-color: var(--status-danger-text);
+  --destructive-10: var(--status-danger-bg);
+  --destructive-30: color-mix(in oklab, var(--red-solid) 32%, transparent);
 
-  --shadow: none;
-  --shadow-lg: 4px 4px 0 #a9a9a5;
-  --shadow-hard: 2px 2px 0 #a9a9a5;
-  --shadow-hard-pressed: 1px 1px 0 #a9a9a5;
-
-  --radius-md: 0px;
-
-  // Workbench tokens (Home parity)
-  --primary-8: color-mix(in srgb, var(--primary-color) 8%, transparent);
-  --primary-10: color-mix(in srgb, var(--primary-color) 10%, transparent);
-  --primary-30: color-mix(in srgb, var(--primary-color) 30%, transparent);
-  --amber-color: #b45309;
-  --amber-text: #7c2d12;
-  --amber-10: color-mix(in srgb, var(--amber-color) 10%, transparent);
-  --amber-30: color-mix(in srgb, var(--amber-color) 30%, transparent);
-  --destructive-color: var(--error-color);
-  --destructive-10: color-mix(in srgb, var(--destructive-color) 10%, transparent);
-  --destructive-30: color-mix(in srgb, var(--destructive-color) 30%, transparent);
   --muted-bg: var(--bg-tertiary);
   --muted-foreground: var(--text-secondary);
   --accent-bg: var(--bg-tertiary);
 
-  // 纸面风格不使用毛玻璃：保持实色表面
-  --glass-blur: 0px;
-  --glass-backdrop-filter: none;
-  --glass-filter: none;
-  --glass-bg: var(--bg-primary);
-  --glass-bg-secondary: var(--bg-secondary);
-  --glass-border: var(--border-primary);
+  --primary-8: color-mix(in oklab, var(--graphite-10) 8%, transparent);
+  --primary-10: color-mix(in oklab, var(--graphite-10) 10%, transparent);
+  --primary-30: color-mix(in oklab, var(--graphite-10) 30%, transparent);
 
-  // 可视化配色：翡翠绿只表达「活的流量」。
-  --viz-success: #2f9a62;
-  --viz-failure: #c8402f;
+  // Data visualisation: solids only (bars, dots, lines). Neutral series use --viz-neutral.
+  --viz-success: var(--status-success-solid);
+  --viz-failure: var(--status-danger-solid);
+  --viz-warning: var(--status-attention-solid);
+  --viz-neutral: var(--graphite-6);
+}
 
-  // 动效词汇表
-  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+// Light-only values
+:root {
+  --shadow: none;
+  --shadow-control: none;
+  --shadow-m: 0 2px 6px #0000000d, 0 8px 24px #00000013;
+  --shadow-lg: var(--shadow-m);
+  --floating-shadow: 0 0 0 1px #0000000a, 0 2px 6px #0000000d, 0 12px 32px #00000017;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 18px;
+  --radius-2xl: 28px;
+
+  --glass-blur: 16px;
+  --glass-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  --glass-filter: blur(var(--glass-blur));
+  --glass-bg: color-mix(in srgb, var(--bg-primary) 86%, transparent);
+  --glass-bg-secondary: color-mix(in srgb, var(--bg-secondary) 86%, transparent);
+  --glass-border: transparent;
+
+  // Motion (Graphical: 200ms / 360ms, popups scale from 0.96, press moves 1px)
+  --ease-out-strong: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-large: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-press: 160ms;
   --dur-hover: 200ms;
+  --dur-large: 360ms;
+
+  // Shell
+  --sidebar-width: 248px;
+  --sidebar-collapsed-width: 64px;
+  --shell-gutter: 8px;
 }
 
-// 纯白主题：桌面也为白色，其余与默认一致
+// Pure white: canvas matches the cards
 [data-theme='white'] {
-  --bg-secondary: #ffffff;
-  --bg-primary: #ffffff;
-  --bg-tertiary: #f4f4f2;
-  --bg-hover: #ebebe8;
-  --bg-quinary: #ffffff;
+  --bg-secondary: var(--graphite-0);
+  --bg-quinary: var(--graphite-0);
 }
 
-// 深色主题
 [data-theme='dark'] {
-  --bg-secondary: #121212;
-  --bg-primary: #1b1b1b;
-  --bg-tertiary: #242424;
-  --bg-hover: #2c2c2c;
-  --bg-quinary: #171717;
-  --bg-error-light: #3d1a16;
-  --floating-surface: #1f1f1f;
-  --floating-shadow: 4px 4px 0 #000000;
+  --floating-shadow: 0 0 0 1px #ffffff12, 0 12px 32px #00000099;
+  --shadow-m: var(--floating-shadow);
+}
 
-  --text-primary: #f2f2f0;
-  --text-secondary: #c9c9c6;
-  --text-tertiary: #a3a3a0;
-  --text-quaternary: #8f8f8c;
-  --text-muted: var(--text-tertiary);
+@media (prefers-contrast: more) {
+  :root:not([data-theme='dark']) {
+    --text-secondary: var(--graphite-9);
+    --text-tertiary: var(--graphite-9);
+    --text-quaternary: var(--graphite-8);
+    --border-strong: var(--graphite-8);
+  }
 
-  --border-color: #343432;
-  --border-secondary: var(--border-color);
-  --border-primary: #6a6a67;
-  --border-hover: #8a8a87;
-  --border-strong: #d9d9d6;
-
-  // 深色下行动色同时用作文字色与填充色：浅绿 + 深色文字
-  --primary-color: #3fbf8a;
-  --primary-hover: #5ccf9d;
-  --primary-active: #7adbb0;
-  --primary-contrast: #0b0b0b;
-
-  --link-color: #8ab4ff;
-  --focus-ring: #8ab4ff;
-
-  --success-color: #4cc98d;
-  --quota-medium-color: #f2c14e;
-  --warning-color: #ff7b6b;
-  --error-color: #ff7b6b;
-  --danger-color: var(--error-color);
-  --info-color: var(--link-color);
-
-  --warning-bg: #3d1a16;
-  --warning-border: #7a3027;
-  --warning-text: #ffb4a8;
-
-  --success-badge-bg: #12301f;
-  --success-badge-text: #8ee0b4;
-  --success-badge-border: #2f7a52;
-
-  --failure-badge-bg: #3d1a16;
-  --failure-badge-text: #ffb4a8;
-  --failure-badge-border: #7a3027;
-
-  --count-badge-bg: #3a3214;
-  --count-badge-text: #ffe58a;
-
-  --chip-yellow: #3a3214;
-  --chip-pink: #3a1934;
-  --chip-blue: #16263f;
-  --chip-green: #12301f;
-  --chip-text: #f2f2f0;
-  --chip-border: #8f8f8c;
-
-  --shadow: none;
-  --shadow-lg: 4px 4px 0 #000000;
-  --shadow-hard: 2px 2px 0 #000000;
-  --shadow-hard-pressed: 1px 1px 0 #000000;
-
-  --amber-color: #f59e0b;
-  --amber-text: #fcd34d;
-  --amber-10: color-mix(in srgb, var(--amber-color) 14%, transparent);
-  --amber-30: color-mix(in srgb, var(--amber-color) 38%, transparent);
-  --destructive-10: color-mix(in srgb, var(--destructive-color) 14%, transparent);
-  --destructive-30: color-mix(in srgb, var(--destructive-color) 38%, transparent);
-
-  --viz-success: #3fbf8a;
-  --viz-failure: #ff7b6b;
+  [data-theme='dark'] {
+    --text-secondary: #cfcfcf;
+    --text-tertiary: #cfcfcf;
+    --text-quaternary: var(--graphite-8);
+    --border-strong: var(--graphite-7);
+  }
 }
 
 @media (max-width: 768px),
@@ -201,6 +246,5 @@
     --glass-filter: none;
     --glass-bg: var(--bg-primary);
     --glass-bg-secondary: var(--bg-secondary);
-    --glass-border: var(--border-color);
   }
 }

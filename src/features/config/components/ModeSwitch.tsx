@@ -9,17 +9,21 @@ export type ModeSwitchProps = {
 };
 
 /**
- * 可视化 / 源码 segmented 切换。源码模式是整份文档的另一种表示（不是第 9 个分区），
- * 所以它不进 tabs，常驻 tabs 行右端（移动端上移到头部动作行）。
+ * 可视化 / 源码切换（全局 .segmented）。源码模式是整份文档的另一种表示（不是第 9 个分区），
+ * 所以它不进分区导航，常驻页头动作区。
  */
 export function ModeSwitch({ mode, disabled = false, onChange }: ModeSwitchProps) {
   const { t } = useTranslation();
 
   return (
-    <div className={styles.segmented} role="group" aria-label={t('config_management.mode.label')}>
+    <div
+      className={`segmented ${styles.segmented}`}
+      role="group"
+      aria-label={t('config_management.mode.label')}
+    >
       <button
         type="button"
-        className={`${styles.segment} ${mode === 'visual' ? styles.segmentActive : ''}`}
+        className={`segmented-item ${styles.segment} ${mode === 'visual' ? 'active' : ''}`}
         aria-pressed={mode === 'visual'}
         disabled={disabled}
         onClick={() => onChange('visual')}
@@ -28,7 +32,7 @@ export function ModeSwitch({ mode, disabled = false, onChange }: ModeSwitchProps
       </button>
       <button
         type="button"
-        className={`${styles.segment} ${mode === 'source' ? styles.segmentActive : ''}`}
+        className={`segmented-item ${styles.segment} ${mode === 'source' ? 'active' : ''}`}
         aria-pressed={mode === 'source'}
         disabled={disabled}
         onClick={() => onChange('source')}

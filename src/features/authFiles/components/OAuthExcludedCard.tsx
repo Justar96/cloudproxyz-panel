@@ -21,7 +21,10 @@ export function OAuthExcludedCard(props: OAuthExcludedCardProps) {
   return (
     <section className={styles.panel}>
       <header className={styles.panelHead}>
-        <h3 className={styles.panelTitle}>{t('oauth_excluded.title')}</h3>
+        <div className={styles.panelHeading}>
+          <h2 className={styles.panelTitle}>{t('oauth_excluded.title')}</h2>
+          <p className={styles.panelDescription}>{t('oauth_excluded.editor_description')}</p>
+        </div>
         <div className={styles.panelExtra}>
           <Button size="sm" onClick={onAdd} disabled={disableControls || excludedError !== null}>
             {t('oauth_excluded.add')}

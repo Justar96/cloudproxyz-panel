@@ -1,35 +1,38 @@
 @use 'sass:color';
 @use './variables.scss' as *;
 
+// Felt controls: 8px radius, filled, borderless; press moves 1px.
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: $spacing-sm;
-  border: 1px solid var(--border-strong);
-  border-radius: 0;
-  padding: 9px 14px;
-  font-weight: 600;
+  min-height: 40px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
   cursor: pointer;
-  transition-property: background-color, border-color, color, box-shadow;
-  transition-duration: 150ms;
-  transition-timing-function: ease;
-  background-color: var(--bg-primary);
+  transition-property: background-color, color, box-shadow, translate, opacity;
+  transition-duration: var(--dur-hover);
+  transition-timing-function: var(--ease-out-strong);
+  background-color: var(--bg-tertiary);
   color: var(--text-primary);
-  box-shadow: var(--shadow-hard);
+  -webkit-tap-highlight-color: transparent;
 
   @media (hover: hover) {
     &:not(:disabled):hover {
-      background-color: var(--bg-tertiary);
+      background-color: var(--bg-hover);
     }
   }
 
-  // 按下：像压下一张卡片，阴影收缩
-  &:not(:disabled):active {
-    box-shadow: var(--shadow-hard-pressed);
-
-    @media (prefers-reduced-motion: no-preference) {
-      transform: translate(1px, 1px);
+  @media (prefers-reduced-motion: no-preference) {
+    &:not(:disabled):active {
+      translate: 0 1px;
     }
   }
 
@@ -38,14 +41,19 @@
     outline-offset: 2px;
   }
 
-  // 主操作：深绿底 + 等宽大写字
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  svg {
+    flex: 0 0 auto;
+  }
+
   &.btn-primary {
     background-color: var(--primary-color);
     color: var(--primary-contrast);
-    font-family: $font-mono;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
 
     @media (hover: hover) {
       &:not(:disabled):hover {
@@ -55,37 +63,36 @@
   }
 
   &.btn-secondary {
-    background-color: var(--bg-primary);
+    background-color: var(--bg-tertiary);
     color: var(--text-primary);
+
+    @media (hover: hover) {
+      &:not(:disabled):hover {
+        background-color: var(--bg-hover);
+      }
+    }
   }
 
   &.btn-ghost {
     background: transparent;
-    border-color: transparent;
-    box-shadow: none;
     color: var(--text-secondary);
 
     @media (hover: hover) {
       &:not(:disabled):hover {
         color: var(--text-primary);
-        background: var(--bg-tertiary);
-        border-color: var(--border-color);
+        background: var(--bg-hover);
       }
-    }
-
-    &:not(:disabled):active {
-      box-shadow: none;
-      transform: none;
     }
   }
 
+  // Destructive: tinted, never the solid accent, so it can't be mistaken for the primary.
   &.btn-danger {
-    background-color: var(--danger-color);
-    color: var(--primary-contrast);
+    background-color: var(--status-danger-bg);
+    color: var(--status-danger-text);
 
     @media (hover: hover) {
       &:not(:disabled):hover {
-        background-color: color-mix(in srgb, var(--danger-color) 88%, #000);
+        background-color: color-mix(in oklab, var(--status-danger-bg) 80%, var(--red-solid));
       }
     }
   }
@@ -95,49 +102,66 @@
   }
 
   &.btn-sm {
-    padding: 7px 10px;
-    font-size: 14px;
-  }
-
-  &.btn-primary.btn-sm {
-    font-size: 12px;
+    min-height: 32px;
+    padding: 6px 12px;
+    font-size: 13px;
   }
 
   &:disabled {
-    opacity: 0.55;
+    color: var(--text-disabled);
     cursor: not-allowed;
-    box-shadow: none;
-  }
-}
 
-[data-theme='dark'] {
-  .btn.btn-danger {
-    color: #0b0b0b;
+    &.btn-primary {
+      background-color: var(--bg-hover);
+    }
   }
 }
 
 .input,
 textarea {
   width: 100%;
-  border: 1px solid var(--border-strong);
-  border-radius: 0;
-  padding: 9px 12px;
-  background-color: var(--bg-primary);
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  min-height: 40px;
+  font-size: 14px;
+  line-height: 20px;
+  background-color: var(--bg-tertiary);
   color: var(--text-primary);
-  transition: border-color $transition-fast;
+  box-shadow: inset 0 0 0 1px transparent;
+  transition:
+    background-color var(--dur-hover) var(--ease-out-strong),
+    box-shadow var(--dur-hover) var(--ease-out-strong);
 
   &::placeholder {
     color: var(--text-quaternary);
   }
 
+  @media (hover: hover) {
+    &:hover:not(:focus):not(:disabled) {
+      background-color: var(--bg-hover);
+    }
+  }
+
   &:focus {
     outline: 2px solid var(--focus-ring);
-    outline-offset: 1px;
+    outline-offset: 0;
+  }
+
+  &:disabled {
+    color: var(--text-disabled);
+    cursor: not-allowed;
   }
 
   &[aria-invalid='true'] {
-    border-color: var(--error-color);
+    box-shadow: inset 0 0 0 1px var(--accent);
   }
+}
+
+// Inputs sitting directly on the canvas need a contrasting fill.
+.main-content > .input,
+.main-content > textarea {
+  background-color: var(--bg-primary);
 }
 
 // Leave room for an icon or action rendered over the input's trailing edge.
@@ -148,26 +172,28 @@ textarea {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: 6px;
   margin-bottom: $spacing-md;
 
   label {
-    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
     color: var(--text-primary);
   }
 
   .hint {
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 16px;
   }
 }
 
+// Raised surface: no border, no shadow, 18px radius.
 .card {
   background-color: var(--bg-primary);
-  border: 1px solid var(--border-primary);
-  // 规格表的标志：左侧加粗灰条
-  border-inline-start: 4px solid var(--border-color);
-  border-radius: 0;
+  border: 0;
+  border-radius: var(--radius-xl);
   box-shadow: none;
   padding: $spacing-lg;
 }
@@ -187,10 +213,179 @@ textarea {
   .title {
     flex: 1 1 auto;
     min-width: 0;
-    font-family: $font-display;
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
     color: var(--text-primary);
+  }
+}
+
+// ── Page scaffolding primitives ─────────────────────────────────────────────
+// Filled controls (secondary buttons, inputs, selects, segmented tracks) normally sit on a card
+// and use --bg-tertiary. Directly on the canvas that fill equals the canvas, so canvas-level
+// regions remap the fill to the raised surface.
+.page-header,
+.on-canvas {
+  --bg-tertiary: var(--bg-primary);
+  --bg-recessed: var(--bg-primary);
+  --bg-selected: var(--bg-hover);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-width: 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  padding-block: 8px 4px;
+}
+
+.page-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.page-subtitle {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+.section-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.surface {
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  padding: $spacing-lg;
+}
+
+.surface-recessed {
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  padding: $spacing-md;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 20px;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &.badge-accent {
+    background: var(--accent-fill);
+    color: var(--accent-contrast);
+  }
+
+  &.badge-success {
+    background: var(--success-badge-bg);
+    color: var(--success-badge-text);
+  }
+
+  &.badge-danger {
+    background: var(--failure-badge-bg);
+    color: var(--failure-badge-text);
+  }
+
+  &.badge-warning {
+    background: var(--warning-bg);
+    color: var(--warning-text);
   }
 }
 
@@ -198,14 +393,13 @@ textarea {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 8px;
-  border-radius: 0;
-  font-family: $font-mono;
+  padding: 3px 10px;
+  border-radius: $radius-full;
   font-size: 12px;
-  letter-spacing: 0.06em;
-  border: 1px dotted var(--chip-border);
+  font-weight: 500;
+  border: 0;
   background: var(--bg-tertiary);
-  color: var(--text-primary);
+  color: var(--text-secondary);
   margin-bottom: $spacing-md;
 
   // 确保后续内容换行显示
@@ -215,14 +409,12 @@ textarea {
 
   &.success {
     color: var(--success-badge-text);
-    border-color: var(--success-badge-border);
     background: var(--success-badge-bg);
   }
 
   &.warning,
   &.error {
     color: var(--failure-badge-text);
-    border-color: var(--failure-badge-border);
     background: var(--failure-badge-bg);
   }
 
@@ -232,14 +424,13 @@ textarea {
 }
 
 .pill {
-  padding: 3px 8px;
-  border-radius: 0;
-  background: var(--chip-yellow);
-  color: var(--chip-text);
-  border: 1px dotted var(--chip-border);
-  font-family: $font-mono;
+  padding: 3px 10px;
+  border-radius: $radius-full;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 0;
   font-size: 12px;
-  letter-spacing: 0.06em;
+  font-weight: 500;
 }
 
 .loading-spinner {
@@ -306,10 +497,10 @@ textarea {
 }
 
 .modal {
-  background: var(--bg-primary);
-  border-radius: $radius-lg;
-  border: 1px solid var(--border-strong);
-  box-shadow: $shadow-lg;
+  background: var(--floating-surface);
+  border-radius: var(--radius-xl);
+  border: 0;
+  box-shadow: var(--floating-shadow);
   max-width: 100%;
   max-height: 90vh;
   overflow: hidden;
@@ -320,7 +511,7 @@ textarea {
   transform-origin: calc(100% - 28px) 28px;
 
   &.modal-entering {
-    animation: modal-scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: modal-scale-in var(--dur-large) var(--ease-large) forwards;
   }
 
   &.modal-closing {
@@ -331,7 +522,7 @@ textarea {
 @keyframes modal-scale-in {
   from {
     opacity: 0;
-    transform: scale(0.85) translateY(20px);
+    transform: scale(0.96);
   }
   to {
     opacity: 1;
@@ -405,7 +596,7 @@ textarea {
   border-bottom: 1px solid var(--border-color);
 
   .modal-title {
-    font-weight: 700;
+    font-weight: 600;
     font-size: 18px;
     color: var(--text-primary);
   }
@@ -481,10 +672,10 @@ textarea {
 }
 
 .empty-state {
-  border: 1px dashed var(--border-color);
-  border-radius: $radius-lg;
+  border: 0;
+  border-radius: var(--radius-xl);
   padding: $spacing-lg;
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
   display: flex;
   justify-content: space-between;
   gap: $spacing-md;
@@ -500,8 +691,9 @@ textarea {
     width: 42px;
     height: 42px;
     flex: 0 0 42px;
-    border-radius: $radius-full;
-    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    border: 0;
+    background: var(--bg-primary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -517,7 +709,7 @@ textarea {
   }
 
   .empty-title {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
   }
 
@@ -564,7 +756,7 @@ textarea {
   }
 
   .item-title {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
   }
 
@@ -584,7 +776,7 @@ textarea {
 
 .error-box {
   background: var(--failure-badge-bg);
-  border: 1px solid var(--failure-badge-border);
+  border: 0;
   border-radius: $radius-md;
   padding: $spacing-sm $spacing-md;
   color: var(--failure-badge-text);
@@ -598,4 +790,16 @@ textarea {
 
 .hint {
   color: var(--text-secondary);
+}
+
+// Native search clear button: draw it in the text colour instead of the UA blue.
+input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  background-color: var(--text-secondary);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E")
+    center / contain no-repeat;
 }

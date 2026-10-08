@@ -13,12 +13,12 @@
  */
 
 import { useMemo, useState } from 'react';
-import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatRelativeInstant, TYPE_COLORS } from '@/utils/quota';
+import { formatRelativeInstant } from '@/utils/quota';
 import { getQuotaCacheKey, getQuotaDisplayName } from '@/utils/quota/identity';
 import { useNow } from '@/hooks/useNow';
-import type { ResolvedTheme, ThemeColors } from '@/types';
+import type { ResolvedTheme } from '@/types';
+import { getAuthFileIcon } from '@/features/authFiles/constants';
 import {
   buildTimelineLane,
   laneHasWindow,
@@ -204,11 +204,16 @@ export function QuotaTimeline({
             </button>
           </div>
 
-          <div className={styles.modes} role="group">
+          <div
+            className={`segmented ${styles.modes}`}
+            role="group"
+            aria-label={t('quota_management.windows_title', { defaultValue: 'Quota windows' })}
+          >
             {(['weekly', 'session'] as const).map((value) => (
               <button
                 key={value}
                 type="button"
+                className={`segmented-item${mode === value ? ' active' : ''}`}
                 aria-pressed={mode === value}
                 onClick={() => {
                   setMode(value);
@@ -330,9 +335,8 @@ function Lane({ lane, span, now, mode, cells, nowPercent, resolvedTheme }: LaneP
     [lane, span, now]
   );
 
-  const colorSet = TYPE_COLORS[lane.provider] || TYPE_COLORS.unknown;
-  const color: ThemeColors =
-    resolvedTheme === 'dark' && colorSet.dark ? colorSet.dark : colorSet.light;
+  // Provider identity rides on the brand logo only; bars stay graphite.
+  const iconSrc = getAuthFileIcon(lane.provider, resolvedTheme);
 
   // Sub-day windows are labelled in hours — rounding 5h to days gives "0d".
   const periodLabel =
@@ -345,10 +349,10 @@ function Lane({ lane, span, now, mode, cells, nowPercent, resolvedTheme }: LaneP
           : `${Math.round(lane.periodHours / 24)}d`;
 
   return (
-    <div className={styles.lane} style={{ '--provider-accent': color.text } as CSSProperties}>
+    <div className={styles.lane}>
       <div className={styles.laneHead}>
         <div className={styles.laneTop}>
-          <span className={styles.laneDot} />
+          {iconSrc && <img src={iconSrc} alt="" className={styles.laneIcon} />}
           <span className={styles.laneName} title={lane.displayName}>
             {lane.displayName}
           </span>
@@ -357,8 +361,7 @@ function Lane({ lane, span, now, mode, cells, nowPercent, resolvedTheme }: LaneP
         <div className={styles.laneLimits}>
           {lane.limits.map((limit) => (
             <span key={limit.label} className={styles.laneLimit}>
-              {lane.provider === 'meta' ? t(limit.label) : limit.label}{' '}
-              <b>{limit.remaining}%</b>
+              {lane.provider === 'meta' ? t(limit.label) : limit.label} <b>{limit.remaining}%</b>
             </span>
           ))}
         </div>

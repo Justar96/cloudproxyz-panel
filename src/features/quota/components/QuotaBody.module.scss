@@ -4,53 +4,55 @@
  * 额度卡片 body 的全页外衣（类型化契约见 features/quota/types.ts）。
  *
  * 两段构成：
- * 1. 额度行 / 水位条 / Antigravity 分组 —— mono 遥测风，与紧凑外衣同族；
- * 2. 套餐徽章区（.codexPlan* 起至文件末尾）—— 从 pages/QuotaPage.module.scss
- *    第 429–1023 行逐字节搬迁的定稿资产（金卡 + Pro 20x 液态铂金，含暗色 /
- *    HDR / 减动效冻结帧 / 移动端降级）。**该区块禁止改动**：改配方等于重设计
- *    已验收的徽章，验证方式是与 git 历史做 diff（应为空）。
+ * 1. 额度行 / 水位条 / Antigravity 分组 —— Felt 语汇：12px 标签 + 等宽数字，
+ *    水位条健康为石墨、接近上限为 attention、用尽为 danger；
+ * 2. 套餐徽章区（.codexPlan* 起至文件末尾）—— 金卡 + Pro 20x 液态铂金是定稿资产
+ *    （含暗色 / HDR / 减动效冻结帧 / 移动端降级），徽章配方禁止改动。
  * ============================================================ */
 
-/* ---------- 额度行 ---------- */
+/* ---------- 额度行 ----------
+ * 在额度页里 body 是一个 tile 网格（见 QuotaCard.module.scss .body）：
+ * 额度行与 Antigravity 分组各占一格，其余块（套餐 / 重置积分 / 消息）通栏。 */
 
 .quotaRow {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   min-width: 0;
+  grid-column: auto;
 }
 
 .quotaRowHeader {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 2px 8px;
   min-width: 0;
 }
 
 .quotaModel {
   min-width: 0;
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
   color: var(--text-secondary);
   @include text-ellipsis;
 }
 
-/* 遥测：mono + 等宽数字，刷新时数字不跳位 */
 .quotaMeta {
   display: inline-flex;
   align-items: baseline;
-  gap: 7px;
-  flex-shrink: 0;
-  font-family: $font-mono;
-  font-size: 11.5px;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 16px;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
 }
 
-/* 百分比穿墨色而非填充色 —— 文字不承担状态编码，颜色留给水位条 */
 .quotaPercent {
-  font-weight: 650;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
@@ -60,57 +62,55 @@
 
 /* Countdown beside the absolute reset time. The separator is a pseudo-element
    so the two spans stay independently styleable (the relative half turns
-   warning-coloured when this is the row that recovers first). */
+   attention-coloured when this is the row that recovers first). */
 .quotaResetRelative {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 
   &::before {
     content: '·';
-    margin: 0 4px;
+    margin-inline-end: 6px;
     color: var(--text-quaternary);
   }
 }
 
 .quotaResetRelativeSoon {
-  color: var(--warning-text);
-  font-weight: 600;
+  color: var(--status-attention-text);
+  font-weight: 500;
 }
 
 .quotaAmount {
-  font-family: $font-mono;
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
 }
 
 .quotaMessage {
-  font-family: $font-mono;
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: var(--text-tertiary);
-  text-align: center;
-  padding: 6px 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
+  padding-block: 4px;
 }
 
 /* ---------- 水位条（QuotaMeter）----------
- * 轨道退居背景（8% 墨色），填充按剩余量三档着色；
- * percent === null 时宽度为 0 —— 未知不着色。 */
+ * 填充 = 剩余量。健康 = 石墨（--accent），接近上限 = attention，
+ * 用尽（填充为 0）= 轨道染危险底色。percent === null 时为空轨道。 */
 
 .quotaBar {
   height: 6px;
   border-radius: $radius-full;
-  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  background: var(--bg-recessed);
   overflow: hidden;
+
+  &[data-level='exhausted'] {
+    background: color-mix(in oklab, var(--viz-failure) 40%, transparent);
+  }
 }
 
 .quotaBarFill {
   height: 100%;
   border-radius: $radius-full;
-  /* 刷新时平滑重定向到新水位（可中断） */
-  transition: width 360ms var(--ease-out-strong, ease);
-  /* 数据到达是本页的高潮时刻：水位逐行铺开（每行 40ms 级差）。
-   * 走 scaleX 而非 width，避免与上面的 width 过渡互相抢夺同一属性。 */
+  transition: width 360ms var(--ease-large);
   transform-origin: left center;
-  animation: quota-meter-fill 480ms var(--ease-out-strong, ease-out) both;
+  animation: quota-meter-fill 480ms var(--ease-out-strong) both;
   animation-delay: calc(var(--meter-index, 0) * 40ms);
 }
 
@@ -120,16 +120,13 @@
   }
 }
 
-.quotaBarFillHigh {
-  background: var(--viz-success);
-}
-
+.quotaBarFillHigh,
 .quotaBarFillMedium {
-  background: var(--quota-medium-color);
+  background: var(--accent);
 }
 
 .quotaBarFillLow {
-  background: var(--viz-failure);
+  background: var(--viz-warning);
 }
 
 /* ---------- Antigravity 分组 ---------- */
@@ -137,13 +134,9 @@
 .antigravityQuotaGroup {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-
-  & + & {
-    margin-top: 3px;
-    padding-top: 9px;
-    border-top: 1px dashed color-mix(in srgb, var(--border-color) 80%, transparent);
-  }
+  gap: 8px;
+  min-width: 0;
+  grid-column: auto;
 }
 
 .antigravityQuotaGroupHeader {
@@ -154,26 +147,19 @@
 }
 
 .antigravityQuotaGroupTitle {
-  font-family: $font-mono;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .antigravityQuotaGroupDescription {
-  font-size: 11px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--text-quaternary);
 }
 
 @include mobile {
-  .quotaRowHeader {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .quotaModel {
     width: 100%;
     white-space: normal;
@@ -191,7 +177,8 @@
 }
 
 /* ============================================================
- * 以下至文件末尾：套餐徽章定稿区块（逐字节搬迁，禁止改动）
+ * 以下至文件末尾：套餐徽章定稿区块。金卡 / 液态铂金徽章（premium / elite）
+ * 禁止改动；重置积分行与错误条已在 Felt 重设计中改为无边框的语义 token。
  * ============================================================ */
 
 .codexPlan {
@@ -244,17 +231,15 @@
   justify-content: space-between;
   gap: $spacing-sm;
   padding: 6px 8px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
-  border-radius: $radius-sm;
-  background-color: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-tertiary);
   font-size: 12px;
   line-height: 1.35;
   min-width: 0;
 }
 
 .codexResetCreditRowSoon {
-  border-color: var(--warning-border);
-  background-color: var(--warning-bg);
+  background-color: var(--status-attention-bg);
 }
 
 .codexResetCreditLabel {
@@ -275,10 +260,9 @@
 .codexResetCreditsError {
   font-size: 12px;
   line-height: 1.4;
-  color: var(--warning-text);
-  background-color: var(--warning-bg);
-  border: 1px solid var(--warning-border);
-  border-radius: $radius-sm;
+  color: var(--status-attention-text);
+  background-color: var(--status-attention-bg);
+  border-radius: var(--radius-sm);
   padding: $spacing-xs $spacing-sm;
 }
 

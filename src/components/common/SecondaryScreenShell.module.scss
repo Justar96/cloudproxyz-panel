@@ -17,7 +17,6 @@
   gap: $spacing-md;
   padding: $spacing-sm $spacing-md;
   background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
   min-height: 44px;
 }
 
@@ -26,7 +25,7 @@
   max-width: 100%;
   text-align: center;
   font-size: 16px;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;

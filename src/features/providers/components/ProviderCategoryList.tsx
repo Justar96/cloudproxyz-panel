@@ -1,6 +1,9 @@
+import { useId, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Select } from '@/components/ui/Select';
 import { PROVIDER_LOGOS } from '../brandLogos';
 import type { ProviderBrand, ProviderGroup } from '../types';
+import { ProviderLogo } from './ProviderLogo';
 import styles from './ProviderCategoryList.module.scss';
 
 interface ProviderCategoryListProps {
@@ -15,6 +18,8 @@ const QUICK_FILL_BRANDS: ReadonlySet<ProviderBrand> = new Set(QUICK_FILL_BRAND_O
 
 export function ProviderCategoryList({ groups, activeBrand, onSelect }: ProviderCategoryListProps) {
   const { t } = useTranslation();
+  const providersLabelId = useId();
+  const quickFillLabelId = useId();
 
   const quickFillGroups = groups
     .filter((g) => QUICK_FILL_BRANDS.has(g.id))
@@ -24,100 +29,85 @@ export function ProviderCategoryList({ groups, activeBrand, onSelect }: Provider
     );
   const providerGroups = groups.filter((g) => !QUICK_FILL_BRANDS.has(g.id));
 
-  const renderGroups = (items: ProviderGroup[]) => (
-    <div className={styles.list}>
+  const selectOptions = useMemo(
+    () =>
+      [...providerGroups, ...quickFillGroups].map((group) => ({
+        value: group.id,
+        label: `${t(`providersPage.providerNames.${group.id}`)} · ${t(
+          'providersPage.categories.activeCount',
+          {
+            active: group.resources.filter((r) => !r.disabled).length,
+            total: group.resources.length,
+          }
+        )}`,
+      })),
+    [providerGroups, quickFillGroups, t]
+  );
+
+  const renderGroups = (items: ProviderGroup[], labelId: string) => (
+    <ul className={styles.list} aria-labelledby={labelId}>
       {items.map((group) => {
         const active = group.id === activeBrand;
         const total = group.resources.length;
         const activeCount = group.resources.filter((r) => !r.disabled).length;
-        const logo = PROVIDER_LOGOS[group.id];
-        const itemClass = [
-          styles.item,
-          active ? styles.active : '',
-          group.id === 'kimi' ? styles.itemKimi : '',
-        ]
-          .filter(Boolean)
-          .join(' ');
-        const logoClassName = [
-          styles.logo,
-          logo?.transparent ? styles.logoTransparent : '',
-          logo?.themeSurface ? styles.logoThemeSurface : '',
-          logo?.darkSrc ? styles.logoThemeLight : '',
-          logo?.invertOnDark ? styles.logoInvertOnDark : '',
-        ]
-          .filter(Boolean)
-          .join(' ');
-        const darkLogoClassName = [
-          styles.logo,
-          logo?.transparent ? styles.logoTransparent : '',
-          logo?.themeSurface ? styles.logoThemeSurface : '',
-          styles.logoThemeDark,
-        ]
-          .filter(Boolean)
-          .join(' ');
+        const hasDisabled = activeCount < total;
+        const activeCountLabel = t('providersPage.categories.activeCount', {
+          active: activeCount,
+          total,
+        });
 
         return (
-          <button
-            key={group.id}
-            type="button"
-            className={itemClass}
-            onClick={() => onSelect(group.id)}
-            aria-current={active ? 'page' : undefined}
-          >
-            <span className={styles.itemLeft}>
-              {logo ? (
-                <>
-                  <img src={logo.src} alt="" aria-hidden="true" className={logoClassName} />
-                  {logo.darkSrc ? (
-                    <img
-                      src={logo.darkSrc}
-                      alt=""
-                      aria-hidden="true"
-                      className={darkLogoClassName}
-                    />
-                  ) : null}
-                </>
-              ) : null}
-              <span className={styles.itemText}>
-                <span className={styles.itemTitle}>
-                  {t(`providersPage.providerNames.${group.id}`)}
-                </span>
-                <span className={styles.itemSubtitle}>
-                  {t('providersPage.categories.activeCount', {
-                    active: activeCount,
-                    total,
-                  })}
-                </span>
-              </span>
-            </span>
-            <span
-              className={[
-                styles.badge,
-                total === 0 ? (group.id === 'kimi' ? styles.badgeKimi : styles.badgeAmber) : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
+          <li key={group.id}>
+            <button
+              type="button"
+              className={[styles.item, active ? styles.active : ''].filter(Boolean).join(' ')}
+              onClick={() => onSelect(group.id)}
+              aria-current={active ? 'page' : undefined}
+              title={activeCountLabel}
             >
-              {total}
-            </span>
-          </button>
+              <ProviderLogo logo={PROVIDER_LOGOS[group.id]} size="sm" />
+              <span className={styles.itemTitle}>
+                {t(`providersPage.providerNames.${group.id}`)}
+              </span>
+              <span className={styles.srOnly}>{activeCountLabel}</span>
+              {hasDisabled ? <span className={styles.attentionDot} aria-hidden="true" /> : null}
+              <span className={styles.count} aria-hidden="true">
+                {total}
+              </span>
+            </button>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 
   return (
-    <div className={styles.stack}>
-      <aside className={styles.aside}>
-        <p className={styles.eyebrow}>{t('providersPage.categories.title')}</p>
-        {renderGroups(providerGroups)}
-      </aside>
-      {quickFillGroups.length > 0 && (
-        <aside className={styles.aside}>
-          <p className={styles.eyebrow}>{t('providersPage.categories.quickFill')}</p>
-          {renderGroups(quickFillGroups)}
-        </aside>
-      )}
-    </div>
+    <>
+      <div className={`${styles.mobilePicker} on-canvas`}>
+        <Select
+          value={activeBrand}
+          options={selectOptions}
+          onChange={(value) => onSelect(value as ProviderBrand)}
+          ariaLabel={t('providersPage.categories.title')}
+          fullWidth
+        />
+      </div>
+      <nav className={styles.nav} aria-label={t('providersPage.categories.title')}>
+        <div className={styles.group}>
+          <p className={styles.groupLabel} id={providersLabelId}>
+            {t('providersPage.categories.title')}
+          </p>
+          {renderGroups(providerGroups, providersLabelId)}
+        </div>
+        {quickFillGroups.length > 0 && (
+          <div className={styles.group}>
+            <p className={styles.groupLabel} id={quickFillLabelId}>
+              {t('providersPage.categories.quickFill')}
+            </p>
+            {renderGroups(quickFillGroups, quickFillLabelId)}
+          </div>
+        )}
+      </nav>
+    </>
   );
 }

@@ -1,7 +1,15 @@
 @use '../../../../styles/mixins' as *;
 
 /* 区块编辑器（API 密钥 / 字符串列表 / 插件源认证 / 载荷规则）的共享样式。
-   规则从旧 VisualConfigEditor.module.scss 收编，几何统一到 10px 圆角并引用动效 tokens。 */
+   规则卡是卡片内的凹陷托盘（--bg-tertiary / 12px 圆角），托盘内的填充控件抬回 --bg-primary。 */
+
+/* 托盘内的控件：子树的填充色换成抬升表面，否则与托盘同色（托盘自身仍用原 --bg-tertiary） */
+@mixin tray-controls {
+  > * {
+    --bg-tertiary: var(--bg-primary);
+    --bg-recessed: var(--bg-primary);
+  }
+}
 
 /* ---------- 可展开输入 ---------- */
 
@@ -41,8 +49,8 @@
   font-size: 10px;
   line-height: 1;
   cursor: pointer;
-  opacity: 0.58;
-  transition: opacity var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+  opacity: 0.7;
+  transition: opacity var(--dur-hover) var(--ease-out-strong);
 
   &:hover {
     opacity: 1;
@@ -79,34 +87,35 @@
 .blockLabel {
   color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 700;
-  line-height: 1.4;
+  font-weight: 500;
+  line-height: 16px;
 }
 
 .actionRow {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .emptyState {
-  border: 1px dashed var(--border-color);
-  border-radius: 10px;
   padding: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
   color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 18px;
   text-align: center;
-  background: transparent;
 }
 
 /* ---------- 规则卡 ---------- */
 
 .ruleCard {
+  @include tray-controls;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bg-secondary) 64%, transparent);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
 }
 
 .ruleCardHeader {
@@ -120,8 +129,8 @@
 .ruleCardTitle {
   color: var(--text-primary);
   font-size: 14px;
-  font-weight: 700;
-  line-height: 1.25;
+  font-weight: 600;
+  line-height: 20px;
 }
 
 /* ---------- 字符串列表 ---------- */
@@ -173,7 +182,7 @@
   overflow: hidden;
   // 轨道 = 填充色的淡化步阶，未点亮的段也带着当前状态
   background: color-mix(in srgb, var(--strength-color) 16%, transparent);
-  transition: background-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+  transition: background-color var(--dur-hover) var(--ease-out-strong);
 }
 
 .strengthSegmentFill {
@@ -185,8 +194,8 @@
   transform-origin: left center;
   // 段内比常规交互再快一档，把预算让给段间的 stagger
   transition:
-    transform var(--dur-press, 160ms) var(--ease-out-strong, ease-out),
-    background-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+    transform var(--dur-press) var(--ease-out-strong),
+    background-color var(--dur-hover) var(--ease-out-strong);
 
   // 延迟写在目标态上：点亮时依次排队，熄灭是系统响应，立刻发生
   &[data-filled='true'] {
@@ -209,7 +218,7 @@
   font-size: 12px;
   line-height: 16px;
   color: var(--strength-color);
-  transition: color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+  transition: color var(--dur-hover) var(--ease-out-strong);
 }
 
 /* ---------- 插件源认证 ---------- */
@@ -222,19 +231,23 @@
 
 .storeAuthEmpty {
   margin: 0;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 18px;
+  text-align: center;
 }
 
 .storeAuthRule {
+  @include tray-controls;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bg-secondary) 42%, transparent);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
 }
 
 .storeAuthRuleHeader {
@@ -248,8 +261,8 @@
     min-width: 0;
     overflow: hidden;
     color: var(--text-primary);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -274,7 +287,7 @@
   > span {
     color: var(--text-secondary);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 500;
   }
 }
 
@@ -286,13 +299,13 @@
   > span {
     color: var(--text-secondary);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 500;
   }
 
   small {
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     font-size: 12px;
-    line-height: 1.45;
+    line-height: 16px;
   }
 }
 
@@ -307,15 +320,15 @@
   align-items: center;
   gap: 7px;
   min-height: 28px;
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 650;
-  line-height: 1.4;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
 
   input {
     width: 14px;
     height: 14px;
-    accent-color: var(--primary-color);
+    accent-color: var(--accent-fill);
   }
 }
 
@@ -342,9 +355,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-left: 10px;
-  padding-left: 12px;
-  border-left: 2px solid var(--border-color);
+  padding-inline-start: 16px;
 }
 
 .payloadAdvancedGrid {
@@ -423,7 +434,7 @@
 @include mobile {
   .storeAuthRule,
   .ruleCard {
-    padding: 14px;
+    padding: 12px;
   }
 
   .blockHeaderRow,
@@ -445,13 +456,6 @@
 
   .stringListRow {
     align-items: stretch;
-  }
-}
-
-@media (max-width: 380px) {
-  .storeAuthRule,
-  .ruleCard {
-    padding: 12px;
   }
 }
 

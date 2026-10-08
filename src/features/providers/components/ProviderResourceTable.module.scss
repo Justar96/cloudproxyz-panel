@@ -1,117 +1,191 @@
-@use '../../../styles/mixins' as *;
-@use '../../../styles/variables' as *;
+// Resource list: a borderless table on the panel surface with hairline row dividers.
+// Below 760px of panel width each row restacks into a compact block.
 
-.providerTable {
-  min-width: 960px;
+.wrap {
+  min-width: 0;
+  margin-inline: -8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-primary);
+}
 
-  tbody tr:hover .actionsCell {
-    background: color-mix(in srgb, var(--accent-bg) 50%, transparent);
+.head th {
+  padding: 8px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: start;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.colModels {
+  width: 148px;
+}
+
+.colStatus {
+  width: 168px;
+}
+
+.colActions {
+  width: 156px;
+}
+
+.row {
+  td {
+    padding: 12px 8px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--dur-hover) var(--ease-out-strong);
   }
+
+  td:first-child {
+    border-start-start-radius: var(--radius-sm);
+    border-end-start-radius: var(--radius-sm);
+  }
+
+  td:last-child {
+    border-start-end-radius: var(--radius-sm);
+    border-end-end-radius: var(--radius-sm);
+  }
+
+  &:last-child td {
+    border-bottom: 0;
+  }
+
+  @media (hover: hover) {
+    &:hover td {
+      background: var(--bg-tertiary);
+    }
+  }
+}
+
+.rowSelected td,
+.rowSelected:hover td {
+  background: var(--bg-active);
 }
 
 .primaryCell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
+}
+
+.primaryLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
 }
 
 .primaryName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-weight: 500;
   color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 220px;
+}
+
+.primaryKey {
+  font-family: $font-mono;
+  font-size: 13px;
 }
 
 .primarySub {
-  font-size: 12px;
-  color: var(--muted-foreground);
-  font-family: $font-mono;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 220px;
+  text-overflow: ellipsis;
+  font-family: $font-mono;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-quaternary);
 }
 
 .baseUrl {
   display: block;
-  width: 100%;
+  line-height: 16px;
   min-width: 0;
-  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-family: $font-mono;
   font-size: 12px;
-  color: var(--muted-foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.muted {
+  font-family: inherit;
+  color: var(--text-quaternary);
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 9px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background: var(--muted-bg);
-  color: var(--muted-foreground);
+  gap: 4px;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 50%;
+  padding: 2px 6px;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: $font-mono;
   font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chipLabel {
+  font-family: $font-family;
+  color: var(--text-secondary);
 }
 
 .metricsCell {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
   align-items: center;
+  gap: 4px 10px;
 }
 
 .metric {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 4px;
-  padding: 3px 9px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background: var(--muted-bg);
   font-size: 12px;
-  line-height: 1.4;
+  line-height: 16px;
   white-space: nowrap;
 }
 
 .metricLabel {
-  color: var(--muted-foreground);
+  color: var(--text-secondary);
 }
 
 .metricValue {
+  font-weight: 500;
   color: var(--text-primary);
-  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .flagTag {
   display: inline-flex;
   align-items: center;
-  padding: 3px 9px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--primary-30);
-  background: var(--primary-10);
-  color: var(--primary-color);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   font-size: 12px;
-  font-weight: 500;
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: var(--radius-md);
-  border: 1px solid;
-  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -119,136 +193,241 @@
 .statusCell {
   display: flex;
   flex-direction: column;
-  gap: 6px;
   align-items: flex-start;
+  gap: 6px;
   min-width: 0;
-  max-width: 190px;
+}
+
+.statusLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.statusDotSuccess {
+  background: var(--status-success-solid);
+}
+
+.statusDotAttention {
+  background: var(--status-attention-solid);
 }
 
 .stats {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
-  gap: 4px;
-  max-width: 100%;
+  gap: 2px 10px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
 }
 
-.statPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-  border: 1px solid transparent;
+.stat {
   white-space: nowrap;
+}
+
+.statValue {
+  font-weight: 500;
+  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
 
-.statSuccess {
-  background-color: var(--success-badge-bg);
-  color: var(--success-badge-text);
-  border-color: var(--success-badge-border);
-}
-
-.statFailure {
-  background-color: var(--failure-badge-bg);
-  color: var(--failure-badge-text);
-  border-color: var(--failure-badge-border);
-}
-
-.statusActive {
-  border-color: var(--success-badge-border);
-  background: var(--success-badge-bg);
-  color: var(--success-badge-text);
-}
-
-.statusDisabled {
-  border-color: var(--amber-30);
-  background: var(--amber-10);
-  color: var(--amber-text);
+.statFailure,
+.statFailure .statValue {
+  color: var(--status-danger-text);
 }
 
 .statusBarWrap {
-  width: min(100%, 178px);
+  width: min(100%, 160px);
   min-width: 0;
 }
 
-.actionsHead,
-.actionsCell {
-  position: sticky;
-  right: 0;
-  width: 176px;
-  min-width: 176px;
-  box-shadow: -12px 0 16px -18px rgba(15, 23, 42, 0.45);
-}
-
-.actionsHead {
-  z-index: 3;
-  background: var(--muted-bg);
-}
-
-.actionsCell {
-  z-index: 2;
-  background: var(--bg-primary);
-}
-
-.actionsCellSelected {
-  background: var(--primary-8);
+.cellActions {
+  text-align: end;
 }
 
 .actions {
   display: flex;
-  gap: 4px;
   align-items: center;
   justify-content: flex-end;
+  gap: 2px;
   min-width: 0;
 }
 
 .toggleWrap {
   display: inline-flex;
   align-items: center;
-  margin-right: 4px;
+  margin-inline-end: 6px;
 }
 
 .iconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border: 0;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition:
-    background-color $transition-fast,
-    color $transition-fast;
+    background-color var(--dur-hover) var(--ease-out-strong),
+    color var(--dur-hover) var(--ease-out-strong),
+    translate var(--dur-press) var(--ease-out-strong);
 
-  &:hover:not(:disabled) {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
   }
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  @media (prefers-reduced-motion: no-preference) {
+    &:active:not(:disabled) {
+      translate: 0 1px;
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: -1px;
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    color: var(--text-disabled);
+    cursor: not-allowed;
   }
 }
 
 .iconBtnDanger {
-  color: var(--destructive-color);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: var(--status-danger-bg);
+      color: var(--status-danger-text);
+    }
+  }
+}
 
-  &:hover:not(:disabled) {
-    background: var(--destructive-10);
-    color: var(--destructive-color);
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@container provider-panel (max-width: 760px) {
+  .wrap {
+    margin-inline: 0;
+  }
+
+  .table,
+  .table tbody {
+    display: block;
+  }
+
+  .head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+    row-gap: 8px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    td {
+      display: block;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    @media (hover: hover) {
+      &:hover td {
+        background: transparent;
+      }
+    }
+  }
+
+  .rowSelected,
+  .rowSelected:hover {
+    margin-inline: -8px;
+    padding-inline: 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-active);
+
+    td {
+      background: transparent;
+    }
+  }
+
+  .cellKey {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .cellActions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .cellModels {
+    grid-column: 1;
+  }
+
+  .cellStatus {
+    grid-column: 1 / -1;
+  }
+
+  .statusCell {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+  }
+
+  .statusBarWrap {
+    width: 100%;
+  }
+}
+
+@container provider-panel (max-width: 420px) {
+  .cellActions {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .actions {
+    justify-content: flex-start;
+    margin-inline-start: -6px;
   }
 }

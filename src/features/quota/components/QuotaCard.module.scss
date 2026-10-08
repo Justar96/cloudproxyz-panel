@@ -1,53 +1,45 @@
 @use '../../../styles/mixins' as *;
 
 /* ============================================================
- * 额度卡片 — 继承凭证卡 statTile 配方（14px 圆角 / 1px 边框 / 82% 透感纸面）。
- * 提供商身份只由图标承载（混合网格下五色渐变卡底会互相打架，已退役）。
- * 遥测内容一律 mono + tabular-nums。
+ * 额度行 — Felt 语汇。
+ * 桌面端：身份列 / 水位 tile 网格 / 动作列，排在提供商分组的列表卡里，
+ *         行与行之间只用一条发丝分隔线（由 QuotaPage .list 提供）。
+ * 移动端：每行变成独立的无边框卡片，三段纵向堆叠。
  * ============================================================ */
 
 .card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-  padding: 15px 16px;
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
-  transition:
-    transform var(--dur-hover, 200ms) var(--ease-out-strong, ease-out),
-    border-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out),
-    box-shadow var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+  display: grid;
+  grid-template-columns: minmax(180px, 280px) minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px 24px;
+  min-width: 0;
+  padding-block: 16px;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .card:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-hover);
-    box-shadow: 0 12px 26px -14px rgb(0 0 0 / 0.16);
-  }
+/* idle 行没有动作列：加载按钮一直铺到行尾 */
+.cardIdle {
+  grid-template-columns: minmax(180px, 280px) minmax(0, 1fr);
 }
 
 /* 首次数据到达时的一次性级联入场；切 tab / 翻页 / 刷新不重播 */
 .cardEnter {
-  animation: quota-card-in 0.45s var(--ease-out-strong, ease-out) both;
+  animation: quota-row-in 360ms var(--ease-large) both;
   animation-delay: var(--card-delay, 0s);
 }
 
-@keyframes quota-card-in {
+@keyframes quota-row-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 16px, 0);
+    translate: 0 8px;
   }
 }
 
-/* ---------- 头部：品牌图标 + 文件名 ---------- */
+/* ---------- 身份列：品牌图标 + 文件名 + 提供商 ---------- */
 
-.head {
+.identity {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -56,113 +48,128 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--bg-tertiary) 60%, transparent);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
 }
 
 .icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   object-fit: contain;
   display: block;
 }
 
 .iconFallback {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-secondary);
+}
+
+.identityText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .fileName {
   min-width: 0;
   font-family: $font-mono;
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
   color: var(--text-primary);
   @include text-ellipsis;
 }
 
-/* ---------- body 容器 ---------- */
+.typeLabel {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
+  @include text-ellipsis;
+}
+
+/* ---------- body：水位 tile 网格 ----------
+ * 额度行 / Antigravity 分组各占一格（QuotaBody 里 grid-column: auto），
+ * 其余块默认通栏。:where() 让默认值零特异性，不和 QuotaBody 抢。 */
 
 .body {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 12px 24px;
   min-width: 0;
+}
+
+:where(.body) > * {
+  grid-column: 1 / -1;
 }
 
 /* ---------- idle：整块 body 即点击加载的落点 ---------- */
 
 .idleBody {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  min-height: 76px;
-  padding: 12px 10px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font: inherit;
+  text-align: start;
   cursor: pointer;
-  border: 1px dashed var(--border-color);
-  border-radius: 10px;
-  background: none;
-  color: var(--text-tertiary);
   transition:
-    transform var(--dur-press, 160ms) var(--ease-out-strong, ease-out),
-    border-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out),
-    color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+    background-color var(--dur-hover) var(--ease-out-strong),
+    color var(--dur-hover) var(--ease-out-strong),
+    translate var(--dur-press) var(--ease-out-strong);
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.55;
+    color: var(--text-disabled);
   }
 
   &:active:not(:disabled) {
-    transform: scale(0.98);
+    translate: 0 1px;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
   }
 }
 
 @media (hover: hover) and (pointer: fine) {
   .idleBody:hover:not(:disabled) {
-    border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-color));
-    border-style: solid;
-    color: var(--text-secondary);
+    background: var(--bg-hover);
+    color: var(--text-primary);
   }
 }
 
 .idleGlyph {
   flex-shrink: 0;
-  opacity: 0.8;
 }
 
 .idleHint {
-  font-family: $font-mono;
-  font-size: 11.5px;
-  line-height: 1.5;
-  text-align: center;
+  font-size: 13px;
+  line-height: 20px;
 }
 
 /* ---------- loading：双幽灵行骨架 ---------- */
 
 .skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-  padding: 4px 0 2px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 12px 24px;
+  padding-block: 2px;
 }
 
 .skeletonRow {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 /* 骨架：底色 + 一道 1.2s 匀速扫光（linear —— 环境性匀速运动的唯一例外） */
@@ -170,11 +177,11 @@
 .skeletonTrack {
   display: block;
   border-radius: $radius-full;
-  background-color: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  background-color: var(--bg-recessed);
   background-image: linear-gradient(
     90deg,
     transparent 20%,
-    color-mix(in srgb, var(--text-primary) 6%, transparent) 50%,
+    color-mix(in srgb, var(--bg-primary) 60%, transparent) 50%,
     transparent 80%
   );
   background-repeat: no-repeat;
@@ -216,65 +223,28 @@
 /* ---------- error ---------- */
 
 .errorStrip {
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: var(--viz-failure);
-  background: color-mix(in srgb, var(--viz-failure) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--viz-failure) 32%, transparent);
-  border-radius: 9px;
-  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--status-danger-text);
+  background: var(--status-danger-bg);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
   overflow-wrap: anywhere;
 }
 
-/* ---------- footer 动作 ---------- */
+/* ---------- 动作列 ---------- */
 
 .actionRow {
   display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
-/* 安静描边药丸（与凭证卡图标动作同族：hover 才显色块） */
-.actionPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  border: 1px solid var(--border-color);
-  border-radius: $radius-full;
-  background: none;
-  padding: 5px 11px;
-  font-size: 11.5px;
-  font-weight: 600;
-  line-height: 1.4;
+.action:global(.btn) {
   color: var(--text-secondary);
-  white-space: nowrap;
-  transition:
-    transform var(--dur-press, 160ms) var(--ease-out-strong, ease-out),
-    border-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out),
-    background-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out),
-    color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
 
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.97);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .actionPill:hover:not(:disabled) {
-    border-color: var(--border-hover);
-    background: color-mix(in srgb, var(--bg-tertiary) 55%, transparent);
+  &:not(:disabled):hover {
     color: var(--text-primary);
   }
 }
@@ -289,16 +259,45 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+/* 中等宽度：动作列挪到水位网格下方，给网格让出宽度 */
+@media (max-width: 1100px) {
   .card,
-  .idleBody,
-  .actionPill {
+  .cardIdle {
+    grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  }
+
+  .actionRow {
+    grid-column: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@include mobile {
+  .card,
+  .cardIdle {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding: 16px;
+    border-radius: var(--radius-xl);
+    background: var(--bg-primary);
+  }
+
+  .actionRow {
+    grid-column: auto;
+    justify-content: flex-start;
+    margin-inline-start: -8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .idleBody {
     transition: none;
   }
 
-  .idleBody:active:not(:disabled),
-  .actionPill:active:not(:disabled) {
-    transform: none;
+  .idleBody:active:not(:disabled) {
+    translate: none;
   }
 
   .cardEnter,

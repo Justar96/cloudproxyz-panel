@@ -1,42 +1,43 @@
-@use '../../../styles/variables' as *;
 @use '../../../styles/mixins' as *;
 
-$diff-mono: $font-mono;
-$diff-font-size: 12px;
-$diff-line-height: 20px;
-$diff-gutter-width: 50px;
-$diff-prefix-width: 20px;
+/* 保存前的差异预览：文件行（文件名 + 增删统计）+ 凹陷代码面（--bg-tertiary / mono 13px）。
+   增删行用状态 token（成功 = 新增，危险 = 删除），并始终配 +/- 前缀，不只靠颜色。 */
 
-// GitHub-inspired diff colors (theme-adaptive via color-mix)
-$diff-add-color: #3fb950;
-$diff-del-color: #f85149;
-$diff-hunk-color: #388bfd;
+$diff-line-height: 20px;
+$diff-gutter-width: 48px;
+$diff-prefix-width: 20px;
 
 .diffModal {
   :global(.modal-body) {
-    padding: 0;
+    padding: 0 24px;
     max-height: none;
     overflow: hidden;
+
+    @include mobile {
+      padding: 0 16px;
+    }
   }
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  height: 70vh;
-  min-height: 420px;
+  max-height: 70vh;
+  min-height: 240px;
+  padding-top: 12px;
 }
 
 .emptyState {
   flex: 1;
-  border: 1px dashed var(--border-color);
-  border-radius: $radius-md;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-size: 14px;
+  min-height: 200px;
   display: grid;
   place-items: center;
-  margin: $spacing-md;
+  margin-bottom: 8px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 20px;
 }
 
 // ── File container ──────────────────────────────────────
@@ -46,6 +47,8 @@ $diff-hunk-color: #388bfd;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8px;
   overflow: hidden;
 }
 
@@ -54,47 +57,46 @@ $diff-hunk-color: #388bfd;
 .fileHeader {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
-  padding: 10px $spacing-md;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  gap: 8px;
+  padding: 4px 0;
   flex-shrink: 0;
 }
 
 .fileIcon {
   flex-shrink: 0;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 .fileName {
+  font-family: $font-mono;
   font-size: 13px;
-  font-weight: 600;
-  font-family: $diff-mono;
+  line-height: 20px;
+  font-weight: 500;
   color: var(--text-primary);
 }
 
 .fileStats {
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
-  font-size: 12px;
-  font-weight: 700;
-  font-family: $diff-mono;
+  gap: 8px;
+  font-family: $font-mono;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .statAdditions {
-  color: $diff-add-color;
+  color: var(--status-success-text);
 }
 
 .statDeletions {
-  color: $diff-del-color;
+  color: var(--status-danger-text);
 }
 
 .statBar {
   display: inline-flex;
   gap: 2px;
-  margin-left: 2px;
 }
 
 .statBlock {
@@ -104,21 +106,23 @@ $diff-hunk-color: #388bfd;
 }
 
 .statBlockAdd {
-  background: $diff-add-color;
+  background: var(--viz-success);
 }
 
 .statBlockDel {
-  background: $diff-del-color;
+  background: var(--viz-failure);
 }
 
-// ── Diff body (scrollable) ──────────────────────────────
+// ── Diff body (scrollable code surface) ─────────────────
 
 .diffBody {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  font-family: $diff-mono;
-  font-size: $diff-font-size;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  font-family: $font-mono;
+  font-size: 13px;
   line-height: $diff-line-height;
 }
 
@@ -131,10 +135,9 @@ $diff-hunk-color: #388bfd;
 .hunkHeader {
   display: flex;
   align-items: center;
-  background: color-mix(in srgb, $diff-hunk-color 8%, var(--bg-primary));
-  border-bottom: 1px solid color-mix(in srgb, $diff-hunk-color 12%, var(--border-color));
-  color: color-mix(in srgb, $diff-hunk-color 75%, var(--text-secondary));
-  min-height: $diff-line-height;
+  min-height: 28px;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
 }
 
 .hunkGutter {
@@ -144,17 +147,14 @@ $diff-hunk-color: #388bfd;
   align-items: center;
   justify-content: center;
   align-self: stretch;
-  border-right: 1px solid color-mix(in srgb, $diff-hunk-color 12%, var(--border-color));
 }
 
 .hunkExpandIcon {
-  color: color-mix(in srgb, $diff-hunk-color 70%, var(--text-tertiary));
-  opacity: 0.7;
+  color: var(--text-quaternary);
 }
 
 .hunkText {
-  padding: 4px $spacing-sm 4px ($diff-prefix-width + $spacing-sm);
-  font-size: $diff-font-size;
+  padding: 4px 8px 4px ($diff-prefix-width + 8px);
   white-space: nowrap;
 }
 
@@ -165,17 +165,14 @@ $diff-hunk-color: #388bfd;
   min-height: $diff-line-height;
 }
 
-// ── Line number gutters ─────────────────────────────────
-
 .lineNum {
   width: $diff-gutter-width;
   flex-shrink: 0;
   padding: 0 8px;
   text-align: right;
-  color: var(--text-tertiary);
+  color: var(--text-quaternary);
   user-select: none;
   font-variant-numeric: tabular-nums;
-  border-right: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
   box-sizing: border-box;
 }
 
@@ -183,97 +180,68 @@ $diff-hunk-color: #388bfd;
   color: transparent;
 }
 
-// ── Prefix column (+/-/space) ───────────────────────────
-
 .linePrefix {
   width: $diff-prefix-width;
   flex-shrink: 0;
   text-align: center;
   user-select: none;
-  font-weight: 700;
+  font-weight: 600;
 }
-
-// ── Code text ───────────────────────────────────────────
 
 .lineText {
   flex: 1;
   min-width: 0;
   padding-right: 12px;
+  font-family: inherit;
+  font-size: inherit;
   white-space: pre-wrap;
   word-break: break-word;
+  color: var(--text-primary);
 }
 
-// ── Context lines ───────────────────────────────────────
-
-.context {
-  background: var(--bg-primary);
-
-  .linePrefix {
-    color: var(--text-tertiary);
-  }
-
-  .lineText {
-    color: var(--text-primary);
-  }
+.context .linePrefix {
+  color: var(--text-quaternary);
 }
-
-// ── Deletion lines ──────────────────────────────────────
 
 .deletion {
-  background: color-mix(in srgb, $diff-del-color 8%, var(--bg-primary));
+  background: var(--status-danger-bg);
 
-  .lineNum {
-    background: color-mix(in srgb, $diff-del-color 12%, var(--bg-primary));
-    border-right-color: color-mix(in srgb, $diff-del-color 18%, var(--border-color));
-    color: color-mix(in srgb, $diff-del-color 60%, var(--text-tertiary));
-  }
-
-  .linePrefix {
-    color: $diff-del-color;
-  }
-
+  .lineNum,
+  .linePrefix,
   .lineText {
-    color: var(--text-primary);
+    color: var(--status-danger-text);
   }
 }
-
-// ── Addition lines ──────────────────────────────────────
 
 .addition {
-  background: color-mix(in srgb, $diff-add-color 8%, var(--bg-primary));
+  background: var(--status-success-bg);
 
-  .lineNum {
-    background: color-mix(in srgb, $diff-add-color 12%, var(--bg-primary));
-    border-right-color: color-mix(in srgb, $diff-add-color 18%, var(--border-color));
-    color: color-mix(in srgb, $diff-add-color 60%, var(--text-tertiary));
-  }
-
-  .linePrefix {
-    color: $diff-add-color;
-  }
-
+  .lineNum,
+  .linePrefix,
   .lineText {
-    color: var(--text-primary);
+    color: var(--status-success-text);
   }
 }
 
-// ── Mobile responsive ───────────────────────────────────
+// ── Mobile ──────────────────────────────────────────────
 
 @include mobile {
   .content {
-    height: 65vh;
-    min-height: 360px;
+    max-height: 65vh;
+  }
+
+  .diffBody {
+    font-size: 12px;
+    line-height: 18px;
   }
 
   .lineNum {
     width: 36px;
     padding: 0 4px;
-    font-size: 10px;
   }
 
   .linePrefix {
     width: 16px;
-    font-size: 11px;
   }
 
   .hunkGutter {
@@ -281,19 +249,6 @@ $diff-hunk-color: #388bfd;
   }
 
   .hunkText {
-    padding-left: 20px;
-  }
-
-  .diffBody {
-    font-size: 11px;
-    line-height: 18px;
-  }
-
-  .fileName {
-    font-size: 12px;
-  }
-
-  .fileStats {
-    font-size: 11px;
+    padding-inline-start: 20px;
   }
 }

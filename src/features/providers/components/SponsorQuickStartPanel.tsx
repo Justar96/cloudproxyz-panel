@@ -2,14 +2,21 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 import { useNotificationStore } from '@/stores';
-import { IconCheckCircle2, IconExternalLink, IconLoader2, IconPlus } from '@/components/ui/icons';
+import { Button } from '@/components/ui/Button';
+import {
+  IconCheckCircle2,
+  IconExternalLink,
+  IconKey,
+  IconLoader2,
+  IconPlus,
+} from '@/components/ui/icons';
 import { PROVIDER_LOGOS } from '../brandLogos';
 import { APIKEY_FUN_AFFILIATE_URL, APIKEY_FUN_DASHBOARD_URL } from '../sponsor';
 import { isSponsorPartialMutationError } from '../sponsorMutationRecovery';
 import type { ProviderEntryFormInput, ProviderResource } from '../types';
 import type { UseProviderWorkbenchResult } from '../useProviderWorkbench';
 import { SponsorProviderForm } from '../sheets/forms/SponsorProviderForm';
-import formStyles from '../sheets/forms/sharedForm.module.scss';
+import { ProviderLogo } from './ProviderLogo';
 import styles from './SponsorQuickStartPanel.module.scss';
 
 interface SponsorQuickStartPanelProps {
@@ -77,38 +84,65 @@ export function SponsorQuickStartPanel({
     }
   };
 
+  const header = (
+    <div className={styles.header}>
+      <div className={styles.titleRow}>
+        <ProviderLogo logo={logo} size="lg" />
+        <h2 className={styles.title}>{t('providersPage.providerNames.apikeyFun')}</h2>
+      </div>
+      {resource || showCreateForm ? (
+        <a
+          className="btn btn-ghost btn-sm"
+          href={resource ? APIKEY_FUN_DASHBOARD_URL : APIKEY_FUN_AFFILIATE_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span>
+            {resource
+              ? t('providersPage.sponsor.dashboardLink')
+              : t('providersPage.sponsor.registerLink')}
+          </span>
+          <IconExternalLink size={14} />
+        </a>
+      ) : null}
+    </div>
+  );
+
   if (!resource && !showCreateForm) {
     return (
       <section className={styles.panel}>
-        <div className={styles.header}>
-          <div className={styles.titleRow}>
-            <img src={logo.src} alt="" aria-hidden="true" className={styles.logo} />
-            <div className={styles.titleText}>
-              <h2 className={styles.title}>{t('providersPage.providerNames.apikeyFun')}</h2>
-            </div>
-          </div>
-        </div>
+        {header}
 
         <div className={styles.empty}>
-          <div>{t('providersPage.sponsor.emptyRegisterHint')}</div>
+          <span className={styles.emptyIcon} aria-hidden="true">
+            <IconKey size={18} />
+          </span>
+          <div className={styles.emptyText}>
+            <p className={styles.emptyTitle}>{t('providersPage.sponsor.emptyRegisterHint')}</p>
+            <p className={styles.emptyDescription}>
+              {t('providersPage.sponsor.emptyDescription', {
+                defaultValue: 'Add your APIKEY.FUN key here, or register for an account first.',
+              })}
+            </p>
+          </div>
           <div className={styles.emptyActions}>
-            <button
-              type="button"
-              className={`${styles.emptyActionButton} ${styles.emptyActionButtonPrimary}`}
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => setShowCreateForm(true)}
               disabled={formMutating}
             >
-              <IconPlus size={16} />
-              <span>{t('providersPage.actions.new')}</span>
-            </button>
+              <IconPlus size={14} />
+              {t('providersPage.actions.new')}
+            </Button>
             <a
-              className={`${styles.emptyActionButton} ${styles.emptyActionButtonEmphasis}`}
+              className="btn btn-secondary btn-sm"
               href={APIKEY_FUN_AFFILIATE_URL}
               target="_blank"
               rel="noreferrer"
             >
-              <IconExternalLink size={16} />
               <span>{t('providersPage.sponsor.registerNow')}</span>
+              <IconExternalLink size={14} />
             </a>
           </div>
         </div>
@@ -116,25 +150,9 @@ export function SponsorQuickStartPanel({
     );
   }
 
-  const actionHref = resource ? APIKEY_FUN_DASHBOARD_URL : APIKEY_FUN_AFFILIATE_URL;
-  const actionLabel = resource
-    ? t('providersPage.sponsor.dashboardLink')
-    : t('providersPage.sponsor.registerLink');
-
   return (
     <section className={styles.panel}>
-      <div className={styles.header}>
-        <div className={styles.titleRow}>
-          <img src={logo.src} alt="" aria-hidden="true" className={styles.logo} />
-          <div className={styles.titleText}>
-            <h2 className={styles.title}>{t('providersPage.providerNames.apikeyFun')}</h2>
-          </div>
-          <a className={styles.topLink} href={actionHref} target="_blank" rel="noreferrer">
-            <IconExternalLink size={14} />
-            <span>{actionLabel}</span>
-          </a>
-        </div>
-      </div>
+      {header}
 
       <SponsorProviderForm
         key={`${mode}:${resource?.id ?? 'new'}:${formVersion}`}
@@ -149,9 +167,8 @@ export function SponsorQuickStartPanel({
 
       <div className={styles.footer}>
         {!resource ? (
-          <button
-            type="button"
-            className={`${formStyles.footerBtn} ${formStyles.footerBtnGhost}`}
+          <Button
+            variant="ghost"
             onClick={() => {
               setShowCreateForm(false);
               setIsDirty(false);
@@ -160,29 +177,18 @@ export function SponsorQuickStartPanel({
             disabled={submitting}
           >
             {t('providersPage.actions.cancel')}
-          </button>
+          </Button>
         ) : null}
-        <button
-          type="submit"
-          form={formId}
-          className={`${formStyles.footerBtn} ${formStyles.footerBtnPrimary} ${
-            styles.primaryAction
-          }`}
-          disabled={submitDisabled}
-        >
+        <Button type="submit" form={formId} variant="primary" disabled={submitDisabled}>
           {submitting ? (
-            <IconLoader2 className={styles.spin} size={14} />
+            <IconLoader2 className={styles.spin} size={16} />
           ) : mode === 'create' ? (
-            <IconPlus size={14} />
+            <IconPlus size={16} />
           ) : (
-            <IconCheckCircle2 size={14} />
+            <IconCheckCircle2 size={16} />
           )}
-          <span>
-            {mode === 'create'
-              ? t('providersPage.actions.create')
-              : t('providersPage.actions.save')}
-          </span>
-        </button>
+          {mode === 'create' ? t('providersPage.actions.create') : t('providersPage.actions.save')}
+        </Button>
       </div>
     </section>
   );

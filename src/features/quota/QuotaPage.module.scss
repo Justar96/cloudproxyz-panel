@@ -1,33 +1,23 @@
 @use '../../styles/mixins' as *;
 
 /* ============================================================
- * 额度页壳层：纯布局，视觉细节都在各组件的 colocated 模块里。
+ * 额度页壳层：页头 → 单行工具栏 → 提供商分组列表 → 分页 → 时间线。
+ * 页面节奏 24px（全局 .page），分组内部 12px。
  * ============================================================ */
 
 .page {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
   width: 100%;
-  min-width: 0;
 }
 
-/* ---------- 工作区（tabs + 网格 + 分页） ---------- */
+/* ---------- 工具栏：搜索 / 提供商 / 排序 ----------
+ * 控件放在画布上，所以用卡片面（--bg-primary）填充，而不是 --bg-tertiary
+ * （浅色主题下后者与画布同色）。 */
 
-.workbench {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
-}
-
-/* 提供商导航独占一行，保留原生横向滚动。 */
-
-.tabsRow {
+.toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
   min-width: 0;
 
   > :first-child {
@@ -36,37 +26,26 @@
   }
 }
 
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  min-width: 0;
-}
-
 .search {
   position: relative;
   display: flex;
   align-items: center;
-  flex: 0 1 340px;
+  flex: 1 1 280px;
   min-width: 0;
   height: 36px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
   color: var(--text-secondary);
 
   &:focus-within {
-    border-color: var(--border-hover);
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
   }
 }
 
 .searchIcon {
   position: absolute;
-  left: 11px;
+  left: 12px;
   pointer-events: none;
 }
 
@@ -74,18 +53,18 @@
   width: 100%;
   min-width: 0;
   height: 100%;
-  padding: 0 42px 0 35px;
+  padding: 0 40px 0 36px;
   border: 0;
   border-radius: inherit;
   outline: none;
   background: transparent;
   color: var(--text-primary);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   appearance: none;
 
   &::placeholder {
-    color: var(--text-tertiary);
+    color: var(--text-quaternary);
   }
 
   &::-webkit-search-cancel-button,
@@ -104,94 +83,164 @@
   height: 32px;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
+  transition:
+    background-color var(--dur-hover) var(--ease-out-strong),
+    color var(--dur-hover) var(--ease-out-strong);
 
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
   }
 
   &:active {
-    transform: scale(0.97);
+    translate: 0 1px;
   }
 }
 
+.provider,
 .sort {
   flex: 0 0 auto;
-  min-width: 148px;
+  min-width: 160px;
   max-width: 100%;
 
   button[aria-haspopup='listbox'] {
     height: 36px;
     border-color: transparent;
-    border-radius: 10px;
-    background: transparent;
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
     box-shadow: none;
-    color: var(--text-secondary);
+    color: var(--text-primary);
 
-    &:focus-visible,
-    &[aria-expanded='true'] {
-      outline: 2px solid var(--primary-color);
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
       outline-offset: 2px;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
     }
   }
 }
 
+.sort {
+  flex: 0 0 auto;
+}
+
 @media (hover: hover) and (pointer: fine) {
-  .clearSearch:hover,
-  .sort button[aria-haspopup='listbox']:hover {
-    background: var(--bg-tertiary);
+  .clearSearch:hover {
+    background: var(--bg-hover);
     color: var(--text-primary);
+  }
+
+  .provider button[aria-haspopup='listbox']:hover,
+  .sort button[aria-haspopup='listbox']:hover {
+    background: var(--bg-hover);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .clearSearch:active {
-    transform: none;
-  }
-}
-
-@include mobile {
-  .search {
-    flex: 1 1 220px;
-    height: 40px;
-  }
-
   .clearSearch {
-    width: 36px;
-    height: 36px;
+    transition: none;
   }
 
-  .sort button[aria-haspopup='listbox'] {
-    height: 40px;
+  .clearSearch:active {
+    translate: none;
   }
 }
 
 .errorBanner {
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--danger-color);
-  background: var(--bg-error-light);
-  border: 1px solid var(--warning-border);
-  border-radius: 10px;
-  padding: 9px 12px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--status-danger-text);
+  background: var(--status-danger-bg);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
   overflow-wrap: anywhere;
 }
 
-/* ---------- 卡片网格 ----------
- * 列宽由 CSS 决定（不再用 JS 测量）：额度卡承载水位条，取 340px 下限，
- * 与认证文件页配额模式（.gridQuota）同一档。 */
+/* ---------- 提供商分组 ---------- */
 
-.grid {
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.groupTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+.groupIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-xs);
+
+  img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+  }
+}
+
+.groupCount {
+  display: inline-flex;
+  align-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  justify-content: center;
+  border-radius: $radius-full;
+  background: var(--count-badge-bg);
+  color: var(--count-badge-text);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 桌面：一张列表卡，行间发丝线。移动：行各自成卡（见 QuotaCard.module.scss）。 */
+.list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 24px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+
+  > * + * {
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+.skeletonRow {
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
-  align-items: stretch;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 24px;
+  padding-block: 20px;
+}
+
+.emptyWrap {
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  padding: 24px;
 }
 
 /* ---------- 分页 ---------- */
@@ -200,21 +249,59 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .pageInfo {
-  font-family: $font-mono;
   font-size: 12px;
+  line-height: 16px;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
 @include mobile {
-  .page {
-    gap: 16px;
+  .toolbar > .search {
+    flex: 1 1 100%;
+    height: 40px;
+  }
+
+  .clearSearch {
+    width: 36px;
+    height: 36px;
+  }
+
+  .provider,
+  .sort {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  .provider button[aria-haspopup='listbox'],
+  .sort button[aria-haspopup='listbox'] {
+    height: 40px;
+  }
+
+  .list {
+    gap: 12px;
+    padding: 0;
+    background: transparent;
+
+    > * + * {
+      border-top: 0;
+    }
+  }
+
+  .skeletonRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+    border-radius: var(--radius-xl);
+    background: var(--bg-primary);
+  }
+
+  .emptyWrap {
+    padding: 16px;
   }
 }

@@ -1,5 +1,6 @@
 /**
- * 额度卡片：头部（提供商图标 + mono 文件名）+ 四态 body + 动作 footer。
+ * 额度行：身份列（提供商图标 + 文件名）+ 四态 body（水位 tile 网格）+ 动作列。
+ * 桌面端在提供商分组里排成紧凑列表；移动端每行变成独立卡片。
  *
  * - idle：整个 body 是一个点击加载按钮（上游直连有速率考虑，不自动拉取）；
  * - loading：双幽灵行骨架（aria-busy，文字等价视觉隐藏）；
@@ -9,6 +10,7 @@
 
 import { useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/Button';
 import { IconRefreshCw } from '@/components/ui/icons';
 import type { ResolvedTheme } from '@/types';
 import { resolveQuotaErrorMessage } from '@/utils/quota';
@@ -89,10 +91,16 @@ export function QuotaCard(props: QuotaCardProps) {
 
   return (
     <article
-      className={`${styles.card} ${mountEntranceDelayMs === null ? '' : styles.cardEnter}`}
+      className={[
+        styles.card,
+        status === 'idle' ? styles.cardIdle : '',
+        mountEntranceDelayMs === null ? '' : styles.cardEnter,
+      ]
+        .filter(Boolean)
+        .join(' ')}
       style={entranceStyle}
     >
-      <header className={styles.head}>
+      <header className={styles.identity}>
         <span
           className={styles.iconWrap}
           title={typeLabel}
@@ -108,8 +116,11 @@ export function QuotaCard(props: QuotaCardProps) {
             <span className={styles.iconFallback}>{typeLabel.slice(0, 1).toUpperCase()}</span>
           )}
         </span>
-        <span className={styles.fileName} title={displayName}>
-          {displayName}
+        <span className={styles.identityText}>
+          <span className={styles.fileName} title={displayName}>
+            {displayName}
+          </span>
+          <span className={styles.typeLabel}>{typeLabel}</span>
         </span>
       </header>
 
@@ -137,7 +148,7 @@ export function QuotaCard(props: QuotaCardProps) {
             onClick={onRefresh}
             disabled={!canRefresh}
           >
-            <IconRefreshCw size={15} aria-hidden="true" className={styles.idleGlyph} />
+            <IconRefreshCw size={16} aria-hidden="true" className={styles.idleGlyph} />
             <span className={styles.idleHint}>{t(`${adapter.i18nPrefix}.idle`)}</span>
           </button>
         ) : loading ? (
@@ -164,39 +175,54 @@ export function QuotaCard(props: QuotaCardProps) {
       {status !== 'idle' && (
         <footer className={styles.actionRow}>
           {entry.type === 'claude' && (
-            <button
-              type="button"
-              className={styles.actionPill}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.action}
               disabled={claudeReset.blocked}
               onClick={claudeReset.confirm}
               title={t(`claude_reset.${claudeReset.buttonLabel}`)}
             >
-              <IconRefreshCw size={13} className={claudeReset.busy ? styles.spinning : undefined} />
+              <IconRefreshCw
+                size={14}
+                aria-hidden="true"
+                className={claudeReset.busy ? styles.spinning : undefined}
+              />
               {t(`claude_reset.${claudeReset.buttonLabel}`)}
-            </button>
+            </Button>
           )}
           {showReset && (
-            <button
-              type="button"
-              className={styles.actionPill}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.action}
               onClick={onReset}
               disabled={!canRefresh || loading || resetting}
               title={t('codex_quota.reset_button')}
             >
-              <IconRefreshCw size={13} className={resetting ? styles.spinning : undefined} />
+              <IconRefreshCw
+                size={14}
+                aria-hidden="true"
+                className={resetting ? styles.spinning : undefined}
+              />
               {t('codex_quota.reset_button')}
-            </button>
+            </Button>
           )}
-          <button
-            type="button"
-            className={styles.actionPill}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={styles.action}
             onClick={onRefresh}
             disabled={isQuotaRefreshDisabled(canRefresh, loading, resetting || claudeReset.busy)}
             title={t('auth_files.quota_refresh_hint')}
           >
-            <IconRefreshCw size={13} className={loading ? styles.spinning : undefined} />
+            <IconRefreshCw
+              size={14}
+              aria-hidden="true"
+              className={loading ? styles.spinning : undefined}
+            />
             {t('auth_files.quota_refresh_single')}
-          </button>
+          </Button>
         </footer>
       )}
     </article>

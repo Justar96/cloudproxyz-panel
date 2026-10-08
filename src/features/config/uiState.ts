@@ -49,6 +49,16 @@ export function resolveDirtyTabs(dirtyFields: ReadonlySet<string>): ReadonlySet<
   return tabs;
 }
 
+/** 脏字段集合（叶值键）→ 已修改的 fieldId 集合（设置行的「已修改」标记）。 */
+export function resolveDirtyFieldIds(dirtyFields: ReadonlySet<string>): ReadonlySet<string> {
+  const fieldIds = new Set<string>();
+  for (const valueKey of dirtyFields) {
+    const fieldId = VALUE_KEY_TO_FIELD_ID.get(valueKey);
+    if (fieldId) fieldIds.add(fieldId);
+  }
+  return fieldIds;
+}
+
 /** 每个 tab 的校验错误数（错误徽章）。payload 的校验以旗标计 1。 */
 export function countSectionErrors(
   validationErrors: VisualConfigValidationErrors | undefined,

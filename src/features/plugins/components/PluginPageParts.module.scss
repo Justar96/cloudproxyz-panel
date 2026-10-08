@@ -1,0 +1,182 @@
+@use '../../../styles/mixins' as *;
+
+// ─── Logo tile ──────────────────────────────────────────
+
+.logo {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.logoLarge {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+}
+
+// ─── Status dot ─────────────────────────────────────────
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: $radius-full;
+}
+
+.toneSuccess {
+  background: var(--status-success-solid);
+}
+
+.toneAttention {
+  background: var(--status-attention-solid);
+}
+
+.toneDanger {
+  background: var(--status-danger-solid);
+}
+
+.toneNeutral {
+  background: var(--viz-neutral);
+}
+
+// ─── Runtime summary ────────────────────────────────────
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: $spacing-md $spacing-xl;
+  margin: 0;
+  padding: $spacing-md $spacing-lg;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+
+  @include mobile {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: $spacing-md;
+  }
+}
+
+.summaryItem {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+
+  dt {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+  }
+
+  dd {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: -0.01em;
+  }
+}
+
+.summaryMono {
+  display: block !important;
+  max-width: min(360px, 60vw);
+  overflow: hidden;
+  font-family: $font-mono;
+  font-size: 13px !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summaryNumber {
+  font-variant-numeric: tabular-nums;
+}
+
+// ─── Callout ────────────────────────────────────────────
+
+.callout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px $spacing-md;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  line-height: 20px;
+
+  @include mobile {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}
+
+.calloutNeutral {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+
+  .calloutIcon {
+    color: var(--text-secondary);
+  }
+
+  .calloutText {
+    color: var(--text-secondary);
+  }
+}
+
+.calloutAttention {
+  background: var(--status-attention-bg);
+  color: var(--status-attention-text);
+}
+
+.calloutDanger {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
+}
+
+.calloutIcon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding-top: 2px;
+}
+
+.calloutBody {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  overflow-wrap: anywhere;
+}
+
+.calloutTitle {
+  font-weight: 600;
+}
+
+.calloutAction {
+  align-self: center;
+
+  @include mobile {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

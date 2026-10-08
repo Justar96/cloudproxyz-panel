@@ -13,7 +13,7 @@ export type SourceSearchBarProps = {
   disabled: boolean;
 };
 
-/** 源码模式的搜索条：占据工具栏行的搜索槽位（与可视化模式的字段搜索同位置）。 */
+/** 源码模式的搜索条：位于编辑器卡片的工具栏行。 */
 export function SourceSearchBar({ search, disabled }: SourceSearchBarProps) {
   const { t } = useTranslation();
   const {
@@ -37,10 +37,11 @@ export function SourceSearchBar({ search, disabled }: SourceSearchBarProps) {
           placeholder={t('config_management.search_placeholder')}
           disabled={disabled}
           className={styles.searchInput}
+          aria-label={t('config_management.search_placeholder')}
           rightElement={
             <div className={styles.searchRight}>
               {searchQuery && lastSearchedQuery === searchQuery && (
-                <span className={styles.searchCount}>
+                <span className={styles.searchCount} aria-live="polite">
                   {searchResults.total > 0
                     ? `${searchResults.current} / ${searchResults.total}`
                     : t('config_management.search_no_results')}
@@ -52,6 +53,7 @@ export function SourceSearchBar({ search, disabled }: SourceSearchBarProps) {
                 onClick={() => executeSearch('next')}
                 disabled={!searchQuery || disabled}
                 title={t('config_management.search_button')}
+                aria-label={t('config_management.search_button')}
               >
                 <IconSearch size={16} />
               </button>
@@ -67,6 +69,7 @@ export function SourceSearchBar({ search, disabled }: SourceSearchBarProps) {
           onClick={handlePrevMatch}
           disabled={!searchQuery || lastSearchedQuery !== searchQuery || searchResults.total === 0}
           title={t('config_management.search_prev')}
+          aria-label={t('config_management.search_prev')}
         >
           <IconChevronUp size={16} />
         </Button>
@@ -76,6 +79,7 @@ export function SourceSearchBar({ search, disabled }: SourceSearchBarProps) {
           onClick={handleNextMatch}
           disabled={!searchQuery || lastSearchedQuery !== searchQuery || searchResults.total === 0}
           title={t('config_management.search_next')}
+          aria-label={t('config_management.search_next')}
         >
           <IconChevronDown size={16} />
         </Button>

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconFilterAll } from '@/components/ui/icons';
 import {
   getAuthFileIcon,
   getThemeSurfaceIconBackground,
@@ -20,8 +19,8 @@ export type ProviderTabsProps = {
 };
 
 /**
- * 提供商过滤 tabs：水平排布，支持鼠标滚轮与触屏横向滚动。
- * 品牌色只出现在图标上，激活态是文字 + 2px 墨色下划线。
+ * Provider filter: a horizontally scrolling segmented track (wheel and touch scroll).
+ * Brand colour stays inside the logos; the selected segment uses the neutral selected fill.
  */
 export function ProviderTabs({
   types,
@@ -43,7 +42,12 @@ export function ProviderTabs({
   }, []);
 
   return (
-    <div ref={tabsRef} className={styles.tabs} role="group" aria-label={t('auth_files.filter_all')}>
+    <div
+      ref={tabsRef}
+      className={`on-canvas ${styles.tabs}`}
+      role="group"
+      aria-label={t('auth_files.filter_all')}
+    >
       {types.map((type) => {
         const isActive = active === type;
         const label = type === 'all' ? t('auth_files.filter_all') : getTypeLabel(t, type);
@@ -57,9 +61,7 @@ export function ProviderTabs({
             aria-pressed={isActive}
             onClick={() => onChange(type)}
           >
-            {type === 'all' ? (
-              <IconFilterAll className={styles.tabGlyph} size={15} />
-            ) : (
+            {type !== 'all' && (
               <span
                 className={styles.tabIconWrap}
                 style={

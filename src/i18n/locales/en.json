@@ -95,11 +95,16 @@
     "spec_title": "Connection",
     "spec_backend": "Backend",
     "spec_backend_value": "CLIProxyAPI v8 or later",
-    "spec_panel": "Panel version"
+    "spec_panel": "Panel version",
+    "key_label": "Management key",
+    "custom_connection_toggle": "Use a custom server URL",
+    "custom_connection_field": "Server URL",
+    "submit_sign_in": "Sign in",
+    "submitting_sign_in": "Signing in…"
   },
   "header": {
     "refresh_all": "Refresh All",
-    "logout": "Logout"
+    "logout": "Sign out"
   },
   "connection": {
     "status": "Connection Status:"
@@ -209,7 +214,22 @@
     "cta_system_desc": "Version details and management center info.",
     "window_m": "{{minutes}}m",
     "window_h": "{{hours}}h",
-    "window_hm": "{{hours}}h {{minutes}}m"
+    "window_hm": "{{hours}}h {{minutes}}m",
+    "status_healthy": "Requests are succeeding over the last {{window}}.",
+    "status_degraded": "Some requests are failing. Check providers and logs.",
+    "status_failing": "Many requests are failing. Check providers and logs.",
+    "status_idle": "No requests in the current window.",
+    "status_offline": "Not connected to the server.",
+    "status_connecting": "Connecting to the server…",
+    "kpi_requests": "Requests",
+    "kpi_window": "Last {{window}}",
+    "kpi_no_window": "No traffic yet",
+    "rate_degraded": "Degraded",
+    "rate_failing": "Failing",
+    "traffic_heading": "Requests over time",
+    "traffic_caption": "Successes and failures per 10-minute bucket, last {{window}}.",
+    "fleet_heading": "Traffic by provider",
+    "shortcuts_title": "Shortcuts"
   },
   "basic_settings": {
     "debug_enable": "Enable Debug Mode",
@@ -441,7 +461,9 @@
     "quota_refresh_single": "Refresh quota",
     "quota_refresh_hint": "Refresh quota only for this credential",
     "quota_refresh_success": "Quota refreshed for \"{{name}}\"",
-    "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}"
+    "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}",
+    "search_placeholder_short": "Search credentials",
+    "health_status_unavailable": "Unavailable"
   },
   "antigravity_subscription": {
     "plan_unknown": "Unknown",
@@ -788,7 +810,8 @@
     "provider_required": "Please enter a provider first",
     "upgrade_required": "This feature requires a newer CLI Proxy API (CPA) version. Please upgrade.",
     "upgrade_required_title": "Please upgrade CLI Proxy API",
-    "upgrade_required_desc": "The current server does not support the OAuth model aliases API. Please upgrade to the latest CLI Proxy API (CPA) version."
+    "upgrade_required_desc": "The current server does not support the OAuth model aliases API. Please upgrade to the latest CLI Proxy API (CPA) version.",
+    "view_mode_label": "View"
   },
   "auth_login": {
     "devin_oauth_cancel": "Cancel Devin Login",
@@ -932,7 +955,9 @@
     "iflow_oauth_status_error": "Authentication failed:",
     "iflow_oauth_start_error": "Failed to start iFlow OAuth:",
     "iflow_oauth_polling_error": "Failed to check authentication status:",
-    "remote_access_disabled": "This login method is not available for remote access. Please access from localhost."
+    "remote_access_disabled": "This login method is not available for remote access. Please access from localhost.",
+    "card_status_idle": "Ready to sign in",
+    "page_subtitle": "Sign in to a provider to save its credential as an auth file."
   },
   "stats": {
     "success": "Success",
@@ -1028,7 +1053,16 @@
     "search_empty_desc": "Try a different keyword or clear the filters.",
     "double_click_copy_hint": "Double-click to copy raw log line",
     "copy_success": "Log copied to clipboard",
-    "copy_failed": "Copy failed"
+    "copy_failed": "Copy failed",
+    "pause_live": "Pause live",
+    "resume_live": "Resume live",
+    "level_all": "All",
+    "level_trace": "Trace",
+    "level_debug": "Debug",
+    "level_info": "Info",
+    "level_warn": "Warn",
+    "level_error": "Error",
+    "level_fatal": "Fatal"
   },
   "config_management": {
     "title": "Config Panel",
@@ -1549,7 +1583,10 @@
         "update": "Update",
         "add": "Add"
       }
-    }
+    },
+    "field_modified": "Modified",
+    "unsaved_changes_count_one": "{{count}} unsaved change",
+    "unsaved_changes_count_other": "{{count}} unsaved changes"
   },
   "quota_management": {
     "search_label": "Search accounts",
@@ -1596,7 +1633,8 @@
     "weekday_wed": "Wed",
     "weekday_thu": "Thu",
     "weekday_fri": "Fri",
-    "weekday_sat": "Sat"
+    "weekday_sat": "Sat",
+    "provider_label": "Provider"
   },
   "plugin_management": {
     "title": "Plugin Management",
@@ -1655,7 +1693,13 @@
     "invalid_json": "Enter valid JSON",
     "expected_array": "Enter a JSON array",
     "expected_object": "Enter a JSON object",
-    "invalid_enum": "Choose one of the declared enum values"
+    "invalid_enum": "Choose one of the declared enum values",
+    "browse_store": "Browse store",
+    "status_disabled": "Disabled",
+    "status_global_off": "Waiting for global switch",
+    "no_matches": "No matching plugins",
+    "no_matches_desc": "No installed plugin matches this search.",
+    "clear_search": "Clear search"
   },
   "plugin_store": {
     "title": "Plugin Store",
@@ -1752,7 +1796,9 @@
     "gate_step2_action": "I have read and understand these risks",
     "gate_step3_prompt": "To confirm, type \"{{token}}\" in the box below",
     "gate_step3_action": "Install this plugin",
-    "gate_step3_hint": "Enter the exact identifier shown above to enable installation."
+    "gate_step3_hint": "Enter the exact identifier shown above to enable installation.",
+    "view_installed": "Installed plugins",
+    "tags_label": "Tags"
   },
   "plugin_resource": {
     "page_count": "{{count}} pages",
@@ -1789,7 +1835,12 @@
     "clear_login_title": "Local Login Data",
     "clear_login_desc": "Clear locally saved login data and sign out.",
     "clear_login_button": "Clear login data",
-    "clear_login_confirm": "Clear local login data and sign out now?"
+    "clear_login_confirm": "Clear local login data and sign out now?",
+    "subtitle": "Versions, connection details, and the models this proxy serves.",
+    "about_tagline": "Management panel for CLI Proxy API",
+    "connection_title": "Connection",
+    "connection_status": "Status",
+    "server_address": "Server address"
   },
   "notification": {
     "trusted_proxies_restart_required": "Trusted proxy settings saved. Restart the backend to apply them.",
@@ -1823,8 +1874,8 @@
   },
   "theme": {
     "switch": "Theme",
-    "light": "Wool Paper",
-    "white": "Pure White",
+    "light": "Light",
+    "white": "White",
     "dark": "Dark",
     "auto": "Follow system"
   },
@@ -1835,7 +1886,9 @@
     "collapse": "Collapse",
     "subtitle": "Management console",
     "auth_files_count": "Authentication files: {{count}}",
-    "nav_label": "Main navigation"
+    "nav_label": "Main navigation",
+    "workspace_menu": "Workspace settings",
+    "breadcrumb": "Breadcrumb"
   },
   "footer": {
     "api_version": "CLI Proxy API Version",
@@ -1931,7 +1984,9 @@
       "title": "AI Providers",
       "activeResources": "{{active}}/{{total}} active resources",
       "providerFamilies": "{{count}} provider families",
-      "updatedAt": "Updated {{time}}"
+      "updatedAt": "Updated {{time}}",
+      "subtitle": "Upstream API keys and endpoints, grouped by provider.",
+      "quickStartSubtitle": "One APIKEY.FUN key sets up every supported protocol for you."
     },
     "actions": {
       "refresh": "Refresh",
@@ -1982,7 +2037,8 @@
       "cliProfileTag": "CLI Profile",
       "empty": "No resources yet, click \"New\" to add.",
       "filterPlaceholder": "Search keys, URLs, prefixes…",
-      "description": "Manage resources under {{route}}"
+      "description": "Manage resources under {{route}}",
+      "searchLabel": "Search resources"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -2054,7 +2110,8 @@
         "openai": "OpenAI Compatible",
         "gemini": "Gemini",
         "codexResponses": "Codex API (Responses)"
-      }
+      },
+      "emptyDescription": "Add your APIKEY.FUN key here, or register for an account first."
     },
     "status": {
       "active": "Active",
@@ -2213,6 +2270,13 @@
     },
     "modelCatalog": {
       "notLoaded": "Not loaded"
+    },
+    "empty": {
+      "title": "No {{provider}} keys yet",
+      "description": "Add an API key to start routing requests through this provider.",
+      "noMatchTitle": "No matching resources",
+      "noMatchDescription": "Try another search or clear the model filter.",
+      "clearFilters": "Clear filters"
     }
   },
   "claude_reset": {

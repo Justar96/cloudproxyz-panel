@@ -27,7 +27,8 @@ export type FloatingSaveBarProps = {
 };
 
 /**
- * 悬浮保存栏：portal 到 body 的玻璃工具栏，仅在 dirty 时出现。
+ * 悬浮保存栏：portal 到 body 的浮层表面（--floating-surface / --floating-shadow），仅在 dirty 时出现。
+ * 左侧「N 处未保存的更改」+ 注意色点，右侧放弃（ghost）与保存（primary）。
  * - 上浮入场 0.28s 强减速，退场 0.22s 加速后卸载；
  * - reduced-motion 只做透明度淡入淡出（保留 translateX(-50%)，防止错位半宽）；
  * - 实时高度写入 --config-action-bar-height 供页面底部留白。
@@ -142,12 +143,17 @@ export function FloatingSaveBar(props: FloatingSaveBarProps) {
     <div className={styles.container} ref={containerRef}>
       <div className={styles.bar} role="group" aria-label={t('config_management.status_dirty')}>
         <span className={`${styles.status} ${toneClass[statusTone]}`} aria-live="polite">
-          {statusText}
+          {saving ? (
+            <LoadingSpinner size={12} />
+          ) : (
+            <span className={styles.statusDot} aria-hidden="true" />
+          )}
+          <span className={styles.statusText}>{statusText}</span>
         </span>
         <div className={styles.actionsGroup}>
           <button
             type="button"
-            className={styles.ghostAction}
+            className="btn btn-ghost btn-sm"
             onClick={onDiscard}
             disabled={discardDisabled}
           >
@@ -155,12 +161,12 @@ export function FloatingSaveBar(props: FloatingSaveBarProps) {
           </button>
           <button
             type="button"
-            className={styles.savePill}
+            className="btn btn-primary btn-sm"
             onClick={onSave}
             disabled={saveDisabled}
           >
-            {saving ? <LoadingSpinner size={14} /> : <IconCheck size={15} />}
-            {t('config_management.actions.save')}
+            {saving ? <LoadingSpinner size={14} /> : <IconCheck size={16} />}
+            <span>{t('config_management.actions.save')}</span>
           </button>
         </div>
       </div>

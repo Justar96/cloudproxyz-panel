@@ -5,6 +5,7 @@ import {
   countTotalErrors,
   readSavedMode,
   readSavedSection,
+  resolveDirtyFieldIds,
   resolveDirtyTabs,
   resolveStatus,
   type ConfigStatusInput,
@@ -220,5 +221,14 @@ describe('localStorage readers', () => {
     expect(readSavedSection('common')).toBe('common');
     expect(readSavedSection('server')).toBe('common'); // 历史分区 id 不再存在
     expect(readSavedSection(null)).toBe('common');
+  });
+});
+
+describe('resolveDirtyFieldIds', () => {
+  test('maps dirty value keys to the field ids that render them', () => {
+    const ids = resolveDirtyFieldIds(
+      new Set(['apiKeysText', 'streaming.bootstrapRetries', 'not-a-real-key'])
+    );
+    expect([...ids].sort()).toEqual(['apiKeys', 'streamingBootstrapRetries']);
   });
 });

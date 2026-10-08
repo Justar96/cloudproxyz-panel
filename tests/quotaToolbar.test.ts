@@ -11,19 +11,23 @@ describe('quota toolbar presentation contracts', () => {
     expect(source).toContain('{search && (');
     expect(source).toContain("aria-label={t('quota_management.search_clear')}");
     expect(source).toContain(
-      "handleSearchChange('');\n                  searchInputRef.current?.focus();"
+      "handleSearchChange('');\n                searchInputRef.current?.focus();"
     );
     expect(source).toContain('<IconX size={14} aria-hidden="true" />');
     expect(styles).toMatch(/&::-webkit-search-cancel-button,[\s\S]*?appearance: none;/);
   });
 
-  test('groups search and sorting separately from provider navigation', () => {
-    const toolbarStart = source.indexOf('<div className={styles.toolbar}>');
+  test('keeps search, provider and sorting in one toolbar', () => {
+    const toolbarStart = source.indexOf('<div className={styles.toolbar}');
     const searchStart = source.indexOf('<div className={styles.search}>');
+    const providerStart = source.indexOf('<div className={styles.provider}>');
     const sortStart = source.indexOf('<div className={styles.sort}>');
-    expect(toolbarStart).toBeGreaterThan(source.indexOf('<ProviderTabs'));
+    expect(toolbarStart).toBeGreaterThan(-1);
     expect(searchStart).toBeGreaterThan(toolbarStart);
-    expect(sortStart).toBeGreaterThan(searchStart);
+    expect(providerStart).toBeGreaterThan(searchStart);
+    expect(sortStart).toBeGreaterThan(providerStart);
+    expect(source).toContain('onChange={handleTabChange}');
+    expect(source).toContain("ariaLabel={t('quota_management.provider_label'");
     expect(styles).toMatch(/\.toolbar\s*\{[^}]*flex-wrap: wrap;/);
     expect(styles).toContain('&:focus-within');
     expect(styles).toContain('&:focus-visible');

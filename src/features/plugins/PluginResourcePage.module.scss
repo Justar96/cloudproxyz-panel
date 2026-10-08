@@ -25,11 +25,16 @@
   min-height: 100%;
   align-items: center;
   justify-content: center;
-  padding: 70px clamp(20px, 3vw, 48px) 40px;
+  padding: $spacing-2xl clamp(16px, 3vw, 40px);
   background: var(--bg-secondary);
+
+  > :global(.empty-state) {
+    width: min(100%, 560px);
+  }
 }
 
 .statusPanel {
   color: var(--text-secondary);
   font-size: 14px;
+  line-height: 20px;
 }
