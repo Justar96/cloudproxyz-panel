@@ -51,6 +51,7 @@ import { LANGUAGE_LABEL_KEYS, LANGUAGE_ORDER } from '@/utils/constants';
 import { isSupportedLanguage } from '@/utils/language';
 import { getSidebarShortcutLabel, isSidebarToggleShortcut } from '@/utils/sidebarShortcut';
 import { BRAND_NAME } from '@/utils/brand';
+import { useSidebarNavIndicator } from './useSidebarNavIndicator';
 import type { Theme } from '@/types';
 
 const sidebarIcons: Record<string, ReactNode> = {
@@ -799,6 +800,21 @@ export function MainLayout() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [hideRailTooltip]);
 
+  // Rows that can move without the active page changing: collapse, labels, drawers, the nav itself.
+  const navLayoutKey = [
+    sidebarCollapsed,
+    showSidebarLabels,
+    sidebarOpen,
+    Array.from(expandedPluginResourceIDs).join(','),
+    navGroups
+      .map((group) =>
+        group.items.map((item) => (item.kind === 'drawer' ? item.id : item.path)).join(',')
+      )
+      .join('|'),
+  ].join(':');
+  const { containerRef: navSectionRef, indicator: navIndicator } =
+    useSidebarNavIndicator<HTMLElement>(location.pathname, navLayoutKey);
+
   const renderNavBadge = (badge?: number, badgeLabel?: string) =>
     typeof badge === 'number' ? (
       <>
@@ -1152,7 +1168,21 @@ export function MainLayout() {
           )}
         </div>
 
-        <nav className="nav-section" aria-label={t('sidebar.nav_label')}>
+        <nav
+          ref={navSectionRef}
+          className={`nav-section${navIndicator.style ? ' has-indicator' : ''}`}
+          aria-label={t('sidebar.nav_label')}
+          data-fade-start={navIndicator.fadeStart || undefined}
+          data-fade-end={navIndicator.fadeEnd || undefined}
+        >
+          {navIndicator.style ? (
+            <span
+              className="nav-indicator"
+              aria-hidden="true"
+              data-animate={navIndicator.animate || undefined}
+              style={navIndicator.style}
+            />
+          ) : null}
           {navGroups.map((group, idx) => (
             <div className="nav-group" key={group.id}>
               {showSidebarLabels

@@ -84,6 +84,10 @@
   // only 0.027 OKLCH L from the canvas in light and vanish there; these keep ≥ 0.05.
   --bg-canvas-hover: var(--graphite-4);
   --bg-canvas-fill: var(--graphite-0); // badge / pill raised off the canvas
+  // Current sidebar row: raised to the card surface with a hairline, like a selected segment.
+  --bg-canvas-active: var(--graphite-0);
+  --canvas-active-ring:
+    inset 0 0 0 1px color-mix(in srgb, var(--text-primary) 8%, transparent), 0 1px 2px #0000000f;
   --floating-surface: var(--graphite-0);
 
   // Text
@@ -221,10 +225,15 @@
   --bg-quinary: var(--graphite-0);
   --bg-canvas-hover: var(--graphite-3);
   --bg-canvas-fill: var(--graphite-2);
+  // The canvas is already the card colour, so the current row steps darker than hover instead.
+  --bg-canvas-active: var(--graphite-4);
 }
 
 [data-theme='dark'] {
   --bg-canvas-hover: var(--graphite-3);
+  // Dark cards sit below hover in lightness; the current row takes the next step above hover.
+  --bg-canvas-active: var(--graphite-4);
+  --canvas-active-ring: inset 0 0 0 1px color-mix(in srgb, var(--text-primary) 8%, transparent);
   --floating-shadow: 0 0 0 1px #ffffff12, 0 12px 32px #00000099;
   --shadow-m: var(--floating-shadow);
 }

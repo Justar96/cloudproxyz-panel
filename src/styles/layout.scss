@@ -76,6 +76,8 @@
   height: 100%;
   padding: 12px;
   background: var(--bg-secondary);
+  // Inner-edge hairline: separates the rail from the page without a second surface colour.
+  box-shadow: inset -1px 0 0 var(--border-color);
   // visible so the workspace popover can extend past the rail; the nav list scrolls on its own.
   overflow: visible;
 
@@ -93,6 +95,8 @@
     // The drawer is a raised card, not the canvas: fall back to the card steps.
     --bg-canvas-hover: var(--bg-hover);
     --bg-canvas-fill: var(--bg-tertiary);
+    --bg-canvas-active: var(--bg-active);
+    --canvas-active-ring: none;
     transform: translateX(-104%);
     transition: transform var(--dur-large) var(--ease-large);
 
@@ -447,6 +451,9 @@
 
 // ── Navigation ────────────────────────────────────────────────────────────
 .nav-section {
+  --nav-fade: 24px;
+
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
@@ -460,9 +467,55 @@
   &::-webkit-scrollbar {
     display: none;
   }
+
+  // Fade only the edge that hides rows, so a short nav never looks clipped.
+  &[data-fade-start] {
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--nav-fade));
+  }
+
+  &[data-fade-end] {
+    mask-image: linear-gradient(to top, transparent, #000 var(--nav-fade));
+  }
+
+  &[data-fade-start][data-fade-end] {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      #000 var(--nav-fade),
+      #000 calc(100% - var(--nav-fade)),
+      transparent
+    );
+  }
+}
+
+// One background for the current page that travels between rows (measured in MainLayout).
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border-radius: var(--radius-sm);
+  background: var(--bg-canvas-active);
+  box-shadow: var(--canvas-active-ring);
+  pointer-events: none;
+
+  &[data-animate] {
+    transition:
+      transform var(--dur-hover) var(--ease-out-strong),
+      width var(--dur-hover) var(--ease-out-strong),
+      height var(--dur-hover) var(--ease-out-strong);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &[data-animate] {
+      transition: none;
+    }
+  }
 }
 
 .nav-group {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -536,17 +589,30 @@
   }
 
   &.active {
-    background: var(--accent-fill);
-    color: var(--accent-contrast);
+    background: var(--bg-canvas-active);
+    box-shadow: var(--canvas-active-ring);
+    font-weight: 600;
 
     .nav-icon {
-      color: var(--accent-contrast);
+      color: var(--text-primary);
     }
 
     .nav-badge {
-      background: color-mix(in srgb, var(--accent-contrast) 18%, transparent);
-      color: var(--accent-contrast);
+      background: var(--bg-canvas-hover);
+      color: var(--text-primary);
     }
+  }
+
+  // Once measured, the traveling indicator draws the active background instead.
+  .nav-section.has-indicator &.active {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  // A drawer whose child is current: weight only, the child row carries the background.
+  &.nav-drawer-toggle.active {
+    background: transparent;
+    box-shadow: none;
   }
 
   .nav-icon {
@@ -561,6 +627,8 @@
       width: 18px;
       height: 18px;
       display: block;
+      // Icons gain weight with the row's state (1.5 → 2), the reference sidebar's cue.
+      stroke-width: 1.5;
     }
 
     img {
@@ -576,8 +644,18 @@
     color: var(--text-primary);
   }
 
-  &.active:hover {
-    background: var(--accent-fill-hover);
+  &.active .nav-icon svg {
+    stroke-width: 2;
+  }
+
+  @media (hover: hover) {
+    &.active:hover {
+      background: var(--bg-canvas-active);
+    }
+
+    .nav-section.has-indicator &.active:hover {
+      background: transparent;
+    }
   }
 
   .nav-text {
