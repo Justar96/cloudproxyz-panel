@@ -21,7 +21,6 @@ import { useNow } from '@/hooks/useNow';
 import { useAuthStore, useQuotaStore, useThemeStore } from '@/stores';
 import type { AuthFileItem, ResolvedTheme } from '@/types';
 import { getQuotaCacheKey } from '@/utils/quota/identity';
-import { getTypeLabel } from '@/features/authFiles/constants';
 import { ProviderTabs } from '@/features/authFiles/components/ProviderTabs';
 import { QuotaHeader } from './components/QuotaHeader';
 import { QuotaCard } from './components/QuotaCard';
@@ -253,18 +252,6 @@ export function QuotaPage() {
     []
   );
 
-  // 默认序下当前页已按提供商连续排列：切成分组；「最快恢复」跨提供商，保持单一列表。
-  const pageGroups = useMemo(() => {
-    if (sortMode !== 'default') return [{ type: null, items: pageItems }];
-    const groups: { type: QuotaProviderType | null; items: QuotaFileEntry[] }[] = [];
-    pageItems.forEach((entry) => {
-      const last = groups[groups.length - 1];
-      if (last && last.type === entry.type) last.items.push(entry);
-      else groups.push({ type: entry.type, items: [entry] });
-    });
-    return groups;
-  }, [pageItems, sortMode]);
-
   // 剪枝：文件列表落定后，各 provider 缓存只保留仍存在的凭证
   useEffect(() => {
     if (loading || error || filesGeneration !== sessionGeneration) return;
@@ -353,7 +340,6 @@ export function QuotaPage() {
       resetting={resettingQuotaName === getQuotaCacheKey(entry.file)}
       health={healthOf(entry)}
       minRemaining={healthByKey.get(entry)?.minRemaining ?? null}
-      showProvider={sortMode !== 'default'}
       onRefresh={() => void refreshQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
       onReset={() => resetQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
     />
@@ -492,29 +478,10 @@ export function QuotaPage() {
           />
         </div>
       ) : (
-        pageGroups.map((group) => {
-          const iconSrc = group.type ? getQuotaProviderIcon(group.type, resolvedTheme) : null;
-          return (
-            <section
-              key={group.type ?? 'all'}
-              className={styles.group}
-              aria-labelledby={group.type ? `quota-group-${group.type}` : undefined}
-            >
-              {group.type && (
-                <header className={styles.groupHeader}>
-                  <h2 id={`quota-group-${group.type}`} className={styles.groupTitle}>
-                    {iconSrc && <img src={iconSrc} alt="" className={styles.groupIcon} />}
-                    {getTypeLabel(t, group.type)}
-                  </h2>
-                  <span className={styles.groupCount}>
-                    {healthFilter === null ? (tabCounts[group.type] ?? 0) : group.items.length}
-                  </span>
-                </header>
-              )}
-              <div className={styles.grid}>{group.items.map(renderRow)}</div>
-            </section>
-          );
-        })
+        // One grid for every provider: default order already keeps a provider's cards
+        // together, and the tab bar filters by provider, so per-provider rows only
+        // stranded single cards beside empty space.
+        <div className={styles.grid}>{pageItems.map(renderRow)}</div>
       )}
 
       {!loading && filteredEntries.length > QUOTA_PAGE_SIZE && (

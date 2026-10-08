@@ -372,6 +372,36 @@ describe('buildTimelineLane', () => {
     ]);
   });
 
+  test('kimi: keeps the i18n key for rows that only carry a labelKey', () => {
+    const lane = buildTimelineLane({
+      ...base,
+      provider: 'kimi',
+      quota: {
+        status: 'success',
+        rows: [
+          {
+            labelKey: 'kimi_quota.limit_hours',
+            labelParams: { count: 5 },
+            used: 0,
+            limit: 100,
+            resetAtMs: 5000,
+            periodHours: 5,
+          },
+        ],
+      },
+      maxPeriodHours: 14 * 24,
+    });
+
+    expect(lane.limits).toEqual([
+      {
+        label: '',
+        labelKey: 'kimi_quota.limit_hours',
+        labelParams: { count: 5 },
+        remaining: 100,
+      },
+    ]);
+  });
+
   test('antigravity anchors on its bucket reset, with remaining from the fraction', () => {
     const lane = buildTimelineLane({
       ...base,

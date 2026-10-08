@@ -11,49 +11,57 @@
  * ============================================================ */
 
 /* ---------- 额度行 ----------
- * 在额度页里 body 是一个 tile 网格（见 QuotaCard.module.scss .body）：
- * 额度行与 Antigravity 分组各占一格，其余块（套餐 / 重置积分 / 消息）通栏。 */
+ * 每个 provider 的行结构相同（header > model + meta(percent, reset…) + bar），
+ * 但 meta 里的内容数量不一，原先在窄卡里时而同行时而折行。这里把 header / meta
+ * 拍平（display: contents），用 order 固定成三行：
+ *   1. 名称（左） ……… 剩余 %（右）
+ *   2. 水位条（通栏）
+ *   3. 重置时间 · 倒计时（小号，次要）
+ */
 
 .quotaRow {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: baseline;
   gap: 6px;
   min-width: 0;
-  grid-column: auto;
-  flex: 1 1 240px;
 }
 
-.quotaRowHeader {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 2px 8px;
-  min-width: 0;
+.quotaRowHeader,
+.quotaMeta {
+  display: contents;
 }
 
 .quotaModel {
+  order: 1;
+  flex: 1 1 0;
   min-width: 0;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   @include text-ellipsis;
 }
 
-.quotaMeta {
-  display: inline-flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0 6px;
-  min-width: 0;
+.quotaRow .quotaBar {
+  order: 3;
+  flex: 0 0 100%;
+}
+
+.quotaRow :where(.quotaReset, .quotaResetRelative, .quotaAmount) {
+  order: 4;
   font-size: 12px;
   line-height: 16px;
   font-variant-numeric: tabular-nums;
 }
 
 .quotaPercent {
+  order: 2;
+  flex: 0 0 auto;
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--text-primary);
 }
 
@@ -129,8 +137,6 @@
   flex-direction: column;
   gap: 8px;
   min-width: 0;
-  grid-column: auto;
-  flex: 1 1 240px;
 }
 
 .antigravityQuotaGroupHeader {
@@ -155,7 +161,6 @@
 
 @include mobile {
   .quotaModel {
-    width: 100%;
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
@@ -174,22 +179,29 @@
  * 禁止改动；重置积分行与错误条已在 Felt 重设计中改为无边框的语义 token。
  * ============================================================ */
 
+/* 套餐事实条：每项标签在上、值在下，自适应列宽对齐成表（卡宽 ~300px 时两列）。 */
 .codexPlan {
-  display: flex;
-  align-items: center;
-  gap: 6px 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 12px 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color);
   font-size: 12px;
+  line-height: 16px;
   color: var(--text-secondary);
-  flex-wrap: wrap;
 }
 
 .codexPlanItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   min-width: 0;
-  max-width: 100%;
-  flex-wrap: wrap;
+
+  /* 堆叠后倒计时自成一行，不再需要行内分隔点 */
+  > .quotaResetRelative::before {
+    content: none;
+  }
 }
 
 .codexPlanLabel {
@@ -198,24 +210,31 @@
 }
 
 .codexPlanValue {
+  max-width: 100%;
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   text-transform: capitalize;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
+/* 手动重置到期：次要信息，排在额度行之后，用分隔线与上方隔开。 */
 .codexResetCredits {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
 }
 
 .codexResetCreditsTitle {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  line-height: 1.35;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  line-height: 16px;
 }
 
 .codexResetCreditRow {
@@ -243,6 +262,10 @@
 }
 
 .codexResetCreditTime {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 6px;
   color: var(--text-primary);
   font-weight: 600;
   text-align: right;

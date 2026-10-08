@@ -31,6 +31,14 @@ const getPlanValueClass = (planType: string | null, classes: QuotaClassMap): str
   return classes.codexPlanValue;
 };
 
+/** The API sends balances like `62500.0000000000`; show `62,500` instead. */
+const formatCreditBalance = (value: string | null, locale?: string): string | null => {
+  if (value === null) return null;
+  const amount = Number(value);
+  if (value.trim() === '' || !Number.isFinite(amount)) return value;
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(amount);
+};
+
 export function CodexQuotaBody({ quota, classes }: QuotaBodyProps<CodexQuotaState>) {
   const { t, i18n } = useTranslation();
   const now = useNow();
@@ -111,7 +119,9 @@ export function CodexQuotaBody({ quota, classes }: QuotaBodyProps<CodexQuotaStat
                 {t('codex_quota.credit_balance_label')}
               </span>
               <span className={classes.codexPlanValue}>
-                {creditsUnlimited ? t('codex_quota.credit_unlimited') : creditBalance}
+                {creditsUnlimited
+                  ? t('codex_quota.credit_unlimited')
+                  : formatCreditBalance(creditBalance, locale)}
               </span>
             </span>
           )}
@@ -124,6 +134,45 @@ export function CodexQuotaBody({ quota, classes }: QuotaBodyProps<CodexQuotaStat
             </span>
           )}
         </div>
+      )}
+      {windows.length === 0 ? (
+        <div className={classes.quotaMessage}>{t('codex_quota.empty_windows')}</div>
+      ) : (
+        windows.map((window, index) => {
+          const used = window.usedPercent;
+          const clampedUsed = used === null ? null : Math.max(0, Math.min(100, used));
+          const remaining =
+            clampedUsed === null ? null : Math.max(0, Math.min(100, 100 - clampedUsed));
+          const percentLabel =
+            remaining === null
+              ? '--'
+              : t('quota_management.percent_left', { percent: Math.round(remaining) });
+          const windowLabel = window.labelKey
+            ? t(window.labelKey, window.labelParams as Record<string, string | number>)
+            : window.label;
+          const resetDisplay = buildResetDisplay(window.resetLabel, window.resetAtMs, now, locale);
+
+          const soon = window.id === soonestRowId;
+
+          return (
+            <div
+              key={window.id}
+              className={classes.quotaRow}
+              title={soon ? t('quota_management.soonest_row_hint') : undefined}
+            >
+              <div className={classes.quotaRowHeader}>
+                <span className={classes.quotaModel}>{windowLabel}</span>
+                <div className={classes.quotaMeta}>
+                  <span className={classes.quotaPercent}>{percentLabel}</span>
+                  {resetDisplay && (
+                    <QuotaResetLabel display={resetDisplay} classes={classes} soon={soon} />
+                  )}
+                </div>
+              </div>
+              <QuotaMeter percent={remaining} classes={classes} index={index} />
+            </div>
+          );
+        })
       )}
       {rateLimitResetCredits.length > 0 ? (
         <div className={classes.codexResetCredits}>
@@ -171,45 +220,6 @@ export function CodexQuotaBody({ quota, classes }: QuotaBodyProps<CodexQuotaStat
           })}
         </div>
       ) : null}
-      {windows.length === 0 ? (
-        <div className={classes.quotaMessage}>{t('codex_quota.empty_windows')}</div>
-      ) : (
-        windows.map((window, index) => {
-          const used = window.usedPercent;
-          const clampedUsed = used === null ? null : Math.max(0, Math.min(100, used));
-          const remaining =
-            clampedUsed === null ? null : Math.max(0, Math.min(100, 100 - clampedUsed));
-          const percentLabel =
-            remaining === null
-              ? '--'
-              : t('quota_management.percent_left', { percent: Math.round(remaining) });
-          const windowLabel = window.labelKey
-            ? t(window.labelKey, window.labelParams as Record<string, string | number>)
-            : window.label;
-          const resetDisplay = buildResetDisplay(window.resetLabel, window.resetAtMs, now, locale);
-
-          const soon = window.id === soonestRowId;
-
-          return (
-            <div
-              key={window.id}
-              className={classes.quotaRow}
-              title={soon ? t('quota_management.soonest_row_hint') : undefined}
-            >
-              <div className={classes.quotaRowHeader}>
-                <span className={classes.quotaModel}>{windowLabel}</span>
-                <div className={classes.quotaMeta}>
-                  <span className={classes.quotaPercent}>{percentLabel}</span>
-                  {resetDisplay && (
-                    <QuotaResetLabel display={resetDisplay} classes={classes} soon={soon} />
-                  )}
-                </div>
-              </div>
-              <QuotaMeter percent={remaining} classes={classes} index={index} />
-            </div>
-          );
-        })
-      )}
     </>
   );
 }

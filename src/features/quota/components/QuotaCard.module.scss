@@ -328,6 +328,24 @@
   border-top: 1px solid var(--border-color);
 }
 
+/* Claude：剩余手动重置次数，贴在重置按钮的另一端 */
+.footerMeta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-inline-start: auto;
+  padding-inline-end: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-tertiary);
+}
+
+.footerMetaValue {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
 /* ---------- 动作 ---------- */
 
 .action:global(.btn) {

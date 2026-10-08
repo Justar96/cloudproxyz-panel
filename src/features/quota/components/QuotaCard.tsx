@@ -39,7 +39,7 @@ export type QuotaCardProps = {
   health: QuotaHealth;
   /** Lowest remaining percent across this credential's limits; null when unknown. */
   minRemaining?: number | null;
-  /** Print the provider under the name; off inside a provider group that already names it. */
+  /** Print the provider under the name; off when the surrounding UI already names it. */
   showProvider?: boolean;
   onRefresh: () => void;
   onReset: () => void;
@@ -159,24 +159,6 @@ export function QuotaCard(props: QuotaCardProps) {
           </div>
 
           <div className={styles.body}>
-            {entry.type === 'claude' && status === 'success' && (
-              <>
-                <div className={quotaClasses.codexPlan}>
-                  <span className={quotaClasses.codexPlanItem}>
-                    <span className={quotaClasses.codexPlanLabel}>
-                      {t('claude_reset.remaining')}
-                    </span>
-                    <span className={quotaClasses.codexPlanValue}>{claudeReset.count ?? '--'}</span>
-                  </span>
-                </div>
-                <ClaudeResetGrantDetails grants={claudeReset.grants} classes={quotaClasses} />
-                {claudeReset.message && (
-                  <div role="status" className={quotaClasses.codexResetCreditsError}>
-                    {t(`claude_reset.${claudeReset.message}`)}
-                  </div>
-                )}
-              </>
-            )}
             {loading ? (
               <div className={styles.skeleton} aria-busy="true">
                 <span className={styles.srOnly}>{t(`${adapter.i18nPrefix}.loading`)}</span>
@@ -204,6 +186,16 @@ export function QuotaCard(props: QuotaCardProps) {
             ) : quota ? (
               <adapter.Body quota={quota} classes={quotaClasses} />
             ) : null}
+            {entry.type === 'claude' && status === 'success' && (
+              <>
+                <ClaudeResetGrantDetails grants={claudeReset.grants} classes={quotaClasses} />
+                {claudeReset.message && (
+                  <div role="status" className={quotaClasses.codexResetCreditsError}>
+                    {t(`claude_reset.${claudeReset.message}`)}
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {hasFooter && (
@@ -241,6 +233,12 @@ export function QuotaCard(props: QuotaCardProps) {
                   />
                   {t('codex_quota.reset_button')}
                 </Button>
+              )}
+              {entry.type === 'claude' && status === 'success' && claudeReset.count !== null && (
+                <span className={styles.footerMeta}>
+                  {t('claude_reset.remaining')}
+                  <span className={styles.footerMetaValue}>{claudeReset.count}</span>
+                </span>
               )}
             </footer>
           )}

@@ -162,57 +162,10 @@
   overflow-wrap: anywhere;
 }
 
-/* ---------- 提供商分组 ---------- */
+/* ---------- 卡片网格 ---------- */
 
-.group {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.groupHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  padding-block: 0 12px;
-}
-
-.groupTitle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-}
-
-.groupIcon {
-  display: block;
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-}
-
-.groupCount {
-  display: inline-flex;
-  align-items: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  justify-content: center;
-  border-radius: $radius-full;
-  background: var(--count-badge-bg);
-  color: var(--count-badge-text);
-  font-size: 12px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-/* 每个订阅一张卡：自适应列数，单列下限 300px（窄屏退化为单列）。 */
+/* 每个订阅一张卡，所有提供商同一网格：自适应列数，单列下限 300px（窄屏退化为单列）。
+ * 同行卡片等高，footer 贴底对齐。 */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
