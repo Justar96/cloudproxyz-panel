@@ -163,7 +163,6 @@
 .group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   min-width: 0;
 }
 
@@ -172,6 +171,7 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
+  padding-block: 16px 4px;
 }
 
 .groupTitle {
@@ -179,10 +179,10 @@
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 
@@ -221,11 +221,11 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 0 24px;
+  padding: 4px 24px;
   border-radius: var(--radius-xl);
   background: var(--bg-primary);
 
-  > * + * {
+  > article + article {
     border-top: 1px solid var(--border-color);
   }
 }
@@ -284,13 +284,7 @@
   }
 
   .list {
-    gap: 12px;
-    padding: 0;
-    background: transparent;
-
-    > * + * {
-      border-top: 0;
-    }
+    padding: 0 16px;
   }
 
   .skeletonRow {

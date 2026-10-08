@@ -31,6 +31,8 @@ import {
 import { QuotaHeader } from './components/QuotaHeader';
 import { QuotaCard } from './components/QuotaCard';
 import { QuotaTimeline } from './components/QuotaTimeline';
+import { QuotaOverview, type QuotaHealthFilter } from './components/QuotaOverview';
+import { countQuotaHealth, resolveQuotaHealth, type QuotaHealth } from './health';
 import {
   CARD_ENTRANCE_BUDGET_MS,
   QUOTA_PAGE_SIZE,
@@ -80,6 +82,7 @@ export function QuotaPage() {
   );
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [healthFilter, setHealthFilter] = useState<QuotaHealthFilter>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   // 页头 + 工具栏的入场级联（标题 → meta → 动作 → 工具栏，级差 70ms）
   const revealRef = useRevealGroup<HTMLDivElement>();
@@ -167,10 +170,43 @@ export function QuotaPage() {
 
   const entries = useMemo(() => classifyQuotaFiles(files), [files]);
   const tabCounts = useMemo(() => buildTabCounts(entries), [entries]);
-  const filteredEntries = useMemo(
+
+  // Health per credential from the quota already loaded (no requests).
+  const healthByKey = useMemo(() => {
+    const map = new Map<QuotaFileEntry, QuotaHealth>();
+    entries.forEach((entry) => {
+      map.set(entry, resolveQuotaHealth(entry.type, getQuota(entry)).health);
+    });
+    return map;
+  }, [entries, getQuota]);
+  const healthOf = useCallback(
+    (entry: QuotaFileEntry): QuotaHealth => healthByKey.get(entry) ?? 'idle',
+    [healthByKey]
+  );
+  const providerEntries = useMemo(
     () => filterEntriesBySearch(filterEntriesByTab(entries, tab), search),
     [entries, tab, search]
   );
+  const healthCounts = useMemo(
+    () => countQuotaHealth(providerEntries.map(healthOf)),
+    [providerEntries, healthOf]
+  );
+  const filteredEntries = useMemo(
+    () =>
+      healthFilter === null
+        ? providerEntries
+        : providerEntries.filter((entry) => {
+            const health = healthOf(entry);
+            return healthFilter === 'idle'
+              ? health === 'idle' || health === 'loading'
+              : health === healthFilter;
+          }),
+    [providerEntries, healthFilter, healthOf]
+  );
+  const handleHealthFilterChange = useCallback((next: QuotaHealthFilter) => {
+    setHealthFilter(next);
+    setPage(1);
+  }, []);
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
     setPage(1);
@@ -233,17 +269,6 @@ export function QuotaPage() {
     });
     return groups;
   }, [pageItems, sortMode]);
-
-  const { loadedCount, attentionCount } = useMemo(() => {
-    let loaded = 0;
-    let attention = 0;
-    entries.forEach((entry) => {
-      const status = quotaByType[entry.type][getQuotaCacheKey(entry.file)]?.status;
-      if (status === 'success') loaded += 1;
-      else if (status === 'error') attention += 1;
-    });
-    return { loadedCount: loaded, attentionCount: attention };
-  }, [entries, quotaByType]);
 
   // 剪枝：文件列表落定后，各 provider 缓存只保留仍存在的凭证
   useEffect(() => {
@@ -349,6 +374,8 @@ export function QuotaPage() {
       resolvedTheme={resolvedTheme}
       canRefresh={canUseActions && !entry.file.disabled}
       resetting={resettingQuotaName === getQuotaCacheKey(entry.file)}
+      health={healthOf(entry)}
+      showProvider={sortMode !== 'default'}
       entranceDelayMs={cardEntranceDelay(pageItems.indexOf(entry))}
       onRefresh={() => void refreshQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
       onReset={() => resetQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
@@ -358,13 +385,23 @@ export function QuotaPage() {
   return (
     <div className={`page ${styles.page}`} ref={revealRef}>
       <QuotaHeader
-        totalCount={entries.length}
-        loadedCount={loadedCount}
-        attentionCount={attentionCount}
         refreshing={loading || batchLoading}
         disableControls={disableControls}
         onRefreshAll={handleRefreshAll}
       />
+
+      {entries.length > 0 && (
+        <div data-reveal>
+          <QuotaOverview
+            entries={providerEntries}
+            healthOf={healthOf}
+            quotaOf={getQuota}
+            counts={healthCounts}
+            filter={healthFilter}
+            onFilterChange={handleHealthFilterChange}
+          />
+        </div>
+      )}
 
       <div className={styles.toolbar} role="search" data-reveal>
         <div className={styles.search}>
@@ -432,21 +469,35 @@ export function QuotaPage() {
         <div className={styles.emptyWrap}>
           <EmptyState
             title={
-              search.trim()
-                ? t('quota_management.search_empty_title')
-                : tab === 'all'
-                  ? t('quota_management.empty_title')
-                  : t(`${QUOTA_ADAPTERS[tab].i18nPrefix}.empty_title`)
+              healthFilter !== null && providerEntries.length > 0
+                ? t('quota_management.filter_empty_title', {
+                    label: t(`quota_management.health_${healthFilter}`),
+                  })
+                : search.trim()
+                  ? t('quota_management.search_empty_title')
+                  : tab === 'all'
+                    ? t('quota_management.empty_title')
+                    : t(`${QUOTA_ADAPTERS[tab].i18nPrefix}.empty_title`)
             }
             description={
-              search.trim()
-                ? t('quota_management.search_empty_desc')
-                : tab === 'all'
-                  ? t('quota_management.empty_desc')
-                  : t(`${QUOTA_ADAPTERS[tab].i18nPrefix}.empty_desc`)
+              healthFilter !== null && providerEntries.length > 0
+                ? t('quota_management.filter_empty_desc')
+                : search.trim()
+                  ? t('quota_management.search_empty_desc')
+                  : tab === 'all'
+                    ? t('quota_management.empty_desc')
+                    : t(`${QUOTA_ADAPTERS[tab].i18nPrefix}.empty_desc`)
             }
             action={
-              search.trim() ? (
+              healthFilter !== null && providerEntries.length > 0 ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleHealthFilterChange(null)}
+                >
+                  {t('quota_management.filter_clear')}
+                </Button>
+              ) : search.trim() ? (
                 <Button variant="secondary" size="sm" onClick={() => handleSearchChange('')}>
                   {t('quota_management.search_clear')}
                 </Button>
@@ -467,27 +518,31 @@ export function QuotaPage() {
               className={styles.group}
               aria-labelledby={group.type ? `quota-group-${group.type}` : undefined}
             >
-              {group.type && (
-                <header className={styles.groupHeader}>
-                  <h2 id={`quota-group-${group.type}`} className={styles.groupTitle}>
-                    {iconSrc && (
-                      <span
-                        className={styles.groupIcon}
-                        style={
-                          isThemeSurfaceIconProvider(group.type)
-                            ? { background: getThemeSurfaceIconBackground(resolvedTheme) }
-                            : undefined
-                        }
-                      >
-                        <img src={iconSrc} alt="" />
-                      </span>
-                    )}
-                    {getTypeLabel(t, group.type)}
-                  </h2>
-                  <span className={styles.groupCount}>{tabCounts[group.type] ?? 0}</span>
-                </header>
-              )}
-              <div className={styles.list}>{group.items.map(renderRow)}</div>
+              <div className={styles.list}>
+                {group.type && (
+                  <header className={styles.groupHeader}>
+                    <h2 id={`quota-group-${group.type}`} className={styles.groupTitle}>
+                      {iconSrc && (
+                        <span
+                          className={styles.groupIcon}
+                          style={
+                            isThemeSurfaceIconProvider(group.type)
+                              ? { background: getThemeSurfaceIconBackground(resolvedTheme) }
+                              : undefined
+                          }
+                        >
+                          <img src={iconSrc} alt="" />
+                        </span>
+                      )}
+                      {getTypeLabel(t, group.type)}
+                    </h2>
+                    <span className={styles.groupCount}>
+                      {healthFilter === null ? (tabCounts[group.type] ?? 0) : group.items.length}
+                    </span>
+                  </header>
+                )}
+                {group.items.map(renderRow)}
+              </div>
             </section>
           );
         })

@@ -1,32 +1,5 @@
 /* 额度页头部：布局来自全局 .page-header；这里只有计数行的细节。 */
 
-.meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0 8px;
-  font-variant-numeric: tabular-nums;
-}
-
-.metaDot {
-  color: var(--text-quaternary);
-  user-select: none;
-}
-
-.metaAttention {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--status-attention-text);
-}
-
-.attentionDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--status-attention-solid);
-}
-
 .spinning {
   animation: quota-spin 0.8s linear infinite;
 }

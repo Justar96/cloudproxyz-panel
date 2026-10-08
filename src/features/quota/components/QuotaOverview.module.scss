@@ -1,0 +1,153 @@
+/* One surface split into cells; status cells are filter toggles. */
+
+.overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+}
+
+button.cell {
+  cursor: pointer;
+  transition:
+    background-color var(--dur-hover) var(--ease-out-strong),
+    translate var(--dur-press) var(--ease-out-strong);
+
+  &:disabled {
+    cursor: default;
+
+    .value {
+      color: var(--text-disabled);
+    }
+
+    .dot {
+      opacity: 0.4;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+  }
+
+  &[data-active] {
+    background: var(--bg-tertiary);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &:active:not(:disabled) {
+      translate: 0 1px;
+    }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button.cell:not(:disabled):not([data-active]):hover {
+    background: color-mix(in oklab, var(--bg-hover) 70%, transparent);
+
+    .sub {
+      color: var(--text-secondary);
+    }
+  }
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--viz-neutral);
+
+  [data-health='ok'] & {
+    background: var(--viz-success);
+  }
+
+  [data-health='low'] & {
+    background: var(--viz-warning);
+  }
+
+  [data-health='exhausted'] &,
+  [data-health='error'] & {
+    background: var(--viz-failure);
+  }
+}
+
+.value {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-quaternary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--dur-hover) var(--ease-out-strong);
+
+  [data-active] & {
+    color: var(--text-primary);
+  }
+
+  // The filter hint on status cells appears on hover/focus; the pressed state keeps it.
+  button:not([data-active]) > & {
+    color: transparent;
+  }
+
+  button:not([data-active]):focus-visible > & {
+    color: var(--text-secondary);
+  }
+}
+
+.valueText {
+  font-size: 18px;
+  line-height: 32px;
+  letter-spacing: -0.015em;
+  white-space: normal;
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.cell,
+  .sub {
+    transition: none;
+  }
+}
