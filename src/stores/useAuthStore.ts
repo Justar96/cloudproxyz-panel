@@ -95,6 +95,7 @@ export const useAuthStore = create<AuthStoreState>()(
         const apiBase = normalizeApiBase(credentials.apiBase);
         const managementKey = credentials.managementKey.trim();
         const rememberPassword = credentials.rememberPassword ?? get().rememberPassword ?? false;
+        let revision = apiClient.getConnectionRevision();
 
         try {
           set({
@@ -114,7 +115,7 @@ export const useAuthStore = create<AuthStoreState>()(
           });
 
           // 测试连接 - 获取配置。只在 v8 路由不存在时诊断旧版后端。
-          const revision = apiClient.getConnectionRevision();
+          revision = apiClient.getConnectionRevision();
           try {
             await useConfigStore.getState().fetchConfig(true);
           } catch (error) {
@@ -129,6 +130,9 @@ export const useAuthStore = create<AuthStoreState>()(
             throw error;
           }
 
+          if (revision !== apiClient.getConnectionRevision()) {
+            throw new DOMException('The management connection changed.', 'AbortError');
+          }
           // 登录成功
           set({
             isAuthenticated: true,
@@ -143,7 +147,7 @@ export const useAuthStore = create<AuthStoreState>()(
             localStorage.removeItem('isLoggedIn');
           }
         } catch (error: unknown) {
-          set({ connectionStatus: 'error' });
+          if (revision === apiClient.getConnectionRevision()) set({ connectionStatus: 'error' });
           throw error;
         }
       },
@@ -175,13 +179,14 @@ export const useAuthStore = create<AuthStoreState>()(
           return false;
         }
 
+        apiClient.setConfig({ apiBase, managementKey });
+        const revision = apiClient.getConnectionRevision();
         try {
-          // 重新配置客户端
-          apiClient.setConfig({ apiBase, managementKey });
           set({ supportsPlugin: false });
 
           // 验证连接
           await useConfigStore.getState().fetchConfig();
+          if (revision !== apiClient.getConnectionRevision()) return false;
 
           set({
             isAuthenticated: true,
@@ -190,6 +195,7 @@ export const useAuthStore = create<AuthStoreState>()(
 
           return true;
         } catch {
+          if (revision !== apiClient.getConnectionRevision()) return false;
           set({
             isAuthenticated: false,
             connectionStatus: 'error',

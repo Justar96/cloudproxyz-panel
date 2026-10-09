@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { ConfigSectionProps } from '../../types';
 import { getValidationMessage } from '../blocks/shared';
 import { SectionCard } from '../SectionCard';
-import { FieldGrid, FieldStack } from '../fields/FieldPrimitives';
+import { SettingList } from '../fields/FieldPrimitives';
 import {
   ApiKeysField,
   DebugToggle,
@@ -26,28 +26,27 @@ export function SectionCommon({
 }: ConfigSectionProps) {
   const { t } = useTranslation();
   const portError = getValidationMessage(t, validationErrors?.port);
+  const fieldProps = { values, disabled, onChange };
 
   return (
     <SectionCard
       title={t('config_management.visual.sections.common.title')}
       description={t('config_management.visual.sections.common.description')}
     >
-      <FieldStack>
-        <FieldGrid>
-          <HostField values={values} disabled={disabled} onChange={onChange} />
-          <PortField values={values} disabled={disabled} onChange={onChange} error={portError} />
-          <ProxyUrlField values={values} disabled={disabled} onChange={onChange} />
-        </FieldGrid>
+      <SettingList>
+        <HostField {...fieldProps} />
+        <PortField {...fieldProps} error={portError} />
+        <ProxyUrlField {...fieldProps} wide />
+      </SettingList>
 
-        <ApiKeysField values={values} disabled={disabled} onChange={onChange} />
+      <ApiKeysField {...fieldProps} />
 
-        <FieldGrid>
-          <DebugToggle values={values} disabled={disabled} onChange={onChange} />
-          <LoggingToFileToggle values={values} disabled={disabled} onChange={onChange} />
-          <QuotaSwitchProjectToggle values={values} disabled={disabled} onChange={onChange} />
-          <QuotaSwitchPreviewModelToggle values={values} disabled={disabled} onChange={onChange} />
-        </FieldGrid>
-      </FieldStack>
+      <SettingList>
+        <DebugToggle {...fieldProps} />
+        <LoggingToFileToggle {...fieldProps} />
+        <QuotaSwitchProjectToggle {...fieldProps} />
+        <QuotaSwitchPreviewModelToggle {...fieldProps} />
+      </SettingList>
     </SectionCard>
   );
 }

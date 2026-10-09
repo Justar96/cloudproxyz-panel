@@ -45,6 +45,8 @@
 .content {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  padding-bottom: 16px;
   width: 100%;
   min-width: 0;
   container-type: inline-size;

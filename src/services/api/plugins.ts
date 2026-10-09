@@ -111,6 +111,8 @@ const normalizePluginEntry = (value: unknown): PluginListEntry | null => {
     effectiveEnabled: asBoolean(value.effective_enabled),
     supportsOAuth,
     oauthProvider,
+    supportsQuota: asBoolean(value.supports_quota),
+    quotaProvider: asString(value.quota_provider).trim() || undefined,
     logo: asString(value.logo || metadata?.logo).trim(),
     configFields: configFields.length > 0 ? configFields : (metadata?.configFields ?? []),
     menus: normalizeMenus(value.menus),
@@ -256,8 +258,8 @@ export interface PluginStoreInstallOptions {
 }
 
 export const pluginsApi = {
-  async list(): Promise<PluginListResponse> {
-    const data = await apiClient.get('/plugins');
+  async list(signal?: AbortSignal): Promise<PluginListResponse> {
+    const data = await apiClient.get('/plugins', signal ? { signal } : undefined);
     return normalizePluginList(data);
   },
 

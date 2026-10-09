@@ -21,6 +21,7 @@ class ApiClient {
   private apiBase: string = '';
   private managementKey: string = '';
   private connectionRevision = 0;
+  private requestRevisions = new WeakMap<object, number>();
 
   constructor() {
     this.instance = axios.create({
@@ -116,6 +117,7 @@ class ApiClient {
       (config) => {
         // 设置 baseURL
         config.baseURL = this.apiBase;
+        this.requestRevisions.set(config, this.connectionRevision);
 
         // 添加认证头
         if (this.managementKey) {
@@ -124,12 +126,19 @@ class ApiClient {
 
         return config;
       },
-      (error) => Promise.reject(this.handleError(error))
+      (error) => {
+        throw this.handleError(error);
+      },
+      // Capture the connection at invocation, not in a later microtask after a switch.
+      { synchronous: true }
     );
 
     // 响应拦截器
     this.instance.interceptors.response.use(
       (response) => {
+        if (this.requestRevisions.get(response.config) !== this.connectionRevision) {
+          throw new axios.CanceledError('The management connection changed.');
+        }
         const headers = response.headers as Record<string, string | undefined>;
         const cpaVersion = this.readHeader(headers, CPA_VERSION_HEADER_KEYS);
         const cpaBuildDate = this.readHeader(headers, CPA_BUILD_DATE_HEADER_KEYS);
@@ -155,7 +164,16 @@ class ApiClient {
 
         return response;
       },
-      (error) => Promise.reject(this.handleError(error))
+      (error: unknown) => {
+        if (
+          axios.isAxiosError(error) &&
+          error.config &&
+          this.requestRevisions.get(error.config) !== this.connectionRevision
+        ) {
+          return Promise.reject(new axios.CanceledError('The management connection changed.'));
+        }
+        return Promise.reject(this.handleError(error));
+      }
     );
   }
 

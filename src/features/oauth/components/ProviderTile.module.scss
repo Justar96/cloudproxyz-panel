@@ -1,0 +1,198 @@
+@use '../../../styles/mixins' as *;
+
+/* Provider gallery in the CloudProxyz graphite language. Render settled; status
+   changes use text and a static dot rather than decorative entrance/pulse loops. */
+.tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 80px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  border: 1px solid transparent;
+  transition: border-color var(--dur-hover) var(--ease-out-strong);
+}
+
+.tile[data-status='waiting'] {
+  border-color: var(--border-strong);
+}
+
+.glyph {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.glyphImage {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.main {
+  @include button-reset;
+  display: block;
+  text-align: start;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-xl);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.caption {
+  display: flex;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.captionText,
+.status {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusDot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.tile[data-status='success'] .status {
+  color: var(--status-success-text);
+}
+
+.tile[data-status='error'] .status {
+  color: var(--status-danger-text);
+}
+
+.trail {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.sponsor {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  min-height: 88px;
+
+  .glyph {
+    background: none;
+  }
+
+  .glyphImage {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.sponsorLink {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 12px;
+  line-height: 18px;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+@media (hover: hover) {
+  .tile:hover {
+    border-color: var(--border-strong);
+  }
+
+  .sponsorLink:hover {
+    background: var(--bg-hover);
+  }
+}
+
+@include mobile {
+  .sponsor {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'glyph text trail'
+      'glyph link link';
+
+    .glyph {
+      grid-area: glyph;
+      align-self: start;
+    }
+    .text {
+      grid-area: text;
+    }
+    .trail {
+      grid-area: trail;
+    }
+  }
+
+  .sponsorLink {
+    grid-area: link;
+    justify-self: start;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+}

@@ -17,6 +17,7 @@ import type {
   XaiBillingSummary,
   XaiProductUsageSummary,
 } from '@/types';
+import { isRecord } from '@/utils/helpers';
 import { normalizeNumberValue, normalizeQuotaFraction, normalizeStringValue } from './parsers';
 import { parseOffsetSecondsToMs, resolveResetMs } from './resetInstants';
 
@@ -71,6 +72,7 @@ export function buildAntigravityQuotaGroups(
 
   return groups
     .map((group, groupIndex): AntigravityQuotaGroup | null => {
+      if (!isRecord(group)) return null;
       const label =
         normalizeStringValue(group.displayName ?? group.display_name) ??
         `Quota Group ${groupIndex + 1}`;
@@ -78,6 +80,7 @@ export function buildAntigravityQuotaGroups(
       const buckets = Array.isArray(group.buckets) ? group.buckets : [];
       const parsedBuckets = buckets
         .map((bucket, bucketIndex): AntigravityQuotaBucket | null => {
+          if (!isRecord(bucket)) return null;
           const remainingFraction = normalizeQuotaFraction(
             bucket.remainingFraction ?? bucket.remaining_fraction
           );
@@ -86,8 +89,12 @@ export function buildAntigravityQuotaGroups(
           const window = normalizeStringValue(bucket.window) ?? undefined;
           const rawId =
             normalizeStringValue(bucket.bucketId ?? bucket.bucket_id) ??
-            `${groupId}-${window ?? `bucket-${bucketIndex + 1}`}`;
-          const label = normalizeStringValue(bucket.displayName ?? bucket.display_name) ?? rawId;
+            `${groupId}-${window ?? 'bucket'}-${bucketIndex + 1}`;
+          const label =
+            normalizeStringValue(bucket.displayName ?? bucket.display_name) ??
+            normalizeStringValue(bucket.description) ??
+            window ??
+            rawId;
 
           const resetTime =
             normalizeStringValue(bucket.resetTime ?? bucket.reset_time) ?? undefined;
@@ -458,12 +465,11 @@ export function resolveXaiSubscriptionPlan(
   const label = normalizeStringValue(display) ?? normalizeStringValue(tier);
   if (!label) return null;
   const key = `${display ?? ''} ${tier ?? ''}`.toLowerCase().replace(/[^a-z0-9]+/g, '');
-  const planTier =
-    key.includes('heavy')
-      ? 'elite'
-      : key.includes('supergrok') || key.includes('premium')
-        ? 'premium'
-        : 'standard';
+  const planTier = key.includes('heavy')
+    ? 'elite'
+    : key.includes('supergrok') || key.includes('premium')
+      ? 'premium'
+      : 'standard';
   return { label, tier: planTier };
 }
 

@@ -31,17 +31,6 @@ export const CONFIG_SECTION_IDS = [
 
 export const CONFIG_TAB_IDS: readonly ConfigTabId[] = ['common', ...CONFIG_SECTION_IDS];
 
-/** 分区序号（01–07）。常用 tab 是别名视图，不占序号。 */
-export const SECTION_INDEX_LABELS: Record<VisualSectionId, string> = {
-  connectivity: '01',
-  network: '02',
-  logging: '03',
-  quota: '04',
-  streaming: '05',
-  advanced: '06',
-  payload: '07',
-};
-
 export const CONFIG_TAB_ICONS: Record<ConfigTabId, ComponentType<IconProps>> = {
   common: IconSlidersHorizontal,
   connectivity: IconKey,

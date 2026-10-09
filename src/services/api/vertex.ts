@@ -14,12 +14,16 @@ export interface VertexImportResponse {
 }
 
 export const vertexApi = {
-  importCredential: (file: File, location?: string) => {
+  importCredential: (file: File, location?: string, signal?: AbortSignal) => {
     const formData = new FormData();
     formData.append('file', file);
     if (location) {
       formData.append('location', location);
     }
-    return apiClient.postForm<VertexImportResponse>('/oauth/import?provider=vertex', formData);
+    return apiClient.postForm<VertexImportResponse>(
+      '/oauth/import?provider=vertex',
+      formData,
+      signal ? { signal } : undefined
+    );
   },
 };

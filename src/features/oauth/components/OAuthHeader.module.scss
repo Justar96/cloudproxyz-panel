@@ -1,0 +1,30 @@
+.meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.metaDot {
+  color: var(--text-quaternary);
+  user-select: none;
+}
+
+.metaWaiting {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+}
+
+.pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.metaAdded {
+  color: var(--status-success-text);
+}

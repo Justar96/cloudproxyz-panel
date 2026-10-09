@@ -9,7 +9,6 @@ import { PROVIDER_LOGOS } from '@/features/providers/brandLogos';
 import { normalizeAuthFilesResponse } from '@/services/api/authFiles';
 import type { AuthFileItem, AuthFileType } from '@/types/authFile';
 import { classifyModels } from '@/utils/models';
-import { TYPE_COLORS } from '@/utils/quota/constants';
 
 describe('Devin provider recognition', () => {
   test('registers Devin auth files without enabling manual refresh', () => {
@@ -21,7 +20,7 @@ describe('Devin provider recognition', () => {
     expect(supportsAuthFileManualRefresh('devin')).toBe(false);
   });
 
-  test('provides distinct light and dark logo assets plus quota colors', () => {
+  test('provides distinct light and dark logo assets plus the display label', () => {
     const lightIcon = getAuthFileIcon('devin', 'light');
     const darkIcon = getAuthFileIcon('devin', 'dark');
 
@@ -30,8 +29,6 @@ describe('Devin provider recognition', () => {
     expect(darkIcon).not.toBe(lightIcon);
     expect(PROVIDER_LOGOS.devin.src).toBe(lightIcon);
     expect(PROVIDER_LOGOS.devin.darkSrc).toBe(darkIcon);
-    expect(TYPE_COLORS.devin.light).toBeDefined();
-    expect(TYPE_COLORS.devin.dark).toBeDefined();
     expect(providerLabel('devin', 'Unknown')).toBe('Devin');
   });
 

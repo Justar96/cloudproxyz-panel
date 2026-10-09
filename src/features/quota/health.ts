@@ -2,12 +2,11 @@
  * One-word health for a credential's quota, used by the overview strip, the row
  * badge and the health filter.
  *
- * Reads limits through `buildTimelineLane`, which already normalises the five
- * provider shapes (percent used, fraction remaining, raw counts) into
- * "percent remaining". No new requests: only the quota state already loaded.
+ * Reads remaining capacity independently of reset scheduling: a known exhausted
+ * limit must stay exhausted even if its reset time is missing. No new requests.
  */
 
-import { buildTimelineLane } from './quotaTimelineModel';
+import { isRecord } from '@/utils/helpers';
 import { QUOTA_PROGRESS_MEDIUM_THRESHOLD } from './components/QuotaMeter';
 import type { QuotaProviderType } from './providers/types';
 
@@ -22,6 +21,54 @@ export interface QuotaHealthSummary {
   minRemaining: number | null;
 }
 
+const records = (value: unknown): Record<string, unknown>[] =>
+  Array.isArray(value) ? value.filter(isRecord) : [];
+const finite = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+const remainingFromUsed = (value: unknown) => (finite(value) ? 100 - value : null);
+
+function remainingLimits(provider: QuotaProviderType, quota: Record<string, unknown>): number[] {
+  let values: unknown[];
+  switch (provider) {
+    case 'claude':
+    case 'codex':
+      values = records(quota.windows).map((window) => remainingFromUsed(window.usedPercent));
+      break;
+    case 'devin':
+      values = records(quota.windows).map((window) => window.remainingPercent);
+      break;
+    case 'antigravity':
+    case 'plugin':
+      values = records(quota.groups)
+        .flatMap((group) => records(group.buckets))
+        .map((bucket) =>
+          finite(bucket.remainingFraction) ? bucket.remainingFraction * 100 : null
+        );
+      break;
+    case 'kimi':
+      values = records(quota.rows).map((row) =>
+        finite(row.limit) && row.limit > 0 && finite(row.used)
+          ? ((row.limit - row.used) / row.limit) * 100
+          : null
+      );
+      break;
+    case 'meta':
+      values = records(isRecord(quota.data) ? quota.data.windows : undefined).map((window) =>
+        remainingFromUsed(window.usedPercent)
+      );
+      break;
+    case 'xai':
+      // Product contributions are not independent limits, and monthly spending
+      // is not a rate-limit window. Use only the shared weekly quota.
+      values =
+        isRecord(quota.billing) && quota.billing.periodType === 'weekly'
+          ? [remainingFromUsed(quota.billing.usagePercent)]
+          : [];
+      break;
+  }
+  return values.filter(finite).map((value) => Math.max(0, Math.min(100, value)));
+}
+
 export function resolveQuotaHealth(
   provider: QuotaProviderType,
   quota: { status?: string } | undefined
@@ -32,10 +79,10 @@ export function resolveQuotaHealth(
   if (status === 'error') return { health: 'error', minRemaining: null };
   if (status !== 'success') return { health: 'idle', minRemaining: null };
 
-  const { limits } = buildTimelineLane({ name: '', displayName: '', provider, quota });
+  const limits = remainingLimits(provider, quota);
   if (limits.length === 0) return { health: 'ok', minRemaining: null };
 
-  const minRemaining = Math.min(...limits.map((limit) => limit.remaining));
+  const minRemaining = Math.min(...limits);
   if (minRemaining <= 0) return { health: 'exhausted', minRemaining };
   if (minRemaining < QUOTA_PROGRESS_MEDIUM_THRESHOLD) return { health: 'low', minRemaining };
   return { health: 'ok', minRemaining };

@@ -15,7 +15,7 @@ import { IconRefreshCw } from '@/components/ui/icons';
 import type { ResolvedTheme } from '@/types';
 import { resolveQuotaErrorMessage } from '@/utils/quota';
 import { getQuotaDisplayName } from '@/utils/quota/identity';
-import { getTypeLabel } from '@/features/authFiles/constants';
+import { getAuthFileIcon, getTypeLabel } from '@/features/authFiles/constants';
 import { bindQuotaClasses } from '../types';
 import { getQuotaProviderIcon } from '../providerIcons';
 import { QUOTA_ADAPTERS, type QuotaCardState } from '../providers';
@@ -72,8 +72,15 @@ export function QuotaCard(props: QuotaCardProps) {
     quota,
     onRefresh
   );
-  const iconSrc = getQuotaProviderIcon(entry.type, resolvedTheme);
-  const typeLabel = getTypeLabel(t, entry.type);
+  const providerType =
+    entry.type === 'plugin'
+      ? String(file.quotaProvider ?? file.provider ?? file.type ?? 'plugin')
+      : entry.type;
+  const iconSrc =
+    entry.type === 'plugin'
+      ? getAuthFileIcon(providerType, resolvedTheme)
+      : getQuotaProviderIcon(entry.type, resolvedTheme);
+  const typeLabel = getTypeLabel(t, providerType);
   const errorMessage = resolveQuotaErrorMessage(
     t,
     quota?.errorStatus,

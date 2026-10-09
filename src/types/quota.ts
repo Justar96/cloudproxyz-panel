@@ -3,8 +3,6 @@
  */
 
 // Theme types
-export type ThemeColors = { bg: string; text: string; border?: string };
-export type TypeColorSet = { light: ThemeColors; dark?: ThemeColors };
 export type ResolvedTheme = 'light' | 'dark';
 
 // API payload types
@@ -227,6 +225,20 @@ export interface AntigravityQuotaState {
   serverTimeOffsetMs?: number | null;
   error?: string;
   errorStatus?: number;
+}
+
+/** A provider-defined numeric/currency value rendered above generic quota windows. */
+export interface PluginQuotaMetric {
+  key: string;
+  label: string;
+  value: number;
+  unit?: string;
+  format?: 'number' | 'currency';
+  currency?: string;
+}
+
+export interface PluginQuotaState extends AntigravityQuotaState {
+  summary: PluginQuotaMetric[];
 }
 
 export interface CodexQuotaWindow {

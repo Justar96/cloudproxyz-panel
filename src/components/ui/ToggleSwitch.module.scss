@@ -35,6 +35,10 @@
     box-shadow var(--dur-hover) var(--ease-out-strong);
 }
 
+.disabled .track {
+  opacity: 0.5;
+}
+
 .thumb {
   position: absolute;
   top: 3px;
@@ -66,4 +70,11 @@
   color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .thumb {
+    transition: none;
+  }
 }

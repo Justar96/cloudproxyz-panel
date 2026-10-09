@@ -240,8 +240,9 @@
 .codexResetCreditRow {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: $spacing-sm;
+  gap: 2px $spacing-sm;
   padding: 6px 8px;
   border-radius: var(--radius-sm);
   background-color: var(--bg-tertiary);
@@ -269,8 +270,8 @@
   color: var(--text-primary);
   font-weight: 600;
   text-align: right;
-  overflow-wrap: anywhere;
-  min-width: 0;
+  white-space: nowrap;
+  margin-left: auto;
 }
 
 .codexResetCreditsError {

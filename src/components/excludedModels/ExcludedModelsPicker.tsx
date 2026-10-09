@@ -15,8 +15,6 @@ import {
 } from './excludedModelRules';
 import styles from './ExcludedModelsPicker.module.scss';
 
-export type { ExcludedModelCandidate };
-
 export type ExcludedModelsCatalogState = 'ready' | 'loading' | 'unavailable' | 'error';
 
 /** 派生 chip 的上限——超过这个数就只报总数，否则 chip 行会淹没整个字段。 */

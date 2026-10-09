@@ -13,12 +13,11 @@ import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconKimiLight from '@/assets/icons/kimi-light.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
-import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
+import type { AuthFileItem, ResolvedTheme } from '@/types';
 import { normalizeOAuthProviderKey } from '@/utils/providerKeys';
 import { parseTimestamp } from '@/utils/timestamp';
-import { TYPE_COLORS } from '@/utils/quota';
 
-export type { ResolvedTheme, ThemeColors, TypeColorSet } from '@/types';
+export type { ResolvedTheme } from '@/types';
 export type AuthFileModelItem = {
   id: string;
   display_name?: string;
@@ -28,8 +27,8 @@ export type AuthFileModelItem = {
 export type AuthFileIconAsset = string | { light: string; dark: string };
 
 export type QuotaProviderType =
-  'antigravity' | 'claude' | 'codex' | 'devin' | 'kimi' | 'xai' | 'meta';
-export type AuthFileQuotaFilter = QuotaProviderType | 'all' | null;
+  'antigravity' | 'claude' | 'codex' | 'devin' | 'kimi' | 'meta' | 'plugin' | 'xai';
+export type AuthFileQuotaFilter = string | null;
 export type OAuthConfigLoadError = 'loading' | 'unsupported' | 'load' | null;
 
 export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
@@ -39,6 +38,7 @@ export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
   'codex',
   'devin',
   'kimi',
+  'plugin',
   'xai',
 ]);
 
@@ -72,9 +72,6 @@ export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
   'kimi',
   'xai',
 ]);
-
-// 标签类型颜色配置：权威版本在 @/utils/quota/constants.ts，此处仅转发
-export { TYPE_COLORS } from '@/utils/quota';
 
 export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   antigravity: iconAntigravity,
@@ -155,11 +152,6 @@ export const getTypeLabel = (t: TFunction, type: string): string => {
   if (translated !== key) return translated;
   if (providerKey === 'iflow') return 'iFlow';
   return type.charAt(0).toUpperCase() + type.slice(1);
-};
-
-export const getTypeColor = (type: string, resolvedTheme: ResolvedTheme): ThemeColors => {
-  const set = TYPE_COLORS[normalizeProviderKey(type)] || TYPE_COLORS.unknown;
-  return resolvedTheme === 'dark' && set.dark ? set.dark : set.light;
 };
 
 export const getAuthFileIcon = (type: string, resolvedTheme: ResolvedTheme): string | null => {
