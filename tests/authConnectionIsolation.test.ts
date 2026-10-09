@@ -1,6 +1,11 @@
-import { describe, expect, spyOn, test } from 'bun:test';
+import { afterEach, describe, expect, spyOn, test } from 'bun:test';
 import { apiClient } from '@/services/api/client';
+import { configApi } from '@/services/api/config';
 import { useAuthStore, useConfigStore } from '@/stores';
+
+// Zustand copies actions into new state objects on cache invalidation. Mock the stable
+// API object instead of a state snapshot so restoring the spy cannot leave a copied mock.
+afterEach(() => useConfigStore.getState().clearCache());
 
 const oldCredentials = {
   apiBase: 'https://old.example.test',
@@ -36,7 +41,7 @@ describe('authentication connection revisions', () => {
     const restoreStorage = browserStorage();
     const original = useAuthStore.getState();
     let rejectOld!: (error: Error) => void;
-    const fetch = spyOn(useConfigStore.getState(), 'fetchConfig')
+    const fetch = spyOn(configApi, 'getConfig')
       .mockImplementationOnce(
         () =>
           new Promise((_, reject) => {
@@ -67,7 +72,7 @@ describe('authentication connection revisions', () => {
     const restoreStorage = browserStorage();
     const original = useAuthStore.getState();
     let resolveOld!: (value: object) => void;
-    const fetch = spyOn(useConfigStore.getState(), 'fetchConfig').mockImplementationOnce(
+    const fetch = spyOn(configApi, 'getConfig').mockImplementationOnce(
       () =>
         new Promise((resolve) => {
           resolveOld = resolve;
@@ -96,7 +101,7 @@ describe('authentication connection revisions', () => {
       const restoreStorage = browserStorage();
       const original = useAuthStore.getState();
       let settle!: () => void;
-      const fetch = spyOn(useConfigStore.getState(), 'fetchConfig').mockImplementationOnce(
+      const fetch = spyOn(configApi, 'getConfig').mockImplementationOnce(
         () =>
           new Promise((resolve, reject) => {
             settle = () => (failed ? reject(new Error('Old session')) : resolve({}));

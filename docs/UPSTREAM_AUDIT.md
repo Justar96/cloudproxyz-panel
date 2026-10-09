@@ -156,10 +156,27 @@ was needed for those retries.
 
 Browser calls used deterministic mock responses and synthetic credentials, not a live backend
 or real provider OAuth accounts. Live authentication/import/quota integration remains unverified.
-No push, deployment, real credential mutation, or backend code change was performed.
+No push, deployment, real credential mutation, or backend code change was performed during
+the original local audit. Publishing and the server upgrade were authorized afterward.
 
 Local evidence (not committed): `/tmp/cloudproxyz-audit/` contains final command logs,
 `browser-results.json`, browser drivers and desktop/mobile screenshots. Post-cleanup verification
 is recorded in `verify-cleanup.log`, `browser-cleanup-final.log`, `production-cleanup.log`,
 `knip-cleanup.json`, and the `dependency-audit-*-cleanup.log` files. The original mascot checksum
 was checked again before handoff.
+
+## Post-push CI follow-up
+
+The first GitHub CI run on `08cba1c` exposed an order-dependent test leak: auth isolation tests
+spied on a Zustand state snapshot's `fetchConfig` action, which cache invalidation copied into a
+new state object. Restoring the old snapshot left the copied mock active for later cache tests.
+Mock the stable `configApi.getConfig` boundary instead, and clear the cache after each auth test.
+The same two failures were reproduced locally with the focused suites and `--randomize --seed=3`.
+
+A randomized full-suite run also found a pre-existing markup assertion that compared an English
+apostrophe to its HTML-escaped attribute. Compare the correctly escaped title instead. No
+application behavior or security guard was changed for either test fix.
+
+After the fixes, both `bun run verify` and `bun test --randomize --seed=3` pass all **1,609** tests.
+Logs: `ci-first-push.log`, `ci-order-3.log`, `verify-release.log`, and
+`verify-randomized-final.log` under the local evidence directory.
