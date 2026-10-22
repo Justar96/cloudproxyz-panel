@@ -33,8 +33,16 @@ export interface BuiltInOAuthProviderCard {
   flow: OAuthFlowKind;
   /** 区分同品牌的不同站点，磁贴副行展示。 */
   domain?: string;
-  /** Featured providers in the first row, with registration links (Kimi's two sites). */
-  sponsor?: { signUpUrl: string };
+  /**
+   * Sponsor sites share one brand card in the first row, each with a login entry and a
+   * registration link (currently Kimi China / International). `siteKey` is the short site name.
+   */
+  sponsor?: SponsorSite;
+}
+
+export interface SponsorSite {
+  signUpUrl: string;
+  siteKey: string;
 }
 
 export interface PluginOAuthProviderCard {
@@ -56,7 +64,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     icon: { light: iconKimiTileBlack, dark: iconKimiTileWhite },
     flow: 'device',
     domain: 'kimi.com',
-    sponsor: { signUpUrl: KIMI_CHINESE_AFFILIATE_URL },
+    sponsor: { signUpUrl: KIMI_CHINESE_AFFILIATE_URL, siteKey: 'auth_login.sponsor_site_china' },
   },
   {
     kind: 'builtin',
@@ -66,7 +74,10 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     icon: { light: iconKimiTileBlack, dark: iconKimiTileWhite },
     flow: 'device',
     domain: 'kimi.ai',
-    sponsor: { signUpUrl: KIMI_INTERNATIONAL_AFFILIATE_URL },
+    sponsor: {
+      signUpUrl: KIMI_INTERNATIONAL_AFFILIATE_URL,
+      siteKey: 'auth_login.sponsor_site_international',
+    },
   },
   {
     kind: 'builtin',
@@ -134,7 +145,7 @@ export const supportsManualCallback = (provider: OAuthProviderCard): boolean =>
 
 export const isSponsor = (
   provider: OAuthProviderCard
-): provider is BuiltInOAuthProviderCard & { sponsor: { signUpUrl: string } } =>
+): provider is BuiltInOAuthProviderCard & { sponsor: SponsorSite } =>
   provider.kind === 'builtin' && Boolean(provider.sponsor);
 
 export const resolveThemedIcon = (icon: ThemedIcon, theme: 'light' | 'dark'): string =>

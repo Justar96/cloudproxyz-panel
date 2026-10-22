@@ -7,7 +7,6 @@ import {
   IconScrollText,
   IconShield,
   IconSlidersHorizontal,
-  IconTimer,
   type IconProps,
 } from '@/components/ui/icons';
 import type { VisualConfigFieldPath } from '@/types/visualConfig';
@@ -16,14 +15,13 @@ import type { VisualSectionId } from './searchIndex';
 /** 编辑模式：可视化表单 or YAML 源码。 */
 export type ConfigEditorMode = 'visual' | 'source';
 
-/** 顶部 tabs：'common'（常用，原简单模式的继任者）+ 7 个正典分区。 */
+/** 顶部 tabs：'common'（常用，原简单模式的继任者）+ 6 个正典分区。 */
 export type ConfigTabId = 'common' | VisualSectionId;
 
 export const CONFIG_SECTION_IDS = [
   'connectivity',
   'network',
   'logging',
-  'quota',
   'streaming',
   'advanced',
   'payload',
@@ -36,13 +34,12 @@ export const CONFIG_TAB_ICONS: Record<ConfigTabId, ComponentType<IconProps>> = {
   connectivity: IconKey,
   network: IconNetwork,
   logging: IconScrollText,
-  quota: IconTimer,
   streaming: IconSatellite,
   advanced: IconShield,
   payload: IconCode,
 };
 
-/** 常用 tab 的 8 个字段（原简单模式），渲染源与正典分区共享（fields/sharedFields.tsx）。 */
+/** 常用 tab 的 6 个字段（原简单模式），渲染源与正典分区共享（fields/sharedFields.tsx）。 */
 export const COMMON_FIELD_IDS = [
   'host',
   'port',
@@ -50,8 +47,6 @@ export const COMMON_FIELD_IDS = [
   'proxyUrl',
   'debug',
   'loggingToFile',
-  'quotaSwitchProject',
-  'quotaSwitchPreviewModel',
 ] as const;
 
 /**
@@ -70,7 +65,6 @@ export const SECTION_VALIDATION_FIELDS: Record<VisualSectionId, readonly VisualC
       'videoResultAuthCacheTTL',
     ],
     logging: ['errorLogsMaxFiles', 'logsMaxTotalSizeMb', 'redisUsageQueueRetentionSeconds'],
-    quota: [],
     streaming: [
       'streaming.keepaliveSeconds',
       'streaming.bootstrapRetries',
@@ -169,15 +163,12 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   errorLogsMaxFiles: ['errorLogsMaxFiles'],
   redisUsageQueueRetentionSeconds: ['redisUsageQueueRetentionSeconds'],
   usageStatisticsEnabled: ['usageStatisticsEnabled'],
-  // ── quota ─────────────────────────────────────────────────────────────────
-  quotaSwitchProject: ['quotaSwitchProject'],
-  quotaSwitchPreviewModel: ['quotaSwitchPreviewModel'],
-  quotaAntigravityCredits: ['quotaAntigravityCredits'],
   // ── streaming ─────────────────────────────────────────────────────────────
   streamingKeepaliveSeconds: ['streaming.keepaliveSeconds'],
   streamingBootstrapRetries: ['streaming.bootstrapRetries'],
   streamingNonstreamKeepalive: ['streaming.nonstreamKeepaliveInterval'],
   // ── advanced ──────────────────────────────────────────────────────────────
+  quotaAntigravityCredits: ['quotaAntigravityCredits'],
   pluginsEnabled: ['pluginsEnabled'],
   pluginStoreSources: ['pluginStoreSources'],
   pluginStoreAuth: ['pluginStoreAuth'],

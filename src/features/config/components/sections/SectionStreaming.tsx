@@ -4,7 +4,7 @@ import { SectionCard } from '../SectionCard';
 import { SettingList, TextSetting } from '../fields/FieldPrimitives';
 import { getValidationMessage } from '../blocks/shared';
 
-/** 05 流式传输：keepalive 与 bootstrap 重试；nonstream-keepalive-interval 是顶层 YAML 键。 */
+/** 04 流式传输：keepalive 与 bootstrap 重试；nonstream-keepalive-interval 是顶层 YAML 键。 */
 export function SectionStreaming({
   values,
   validationErrors,

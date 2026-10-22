@@ -8,6 +8,7 @@ import {
   normalizePluginQuota,
   pluginQuotaApi,
   PluginQuotaUnavailableError,
+  resetPluginQuotaRouteCache,
 } from '@/services/api/pluginQuota';
 import { vertexApi } from '@/services/api/vertex';
 import {
@@ -57,6 +58,7 @@ describe('upstream v8 plugin quota integration', () => {
   });
 
   test('uses the declared plugin ID, encoded as one v8 route segment', async () => {
+    resetPluginQuotaRouteCache();
     const list = spyOn(pluginsApi, 'list').mockResolvedValue({
       pluginsEnabled: true,
       pluginsDir: '',
@@ -64,37 +66,51 @@ describe('upstream v8 plugin quota integration', () => {
     });
     const post = spyOn(apiClient, 'post').mockResolvedValue({ summary: [] });
     try {
-      await pluginQuotaApi.fetch('7', 'KIRO');
-      expect(post.mock.calls).toEqual([['/plugins/vendor%2Fplugin/quota', { auth_index: '7' }]]);
+      await pluginQuotaApi.fetch('7', { provider: 'KIRO' });
+      await pluginQuotaApi.fetch('8', { pluginId: 'backend/selected', provider: 'kiro' });
+      expect(post.mock.calls).toEqual([
+        ['/plugins/vendor%2Fplugin/quota', { auth_index: '7' }],
+        ['/plugins/backend%2Fselected/quota', { auth_index: '8' }],
+      ]);
+      // The backend-selected plugin ID is authoritative: no plugin-list lookup.
+      expect(list).toHaveBeenCalledTimes(1);
     } finally {
       list.mockRestore();
       post.mockRestore();
+      resetPluginQuotaRouteCache();
     }
   });
 
-  test('does not guess a route for absent, disabled, or unrelated plugins', async () => {
+  test('does not guess a route for absent, unregistered, or non-quota plugins', async () => {
     const list = spyOn(pluginsApi, 'list');
     const post = spyOn(apiClient, 'post');
     try {
       for (const plugins of [
         [],
-        [{ ...plugin, effectiveEnabled: false }],
+        [{ ...plugin, registered: false }],
         [{ ...plugin, supportsQuota: false }],
-        [{ ...plugin, quotaProvider: 'other' }],
       ]) {
+        resetPluginQuotaRouteCache();
         list.mockResolvedValue({ pluginsEnabled: true, pluginsDir: '', plugins });
-        await expect(pluginQuotaApi.fetch('7', 'kiro')).rejects.toBeInstanceOf(
-          PluginQuotaUnavailableError
-        );
+        await expect(pluginQuotaApi.fetch('7', { provider: 'kiro' })).rejects.toMatchObject({
+          name: 'PluginQuotaUnavailableError',
+          reason: 'plugin_not_found',
+          provider: 'kiro',
+        });
       }
+      await expect(pluginQuotaApi.fetch('7', {})).rejects.toBeInstanceOf(
+        PluginQuotaUnavailableError
+      );
       expect(post).not.toHaveBeenCalled();
     } finally {
       list.mockRestore();
       post.mockRestore();
+      resetPluginQuotaRouteCache();
     }
   });
 
   test('never sends the dependent quota request through a changed connection', async () => {
+    resetPluginQuotaRouteCache();
     const revision = apiClient.getConnectionRevision();
     const getRevision = spyOn(apiClient, 'getConnectionRevision').mockReturnValue(revision);
     const list = spyOn(pluginsApi, 'list').mockImplementation(async () => {
@@ -103,12 +119,16 @@ describe('upstream v8 plugin quota integration', () => {
     });
     const post = spyOn(apiClient, 'post');
     try {
-      await expect(pluginQuotaApi.fetch('7', 'kiro')).rejects.toHaveProperty('name', 'AbortError');
+      await expect(pluginQuotaApi.fetch('7', { provider: 'kiro' })).rejects.toHaveProperty(
+        'name',
+        'AbortError'
+      );
       expect(post).not.toHaveBeenCalled();
     } finally {
       list.mockRestore();
       post.mockRestore();
       getRevision.mockRestore();
+      resetPluginQuotaRouteCache();
     }
   });
 

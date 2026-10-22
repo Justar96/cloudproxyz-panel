@@ -101,6 +101,7 @@ const normalizePluginEntry = (value: unknown): PluginListEntry | null => {
   const configFields = normalizeConfigFields(value.config_fields);
   const supportsOAuth = asBoolean(value.supports_oauth);
   const oauthProvider = normalizePluginOAuthProvider(value.oauth_provider);
+  const quotaProvider = asString(value.quota_provider).trim().toLowerCase();
 
   return {
     id,
@@ -112,7 +113,7 @@ const normalizePluginEntry = (value: unknown): PluginListEntry | null => {
     supportsOAuth,
     oauthProvider,
     supportsQuota: asBoolean(value.supports_quota),
-    quotaProvider: asString(value.quota_provider).trim() || undefined,
+    ...(quotaProvider ? { quotaProvider } : {}),
     logo: asString(value.logo || metadata?.logo).trim(),
     configFields: configFields.length > 0 ? configFields : (metadata?.configFields ?? []),
     menus: normalizeMenus(value.menus),

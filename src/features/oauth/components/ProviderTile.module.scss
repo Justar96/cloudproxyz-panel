@@ -118,76 +118,9 @@
   color: var(--text-secondary);
 }
 
-.sponsor {
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  min-height: 88px;
-
-  .glyph {
-    background: none;
-  }
-
-  .glyphImage {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-.sponsorLink {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  font-size: 12px;
-  line-height: 18px;
-  text-decoration: none;
-  overflow-wrap: anywhere;
-
-  &:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: 2px;
-  }
-}
-
 @media (hover: hover) {
   .tile:hover {
     border-color: var(--border-strong);
-  }
-
-  .sponsorLink:hover {
-    background: var(--bg-hover);
-  }
-}
-
-@include mobile {
-  .sponsor {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      'glyph text trail'
-      'glyph link link';
-
-    .glyph {
-      grid-area: glyph;
-      align-self: start;
-    }
-    .text {
-      grid-area: text;
-    }
-    .trail {
-      grid-area: trail;
-    }
-  }
-
-  .sponsorLink {
-    grid-area: link;
-    justify-self: start;
-    min-height: 44px;
   }
 }
 

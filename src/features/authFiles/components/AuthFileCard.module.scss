@@ -386,6 +386,23 @@
   color: var(--text-secondary);
 }
 
+/* ---------- SIWC: status pill and expiry, in the metadata row's mono type ---------- */
+
+.siwcRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.siwcExpires {
+  font-family: $font-mono;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
 /* ---------- Footer actions ---------- */
 
 .actions {

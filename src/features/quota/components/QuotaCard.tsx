@@ -7,12 +7,13 @@
  * - loading：双幽灵行骨架（aria-busy，文字等价视觉隐藏）；
  * - error：失败说明 + 就地「重试」；
  * - success：provider Body（穿 QuotaBody.module.scss 全页外衣）。
+ * Claude observations stay visible while refreshing or after a failed read.
  */
 
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { IconRefreshCw } from '@/components/ui/icons';
-import type { ResolvedTheme } from '@/types';
+import type { ClaudeQuotaState, ResolvedTheme } from '@/types';
 import { resolveQuotaErrorMessage } from '@/utils/quota';
 import { getQuotaDisplayName } from '@/utils/quota/identity';
 import { getAuthFileIcon, getTypeLabel } from '@/features/authFiles/constants';
@@ -23,6 +24,7 @@ import { isQuotaRefreshDisabled, type QuotaFileEntry } from '../logic';
 import type { QuotaHealth } from '../health';
 import { useClaudeResetGrants } from '../providers/claude/ClaudeResetGrants';
 import { ClaudeResetGrantDetails } from '../providers/claude/ClaudeResetGrantDetails';
+import { hasClaudeUsageData } from '../providers/claude/data';
 import bodyStyles from './QuotaBody.module.scss';
 import styles from './QuotaCard.module.scss';
 
@@ -65,6 +67,8 @@ export function QuotaCard(props: QuotaCardProps) {
 
   const status = quota?.status ?? 'idle';
   const loading = status === 'loading';
+  const retainedClaudeUsage =
+    entry.type === 'claude' && hasClaudeUsageData(quota as ClaudeQuotaState | undefined);
   const claudeReset = useClaudeResetGrants(
     file,
     entry.type === 'claude' && status !== 'idle',
@@ -166,7 +170,11 @@ export function QuotaCard(props: QuotaCardProps) {
           </div>
 
           <div className={styles.body}>
-            {loading ? (
+            {loading && retainedClaudeUsage ? (
+              <p role="status" aria-busy="true" className={quotaClasses.quotaMessage}>
+                {t(`${adapter.i18nPrefix}.loading`)}
+              </p>
+            ) : loading ? (
               <div className={styles.skeleton} aria-busy="true">
                 <span className={styles.srOnly}>{t(`${adapter.i18nPrefix}.loading`)}</span>
                 {[0, 1].map((row) => (
@@ -190,9 +198,10 @@ export function QuotaCard(props: QuotaCardProps) {
                   {t('quota_management.retry')}
                 </Button>
               </div>
-            ) : quota ? (
-              <adapter.Body quota={quota} classes={quotaClasses} />
             ) : null}
+            {quota && (status === 'success' || retainedClaudeUsage) && (
+              <adapter.Body quota={quota} classes={quotaClasses} />
+            )}
             {entry.type === 'claude' && status === 'success' && (
               <>
                 <ClaudeResetGrantDetails grants={claudeReset.grants} classes={quotaClasses} />

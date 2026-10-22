@@ -15,7 +15,7 @@ import {
 import { ProviderStatusBar } from '@/components/providers/ProviderStatusBar';
 import type { AuthFileItem } from '@/types';
 import { statusBarDataFromRecentRequests } from '@/utils/recentRequests';
-import { formatFileSize } from '@/utils/format';
+import { formatDateTimeValue, formatFileSize } from '@/utils/format';
 import {
   formatModified,
   getAuthFileStatusMessage,
@@ -32,6 +32,8 @@ import { resolveAuthFileQuotaType } from '@/features/authFiles/logic';
 import type { AuthFileStatusBarData } from '@/features/authFiles/hooks/useAuthFilesStatusBarCache';
 import { AuthFileQuotaSection } from '@/features/authFiles/components/AuthFileQuotaSection';
 import { AuthFileCooldownSection } from './AuthFileCooldownSection';
+import { getSiwcBindingStatus, supportsSiwcBinding } from '@/features/oauth/siwcBinding';
+import { SiwcStatusBadge } from '@/features/oauth/components/SiwcStatusBadge';
 import styles from './AuthFileCard.module.scss';
 
 type HealthTone = 'success' | 'neutral' | 'attention' | 'danger';
@@ -66,7 +68,7 @@ export type AuthFileCardProps = {
 };
 
 export function AuthFileCard(props: AuthFileCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     file,
     compact,
@@ -129,8 +131,11 @@ export function AuthFileCard(props: AuthFileCardProps) {
   const priorityValue = Number.isSafeInteger(file.priority) ? file.priority : undefined;
   const weightValue = Number.isSafeInteger(file.weight) ? file.weight : undefined;
   const noteValue = typeof file.note === 'string' ? file.note.trim() : '';
-  // 主行显示账号（email/项目 ID），文件名降为满卡宽的 mono 副行
+  // Lead with account identity and use the file name as secondary text.
   const identity = deriveAuthFileIdentity(file);
+  const siwcExpires = file.siwcExpiresAt
+    ? formatDateTimeValue(file.siwcExpiresAt, i18n.language)
+    : '';
 
   const cardClasses = [
     styles.card,
@@ -255,6 +260,17 @@ export function AuthFileCard(props: AuthFileCardProps) {
           </>
         )}
       </div>
+
+      {supportsSiwcBinding(file) && (
+        <div className={styles.siwcRow}>
+          <SiwcStatusBadge status={getSiwcBindingStatus(file)} />
+          {siwcExpires && (
+            <span className={styles.siwcExpires} title={file.siwcExpiresAt}>
+              {t('siwc.expires', { date: siwcExpires })}
+            </span>
+          )}
+        </div>
+      )}
 
       {showQuotaLayout && quotaType && (
         <AuthFileQuotaSection file={file} quotaType={quotaType} disableControls={disableControls} />

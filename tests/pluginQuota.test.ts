@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, spyOn, test } from 'bun:test';
+import type { Mock } from 'bun:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import i18n from '@/i18n';
@@ -8,13 +9,45 @@ import { classifyQuotaFiles, resolveQuotaProviderType } from '@/features/quota/l
 import { QUOTA_ADAPTERS } from '@/features/quota/providers';
 import { PluginQuotaBody } from '@/features/quota/providers/plugin/PluginQuotaBody';
 import { QUOTA_CLASS_KEYS, bindQuotaClasses } from '@/features/quota/types';
-import type { PluginQuotaState } from '@/types';
+import type { PluginListEntry, PluginListResponse, PluginQuotaState } from '@/types';
+import { pluginsApi } from '@/services/api/plugins';
 import { getQuotaCacheKey } from '@/utils/quota/identity';
 import { apiClient } from '@/services/api/client';
-import { buildAntigravityQuotaGroups, isPluginQuotaFile } from '@/utils/quota';
+import {
+  BUILT_IN_QUOTA_PROVIDERS,
+  buildAntigravityQuotaGroups,
+  isPluginQuotaFile,
+} from '@/utils/quota';
+import { QUOTA_TAB_ORDER } from '@/features/quota/constants';
 import { fetchPluginQuota } from '@/features/quota/providers/plugin/data';
-import { normalizePluginQuotaSummary } from '@/services/api/pluginQuota';
-import { pluginsApi } from '@/services/api/plugins';
+import {
+  normalizePluginQuotaSummary,
+  resetPluginQuotaRouteCache,
+  resolveQuotaPluginId,
+} from '@/services/api/pluginQuota';
+
+const quotaPlugin = (overrides: Partial<PluginListEntry> = {}): PluginListEntry => ({
+  id: 'kiro-quota',
+  path: '/plugins/kiro-quota',
+  configured: true,
+  registered: true,
+  enabled: true,
+  effectiveEnabled: true,
+  supportsOAuth: false,
+  supportsQuota: true,
+  quotaProvider: 'kiro',
+  logo: '',
+  configFields: [],
+  menus: [],
+  metadata: null,
+  ...overrides,
+});
+
+const pluginList = (plugins: PluginListEntry[]): PluginListResponse => ({
+  pluginsEnabled: true,
+  pluginsDir: 'plugins',
+  plugins,
+});
 
 const classes = bindQuotaClasses(
   Object.fromEntries(QUOTA_CLASS_KEYS.map((key) => [key, key])),
@@ -24,72 +57,169 @@ const renderQuota = (quota: PluginQuotaState) =>
   renderToStaticMarkup(createElement(PluginQuotaBody, { quota, classes }));
 
 describe('generic plugin quota', () => {
-  let list: ReturnType<typeof spyOn<typeof pluginsApi, 'list'>>;
+  let list: Mock<typeof pluginsApi.list>;
   beforeEach(() => {
-    list = spyOn(pluginsApi, 'list').mockResolvedValue({
-      pluginsEnabled: true,
-      pluginsDir: 'plugins',
-      plugins: ['claude', 'codex', 'antigravity', 'devin', 'kimi', 'meta', 'xai', 'kiro'].map(
-        (provider) => ({
-          id: `${provider}-plugin`,
-          path: '',
-          configured: true,
-          registered: true,
-          enabled: true,
-          effectiveEnabled: true,
-          supportsOAuth: false,
-          supportsQuota: true,
-          quotaProvider: provider,
-          logo: '',
-          configFields: [],
-          menus: [],
-          metadata: null,
-        })
-      ),
-    });
+    resetPluginQuotaRouteCache();
+    list = spyOn(pluginsApi, 'list').mockResolvedValue(pluginList([quotaPlugin()]));
   });
-  afterEach(() => list.mockRestore());
-  test('routes advertised backend quotas ahead of built-ins on both pages', async () => {
+  afterEach(() => {
+    list.mockRestore();
+    resetPluginQuotaRouteCache();
+  });
+
+  test('keeps built-in quota cards when a plugin also advertises quota', () => {
+    const builtIns = QUOTA_TAB_ORDER.filter((type) => type !== 'plugin');
+    expect([...BUILT_IN_QUOTA_PROVIDERS].sort()).toEqual([...builtIns].sort());
+    for (const type of builtIns) {
+      for (const capability of [
+        { quota_probe: { url: 'https://quota.example.test/usage' } },
+        { quota_provider: type },
+        {},
+      ]) {
+        const raw = {
+          name: `${type}.json`,
+          type,
+          supports_quota: true,
+          auth_index: '7',
+          ...capability,
+        };
+        const file = normalizeAuthFilesResponse({ files: [raw] }).files[0];
+        for (const candidate of [raw, file]) {
+          expect(isPluginQuotaFile(candidate)).toBe(false);
+          expect(resolveQuotaProviderType(candidate)).toBe(type);
+          expect(resolveAuthFileQuotaType(candidate, 'all')).toBe(type);
+          expect(resolveAuthFileQuotaType(candidate, type)).toBe(type);
+          expect(resolveAuthFileQuotaType(candidate, 'plugin')).toBeNull();
+        }
+        expect(getQuotaCacheKey(file)).toBe(
+          type === 'devin' ? `${type}.json${String.fromCharCode(0)}7` : `${type}.json`
+        );
+        expect(classifyQuotaFiles([file]).map((entry) => entry.type)).toEqual([type]);
+      }
+    }
+  });
+
+  test('routes advertised quotas for providers without a built-in card', async () => {
     const post = spyOn(apiClient, 'post').mockResolvedValue({});
     try {
-      for (const type of ['claude', 'codex', 'antigravity', 'devin', 'kimi', 'meta', 'xai']) {
-        for (const capability of [
-          { quota_probe: { url: 'https://quota.example.test/usage' } },
-          { quota_provider: type },
-        ]) {
-          const raw = {
-            name: `${type}.json`,
-            type,
-            supports_quota: true,
-            auth_index: '7',
-            ...capability,
-          };
-          const file = normalizeAuthFilesResponse({ files: [raw] }).files[0];
-          for (const candidate of [raw, file]) {
-            expect(resolveQuotaProviderType(candidate)).toBe('plugin');
-            expect(resolveAuthFileQuotaType(candidate, 'all')).toBe('plugin');
-            expect(resolveAuthFileQuotaType(candidate, type)).toBe('plugin');
-            expect(resolveAuthFileQuotaType(candidate, 'plugin')).toBe('plugin');
-            expect(resolveAuthFileQuotaType(candidate, 'unrelated')).toBeNull();
-            expect(resolveAuthFileQuotaType(candidate, null)).toBeNull();
-            expect(classifyQuotaFiles([{ ...candidate, disabled: true }])).toEqual([]);
-          }
-          const [entry] = classifyQuotaFiles([file]);
-          await QUOTA_ADAPTERS[entry.type].fetchQuota(file, i18n.t);
-          expect(post.mock.calls.at(-1)).toEqual([
-            `/plugins/${type}-plugin/quota`,
-            { auth_index: '7' },
-          ]);
+      for (const capability of [
+        { quota_probe: { url: 'https://quota.example.test/usage' } },
+        { quota_provider: 'kiro' },
+      ]) {
+        post.mockClear();
+        const raw = {
+          name: 'kiro.json',
+          type: 'kiro',
+          supports_quota: true,
+          auth_index: '7',
+          ...capability,
+        };
+        const file = normalizeAuthFilesResponse({ files: [raw] }).files[0];
+        for (const candidate of [raw, file]) {
+          expect(resolveQuotaProviderType(candidate)).toBe('plugin');
+          expect(resolveAuthFileQuotaType(candidate, 'all')).toBe('plugin');
+          expect(resolveAuthFileQuotaType(candidate, 'kiro')).toBe('plugin');
+          expect(resolveAuthFileQuotaType(candidate, 'plugin')).toBe('plugin');
+          expect(resolveAuthFileQuotaType(candidate, 'unrelated')).toBeNull();
+          expect(resolveAuthFileQuotaType(candidate, null)).toBeNull();
+          expect(classifyQuotaFiles([{ ...candidate, disabled: true }])).toEqual([]);
         }
-        for (const supportsQuota of [undefined, false]) {
-          const file = { name: `${type}.json`, type, supportsQuota };
-          expect(resolveQuotaProviderType(file)).toBe(type);
-          expect(resolveAuthFileQuotaType(file, 'all')).toBe(type);
+        const [entry] = classifyQuotaFiles([file]);
+        const fetched = QUOTA_ADAPTERS[entry.type].fetchQuota(file, i18n.t);
+        if (capability.quota_provider) {
+          await fetched;
+          expect(post.mock.calls).toEqual([['/plugins/kiro-quota/quota', { auth_index: '7' }]]);
+        } else {
+          await expect(fetched).rejects.toThrow(i18n.t('plugin_quota.probe_unsupported'));
+          expect(post).not.toHaveBeenCalled();
         }
+      }
+      for (const supportsQuota of [undefined, false]) {
+        const file = { name: 'kiro.json', type: 'kiro', supportsQuota };
+        expect(resolveQuotaProviderType(file)).toBeNull();
+        expect(resolveAuthFileQuotaType(file, 'all')).toBeNull();
       }
     } finally {
       post.mockRestore();
     }
+  });
+
+  test('normalizes the backend-selected quota plugin ID without changing its case', () => {
+    for (const fields of [
+      { quota_plugin_id: ' Healthy-Quota ' },
+      { quotaPluginId: ' Healthy-Quota ' },
+      { quota_plugin_id: ' Healthy-Quota ', quotaPluginId: 'wrong' },
+    ]) {
+      const [file] = normalizeAuthFilesResponse({
+        files: [{ name: 'foo.json', ...fields }],
+      }).files;
+      expect(file.quotaPluginId).toBe('Healthy-Quota');
+    }
+    for (const value of [undefined, null, '', '  ', 42, {}]) {
+      const [file] = normalizeAuthFilesResponse({
+        files: [{ name: 'foo.json', quota_plugin_id: value }],
+      }).files;
+      expect(file.quotaPluginId).toBeUndefined();
+    }
+  });
+
+  test('uses the host-selected plugin without discovery or a provider match', async () => {
+    const post = spyOn(apiClient, 'post').mockResolvedValue({});
+    list.mockRejectedValue(new Error('plugin discovery unavailable'));
+    try {
+      for (const quotaProvider of ['kiro', 'multi-provider-alias', undefined]) {
+        const [file] = normalizeAuthFilesResponse({
+          files: [
+            {
+              name: 'foo.json',
+              type: 'foo',
+              auth_index: '7',
+              supports_quota: true,
+              quota_provider: quotaProvider,
+              quota_plugin_id: 'Healthy/Quota',
+            },
+          ],
+        }).files;
+        expect(resolveQuotaProviderType(file)).toBe('plugin');
+        await fetchPluginQuota(file, i18n.t);
+      }
+      expect(list).not.toHaveBeenCalled();
+      expect(post.mock.calls).toEqual(
+        Array(3).fill(['/plugins/Healthy%2FQuota/quota', { auth_index: '7' }])
+      );
+    } finally {
+      post.mockRestore();
+    }
+  });
+
+  test('does not substitute another plugin when the selected plugin fails', async () => {
+    const post = spyOn(apiClient, 'post').mockRejectedValue(new Error('plugin unavailable'));
+    try {
+      await expect(
+        fetchPluginQuota(
+          {
+            name: 'foo.json',
+            authIndex: '7',
+            quotaProvider: 'kiro',
+            quotaPluginId: 'selected',
+          },
+          i18n.t
+        )
+      ).rejects.toThrow('plugin unavailable');
+      expect(post).toHaveBeenCalledTimes(1);
+      expect(list).not.toHaveBeenCalled();
+    } finally {
+      post.mockRestore();
+    }
+  });
+
+  test('does not advertise probe-only credentials from the new v8 response', () => {
+    const [file] = normalizeAuthFilesResponse({
+      files: [{ name: 'probe.json', type: 'custom', auth_index: '7' }],
+    }).files;
+    expect(isPluginQuotaFile(file)).toBe(false);
+    expect(classifyQuotaFiles([file])).toEqual([]);
+    expect(resolveAuthFileQuotaType(file, 'all')).toBeNull();
   });
 
   test('renders an empty state only without usable summary, subscription or buckets', async () => {
@@ -226,14 +356,97 @@ describe('generic plugin quota', () => {
     ]);
   });
 
-  test('reports unsupported probe-only quotas without calling nonexistent or legacy routes', async () => {
+  test('reports probe-only quotas as unsupported without calling removed v0 routes', async () => {
     const post = spyOn(apiClient, 'post').mockResolvedValue({});
     try {
       await expect(
         fetchPluginQuota({ name: 'kiro-a.json', supportsQuota: true, authIndex: '7' }, i18n.t)
-      ).rejects.toThrow(i18n.t('plugin_quota.unavailable'));
+      ).rejects.toThrow(i18n.t('plugin_quota.probe_unsupported'));
       expect(post).not.toHaveBeenCalled();
       expect(list).not.toHaveBeenCalled();
+    } finally {
+      post.mockRestore();
+    }
+  });
+
+  test('resolves the quota plugin like the backend first pass, then a sole provider', () => {
+    const plugins = [
+      quotaPlugin({ id: 'unregistered', quotaProvider: 'kiro', registered: false }),
+      quotaPlugin({ id: 'oauth-match', quotaProvider: 'other', oauthProvider: 'kiro' }),
+      quotaPlugin({ id: 'kiro', quotaProvider: 'other-2' }),
+      quotaPlugin({ id: 'quota-match', quotaProvider: 'kiro' }),
+      quotaPlugin({ id: 'no-quota', quotaProvider: 'kiro', supportsQuota: false }),
+    ];
+    expect(resolveQuotaPluginId(plugins, ' Kiro ')).toBe('quota-match');
+    expect(resolveQuotaPluginId(plugins.slice(0, 3), 'kiro')).toBe('kiro');
+    expect(resolveQuotaPluginId(plugins.slice(0, 2), 'kiro')).toBe('oauth-match');
+    expect(resolveQuotaPluginId(plugins, 'unknown')).toBeNull();
+    expect(resolveQuotaPluginId([quotaPlugin({ id: 'only', quotaProvider: 'x' })], 'y')).toBe(
+      'only'
+    );
+    expect(resolveQuotaPluginId(plugins, '')).toBeNull();
+  });
+
+  test('shares the plugin list across credentials and reports a missing plugin', async () => {
+    const post = spyOn(apiClient, 'post').mockResolvedValue({});
+    try {
+      await Promise.all(
+        ['1', '2', '3'].map((authIndex) =>
+          fetchPluginQuota(
+            { name: `kiro-${authIndex}.json`, authIndex, quotaProvider: 'kiro' },
+            i18n.t
+          )
+        )
+      );
+      expect(list).toHaveBeenCalledTimes(1);
+      expect(post.mock.calls.map((call) => call[0])).toEqual(
+        Array(3).fill('/plugins/kiro-quota/quota')
+      );
+
+      resetPluginQuotaRouteCache();
+      list.mockResolvedValue(
+        pluginList([quotaPlugin({ id: 'a', quotaProvider: 'a' }), quotaPlugin({ id: 'b' })])
+      );
+      post.mockClear();
+      await expect(
+        fetchPluginQuota({ name: 'z.json', authIndex: '9', quotaProvider: 'zed' }, i18n.t)
+      ).rejects.toThrow(i18n.t('plugin_quota.plugin_not_found', { provider: 'zed' }));
+      expect(post).not.toHaveBeenCalled();
+    } finally {
+      post.mockRestore();
+    }
+  });
+
+  test('normalizes plugin quota capabilities from the plugin list', async () => {
+    list.mockRestore();
+    const get = spyOn(apiClient, 'get').mockResolvedValue({
+      plugins: [
+        { id: 'a', registered: true, supports_quota: true, quota_provider: ' Kiro ' },
+        { id: 'b', registered: true },
+      ],
+    });
+    try {
+      const { plugins } = await pluginsApi.list();
+      expect(
+        plugins.map(({ supportsQuota, quotaProvider }) => ({ supportsQuota, quotaProvider }))
+      ).toEqual([
+        { supportsQuota: true, quotaProvider: 'kiro' },
+        { supportsQuota: false, quotaProvider: undefined },
+      ]);
+    } finally {
+      get.mockRestore();
+    }
+  });
+
+  test('drops a failed plugin list so the next refresh retries', async () => {
+    const post = spyOn(apiClient, 'post').mockResolvedValue({});
+    try {
+      list.mockRejectedValueOnce(new Error('offline'));
+      const file = { name: 'kiro.json', authIndex: '7', quotaProvider: 'kiro' };
+      await expect(fetchPluginQuota(file, i18n.t)).rejects.toThrow('offline');
+      await fetchPluginQuota(file, i18n.t);
+      expect(list).toHaveBeenCalledTimes(2);
+      expect(post).toHaveBeenCalledTimes(1);
     } finally {
       post.mockRestore();
     }

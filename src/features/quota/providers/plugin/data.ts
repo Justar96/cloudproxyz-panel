@@ -15,14 +15,18 @@ export const fetchPluginQuota = async (
 ): Promise<PluginQuotaData> => {
   const authIndex = normalizeAuthIndex(file.authIndex ?? file['auth_index']);
   if (!authIndex) throw new Error(t('plugin_quota.missing_auth_index'));
-  const provider = String(
-    file.quotaProvider ?? file['quota_provider'] ?? file.provider ?? file.type ?? ''
-  ).trim();
+  // New v8 credentials carry the host's authoritative selection, including multi-provider
+  // plugins and healthy alternatives. Do not re-resolve it against a stale plugin list.
+  const pluginId = String(file.quotaPluginId ?? file['quota_plugin_id'] ?? '').trim();
+  const provider = String(file.quotaProvider ?? file['quota_provider'] ?? '').trim();
   try {
-    return await pluginQuotaApi.fetch(authIndex, provider);
+    return await pluginQuotaApi.fetch(authIndex, { pluginId, provider });
   } catch (error) {
     if (error instanceof PluginQuotaUnavailableError) {
-      error.message = t('plugin_quota.unavailable');
+      error.message =
+        error.reason === 'probe_unsupported'
+          ? t('plugin_quota.probe_unsupported')
+          : t('plugin_quota.plugin_not_found', { provider: error.provider });
     }
     throw error;
   }

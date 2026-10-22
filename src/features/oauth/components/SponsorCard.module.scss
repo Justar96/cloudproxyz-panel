@@ -1,0 +1,240 @@
+@use '../../../styles/mixins' as *;
+
+/* Sponsor card in the CloudProxyz graphite language: the brand glyph carries identity, and
+   each site is a full-surface login target with a separate registration link above it. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.glyph {
+  display: block;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+/* Wraps: the note that the two sites use separate accounts must not be truncated. */
+.caption {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.sites {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 8px;
+}
+
+.site {
+  position: relative;
+  container-type: inline-size;
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  background: var(--bg-tertiary);
+  transition:
+    transform var(--dur-press) var(--ease-out-strong),
+    border-color var(--dur-hover) var(--ease-out-strong);
+
+  /* Press feedback only for the login target, not the registration link. */
+  &:has(.siteMain:active) {
+    transform: scale(0.99);
+  }
+}
+
+.site[data-status='waiting'] {
+  border-color: var(--border-strong);
+}
+
+.siteBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: 'text link trail';
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 12px 12px 16px;
+}
+
+.siteText {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.siteMain {
+  @include button-reset;
+  display: block;
+  max-width: 100%;
+  text-align: start;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.siteMeta {
+  display: flex;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.domain,
+.status {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusDot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.site[data-status='success'] .status {
+  color: var(--status-success-text);
+}
+
+.site[data-status='error'] .status {
+  color: var(--status-danger-text);
+}
+
+.signUp {
+  grid-area: link;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    transform var(--dur-press) var(--ease-out-strong),
+    background-color var(--dur-hover) var(--ease-out-strong);
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.trail {
+  grid-area: trail;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .site:has(.siteMain:hover) {
+    border-color: var(--border-strong);
+  }
+
+  .signUp:hover {
+    background: var(--bg-hover);
+  }
+}
+
+/* Narrow site surfaces: the registration link drops below the site name. */
+@container (max-width: 360px) {
+  .siteBody {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'text trail'
+      'link link';
+  }
+
+  .signUp {
+    justify-self: start;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site,
+  .signUp {
+    transition: none;
+  }
+
+  .site:has(.siteMain:active),
+  .signUp:active {
+    transform: none;
+  }
+}
