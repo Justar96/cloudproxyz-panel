@@ -13,11 +13,11 @@
   opacity: 0;
 
   &.entering {
-    animation: sheet-fade-in 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: sheet-fade-in 200ms var(--ease-out-strong) forwards;
   }
 
   &.exiting {
-    animation: sheet-fade-out 180ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: sheet-fade-out 180ms var(--ease-out-strong) forwards;
   }
 }
 
@@ -34,11 +34,12 @@
   outline: none;
 
   &.entering {
-    animation: sheet-slide-in 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: sheet-slide-in 240ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
   }
 
+  /* Exits are faster than entries but still decelerate: an ease-in exit hesitates first. */
   &.exiting {
-    animation: sheet-slide-out 180ms cubic-bezier(0.32, 0, 0.67, 0) forwards;
+    animation: sheet-slide-out 180ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
   }
 }
 

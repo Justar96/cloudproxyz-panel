@@ -95,14 +95,17 @@
   width: 100%;
   max-width: 280px;
   position: relative;
-  transition: all 0.2s ease;
+  transition:
+    border-color var(--dur-hover) ease,
+    box-shadow var(--dur-hover) ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
-  &:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    z-index: 10;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      z-index: 10;
+    }
   }
 
   &.dropTarget {

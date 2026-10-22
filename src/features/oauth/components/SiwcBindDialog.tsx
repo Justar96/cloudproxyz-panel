@@ -7,7 +7,7 @@ import { authFilesApi } from '@/services/api/authFiles';
 import { captureSiwcBindingApi, oauthApi, type SiwcBindResponse } from '@/services/api/oauth';
 import { useAuthStore } from '@/stores/useAuthStore';
 import type { AuthFileItem } from '@/types';
-import { formatDateTimeValue } from '@/utils/format';
+import { EXPIRY_DATE_TIME_FORMAT, formatDateTimeValue } from '@/utils/format';
 import { notifyAuthFilesChanged } from '@/features/authFiles/authFilesEvents';
 import { deriveAuthFileIdentity, stripJsonExtension } from '@/features/authFiles/identity';
 import { createOAuthAttempts, type OAuthAttempt } from '../oauthAttempts';
@@ -198,7 +198,9 @@ export function SiwcBindDialog({ open, onClose, onViewAuthFiles }: SiwcBindDialo
 
   const selected = targets?.find((file) => file.name === name);
   const expiresOf = (file: AuthFileItem) =>
-    file.siwcExpiresAt ? formatDateTimeValue(file.siwcExpiresAt, i18n.language) : '';
+    file.siwcExpiresAt
+      ? formatDateTimeValue(file.siwcExpiresAt, i18n.language, EXPIRY_DATE_TIME_FORMAT)
+      : '';
   const view =
     phase === 'idle'
       ? 'pick'

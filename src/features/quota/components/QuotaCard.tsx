@@ -60,7 +60,7 @@ export function QuotaCard(props: QuotaCardProps) {
     onRefresh,
     onReset,
   } = props;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const adapter = QUOTA_ADAPTERS[entry.type];
   const file = entry.file;
   const displayName = getQuotaDisplayName(file);
@@ -69,6 +69,10 @@ export function QuotaCard(props: QuotaCardProps) {
   const loading = status === 'loading';
   const retainedClaudeUsage =
     entry.type === 'claude' && hasClaudeUsageData(quota as ClaudeQuotaState | undefined);
+  // A failed refresh over retained data says so once, in the error panel, with the check time.
+  const staleError = retainedClaudeUsage && status === 'error';
+  const observedAt = staleError ? (quota as ClaudeQuotaState).observedAt : null;
+  const staleSince = observedAt ? new Date(observedAt).toLocaleString(i18n.resolvedLanguage) : '--';
   const claudeReset = useClaudeResetGrants(
     file,
     entry.type === 'claude' && status !== 'idle',
@@ -187,8 +191,11 @@ export function QuotaCard(props: QuotaCardProps) {
             ) : status === 'error' ? (
               <div className={styles.errorPanel} role="alert">
                 <p className={styles.errorText}>
-                  {t(`${adapter.i18nPrefix}.load_failed`, { message: errorMessage })}
+                  {staleError
+                    ? t('claude_quota.stale_snapshot', { time: staleSince })
+                    : t(`${adapter.i18nPrefix}.load_failed`, { message: errorMessage })}
                 </p>
+                {staleError && <p className={styles.errorDetail}>{errorMessage}</p>}
                 <Button
                   variant="secondary"
                   size="sm"
@@ -200,7 +207,10 @@ export function QuotaCard(props: QuotaCardProps) {
               </div>
             ) : null}
             {quota && (status === 'success' || retainedClaudeUsage) && (
-              <adapter.Body quota={quota} classes={quotaClasses} />
+              <adapter.Body
+                quota={staleError ? ({ ...quota, stale: false } as QuotaCardState) : quota}
+                classes={quotaClasses}
+              />
             )}
             {entry.type === 'claude' && status === 'success' && (
               <>

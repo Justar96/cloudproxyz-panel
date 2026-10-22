@@ -15,7 +15,7 @@ import {
 import { ProviderStatusBar } from '@/components/providers/ProviderStatusBar';
 import type { AuthFileItem } from '@/types';
 import { statusBarDataFromRecentRequests } from '@/utils/recentRequests';
-import { formatDateTimeValue, formatFileSize } from '@/utils/format';
+import { EXPIRY_DATE_TIME_FORMAT, formatDateTimeValue, formatFileSize } from '@/utils/format';
 import {
   formatModified,
   getAuthFileStatusMessage,
@@ -134,7 +134,7 @@ export function AuthFileCard(props: AuthFileCardProps) {
   // Lead with account identity and use the file name as secondary text.
   const identity = deriveAuthFileIdentity(file);
   const siwcExpires = file.siwcExpiresAt
-    ? formatDateTimeValue(file.siwcExpiresAt, i18n.language)
+    ? formatDateTimeValue(file.siwcExpiresAt, i18n.language, EXPIRY_DATE_TIME_FORMAT)
     : '';
 
   const cardClasses = [

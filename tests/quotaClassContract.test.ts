@@ -26,7 +26,8 @@ describe('quota class contract', () => {
   for (const [host, path] of Object.entries(HOSTS)) {
     test(`${host} gives standalone amounts the same size as quota metadata`, async () => {
       const css = await readHost(path);
-      const amount = css.match(/\.quotaAmount\s*\{([^}]+)\}/)?.[1] ?? '';
+      // Top-level rule only; layout-specific nested rules (e.g. `> .quotaAmount`) set no type.
+      const amount = css.match(/^\.quotaAmount\s*\{([^}]+)\}/m)?.[1] ?? '';
       // The full-page host flattens .quotaMeta (display: contents) and sizes metadata on the row.
       const meta =
         css.match(/\.quotaMeta\s*\{([^}]*font-size[^}]+)\}/)?.[1] ??

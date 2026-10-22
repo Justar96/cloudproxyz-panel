@@ -124,8 +124,18 @@ export function formatDateValue(value: unknown, locale?: string): string {
   return locale ? date.toLocaleDateString(locale) : date.toLocaleDateString();
 }
 
-export function formatDateTimeValue(value: unknown, locale?: string): string {
+export function formatDateTimeValue(
+  value: unknown,
+  locale?: string,
+  options?: Intl.DateTimeFormatOptions
+): string {
   const date = parseDateValue(value);
   if (!date) return '';
-  return locale ? date.toLocaleString(locale) : date.toLocaleString();
+  return date.toLocaleString(locale, options);
 }
+
+/** Far-off deadlines (e.g. credential expiry): seconds are noise. */
+export const EXPIRY_DATE_TIME_FORMAT: Intl.DateTimeFormatOptions = {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+};

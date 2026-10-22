@@ -105,8 +105,8 @@
 .disclosure {
   display: grid;
   grid-template-rows: 0fr;
-  /* 退场更快 + 加速。themes.scss 无 --ease-in* token，这里用关键字而非发明全局 token。 */
-  transition: grid-template-rows 120ms ease-in;
+  /* Collapse is faster than expand, but decelerates too: ease-in hesitates before moving. */
+  transition: grid-template-rows 120ms var(--ease-out-strong, ease-out);
 }
 
 .disclosureOpen {

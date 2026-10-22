@@ -190,7 +190,7 @@ describe('OAuth provider gallery', () => {
     expect(styles).not.toMatch(/@keyframes|animation\s*:|infinite/);
     const reducedMotion = styles.slice(styles.indexOf('@media (prefers-reduced-motion: reduce)'));
     expect(reducedMotion).toMatch(/transition:\s*none;/);
-    expect(reducedMotion).toMatch(/transform:\s*none;/);
+    expect(reducedMotion).toMatch(/translate:\s*none;/);
   });
 
   test('keeps both Kimi registration links as safe external links', async () => {

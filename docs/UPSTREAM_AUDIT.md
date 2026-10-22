@@ -180,3 +180,35 @@ application behavior or security guard was changed for either test fix.
 After the fixes, both `bun run verify` and `bun test --randomize --seed=3` pass all **1,609** tests.
 Logs: `ci-first-push.log`, `ci-order-3.log`, `verify-release.log`, and
 `verify-randomized-final.log` under the local evidence directory.
+
+## Upstream sync: `c9e2f7c` → `714de07` (2026-10-22)
+
+All 25 new upstream commits merged (SIWC binding, Claude extra-usage/dollar balances and retained
+snapshots, Antigravity labels, plugin-ID quota routing, removal of the legacy `quota-exceeded`
+switches). Backend evidence: read-only `../CLIProxyAPI` `origin/main` at `0db19025`, which registers
+`POST /oauth/siwc/bind`, `DELETE /oauth/session`, emits `siwc_*`/`use_siwc` and `quota_plugin_id` on
+v8 credentials, and keeps `switch-project`/`switch-preview-model` legacy-only in the v8 layout.
+
+| Area | Upstream | Fork resolution |
+| --- | --- | --- |
+| Plugin quota | Resolver and plugin-list cache in `features/quota/providers/plugin/data.ts` | Same semantics moved to `services/api/pluginQuota.ts`; backend `quota_plugin_id` is authoritative, list lookup only for older v8, connection guard kept |
+| Sponsor card | Ambient "light pool" animations, entrance delay, brand-blue gradients | Same structure, graphite tile language, no looping motion; Felt 1px press |
+| Claude quota card | Reset count in plan chips, body kept while refreshing/failed | Fork footer layout kept; retained data adopted; a failed refresh shows one notice (time + reason) instead of error panel plus stale note |
+| Claude balances | Raw keys as labels (`iguana_necktie`) | Translated names for known keys, raw key in `title`, unknown keys verbatim |
+| Meter-less rows | Built for the compact host | Full-page host keeps header on one line and gives the amount the bar's slot |
+| Config | Section numbering constants | Fork had already removed them; tests adapted |
+
+UI polish in the same pass: modals scale from centre, exits decelerate (no `ease-in`), the floating
+close button lost its ungated `scale(1.1)` hover, sheet exits use the drawer curve, no
+`transition: all`, OAuth tiles press 1px, SIWC expiry drops seconds.
+
+Toolchain: Bun pinned to **1.4.3** (registry latest and the installed executable) in
+`packageManager`, both workflows, both READMEs and AGENTS.md. The previously preserved untracked
+`src/components/ui/Mascot.tsx` was deleted at the operator's request; nothing imported it.
+
+Verification (Bun 1.4.3): `bun run verify` and `bun test --randomize --seed=3` pass 1,698 tests; ESLint 0 errors
+(the two pre-existing warnings). Chrome via Playwright against the dev server with mocked v8
+responses and synthetic credentials: OAuth gallery, SIWC pick/flow, auth-file cards, Claude quota
+success and failed-refresh states, light/dark at 1280px and 390px, no page errors. Production
+`dist/index.html` loads with zero external requests. Live backend, real OAuth/SIWC binding and
+screen readers were **not verified**.

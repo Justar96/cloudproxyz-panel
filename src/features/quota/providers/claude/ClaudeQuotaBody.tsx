@@ -12,6 +12,12 @@ import { QuotaResetLabel } from '../../components/QuotaResetLabel';
 import { collectQuotaRowInstants, pickUrgentRowId } from '../../resetSchedule';
 import type { QuotaBodyProps } from '../../types';
 
+/** Dollar-denominated `iguana_necktie` is the cloud session credit pool (see claude/data.ts). */
+const DOLLAR_BALANCE_LABEL_KEYS: Record<string, string> = {
+  iguana_necktie: 'claude_quota.cloud_session_credits',
+  additional_credit_balance: 'claude_quota.additional_credit_balance',
+};
+
 export function ClaudeQuotaBody({
   quota,
   classes,
@@ -39,6 +45,10 @@ export function ClaudeQuotaBody({
       return `${(value / divisor).toFixed(2)} ${currency}`;
     }
   };
+
+  // Known balances get a translated name; unknown upstream keys stay verbatim (never guessed).
+  const balanceLabel = (key: string): string =>
+    DOLLAR_BALANCE_LABEL_KEYS[key] ? t(DOLLAR_BALANCE_LABEL_KEYS[key]) : key;
 
   const extraUsageNotes = extraUsage
     ? [
@@ -126,7 +136,7 @@ export function ClaudeQuotaBody({
           <div key={balance.key} className={classes.quotaRow}>
             <div className={classes.quotaRowHeader}>
               <span className={classes.quotaModel} title={balance.key}>
-                {balance.key}
+                {balanceLabel(balance.key)}
               </span>
               <div className={classes.quotaMeta}>
                 <span className={classes.quotaPercent}>

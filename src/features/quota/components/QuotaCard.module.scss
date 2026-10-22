@@ -316,6 +316,16 @@
   overflow-wrap: anywhere;
 }
 
+/* Upstream reason under a stale-data notice: same tone, one step smaller. */
+.errorDetail {
+  margin: -6px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  color: var(--status-danger-text);
+  overflow-wrap: anywhere;
+}
+
 /* ---------- footer：重置类次要动作，贴卡底 ---------- */
 
 .footer {

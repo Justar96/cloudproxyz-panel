@@ -14,7 +14,14 @@
   border-radius: var(--radius-xl);
   background: var(--bg-primary);
   border: 1px solid transparent;
-  transition: border-color var(--dur-hover) var(--ease-out-strong);
+  transition:
+    border-color var(--dur-hover) var(--ease-out-strong),
+    translate var(--dur-press) var(--ease-out-strong);
+
+  /* Felt press: the whole tile is the target, so it moves 1px like a button. */
+  &:has(.main:active) {
+    translate: 0 1px;
+  }
 }
 
 .tile[data-status='waiting'] {
@@ -127,5 +134,9 @@
 @media (prefers-reduced-motion: reduce) {
   .tile {
     transition: none;
+  }
+
+  .tile:has(.main:active) {
+    translate: none;
   }
 }

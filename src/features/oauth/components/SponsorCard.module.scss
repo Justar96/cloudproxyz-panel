@@ -64,12 +64,12 @@
   border: 1px solid transparent;
   background: var(--bg-tertiary);
   transition:
-    transform var(--dur-press) var(--ease-out-strong),
+    translate var(--dur-press) var(--ease-out-strong),
     border-color var(--dur-hover) var(--ease-out-strong);
 
-  /* Press feedback only for the login target, not the registration link. */
+  /* Felt press for the login target only; pressing the registration link leaves it still. */
   &:has(.siteMain:active) {
-    transform: scale(0.99);
+    translate: 0 1px;
   }
 }
 
@@ -178,11 +178,11 @@
   white-space: nowrap;
   text-decoration: none;
   transition:
-    transform var(--dur-press) var(--ease-out-strong),
+    translate var(--dur-press) var(--ease-out-strong),
     background-color var(--dur-hover) var(--ease-out-strong);
 
   &:active {
-    transform: scale(0.97);
+    translate: 0 1px;
   }
 
   &:focus-visible {
@@ -235,6 +235,6 @@
 
   .site:has(.siteMain:active),
   .signUp:active {
-    transform: none;
+    translate: none;
   }
 }

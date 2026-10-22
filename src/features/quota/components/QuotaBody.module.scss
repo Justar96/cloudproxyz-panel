@@ -48,6 +48,35 @@
   flex: 0 0 100%;
 }
 
+/* Rows without a meter (Claude extra usage and dollar balances) have no bar to force the
+   line break, so keep their header on one line and give the amount the bar's slot:
+     1. name ……… value · detail
+     2. spent / limit
+     3. reset or notes (small, secondary) */
+.quotaRow:not(:has(.quotaBar)) {
+  > .quotaRowHeader {
+    order: 1;
+    display: flex;
+    flex: 0 0 100%;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  > .quotaRowHeader > .quotaMeta {
+    order: 2;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  > .quotaAmount {
+    order: 3;
+    flex: 0 0 100%;
+  }
+}
+
 .quotaRow :where(.quotaReset, .quotaResetRelative, .quotaAmount) {
   order: 4;
   font-size: 12px;
