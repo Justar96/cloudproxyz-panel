@@ -24,6 +24,9 @@
   :global(.input) {
     min-height: 36px;
     padding-block: 8px;
+    /* Leave room for the trailing search icon so it never overlaps the text. */
+    padding-right: 34px;
+    text-overflow: ellipsis;
   }
 }
 
