@@ -1,17 +1,17 @@
 import { describe, expect, mock, test } from 'bun:test';
 import {
-  isSponsorPartialMutationError,
-  runSponsorMutationWithRecovery,
-} from '../src/features/providers/sponsorMutationRecovery';
+  isMultiProtocolPartialMutationError,
+  runMultiProtocolMutationWithRecovery,
+} from '../src/features/providers/multiProtocolMutationRecovery';
 
-describe('sponsor mutation recovery', () => {
+describe('multiProtocol mutation recovery', () => {
   test('refreshes after a failed multi-endpoint mutation and preserves the original failure', async () => {
     const originalError = new Error('Claude update failed');
     const refresh = mock(async () => {});
 
     let caught: unknown;
     try {
-      await runSponsorMutationWithRecovery(async () => {
+      await runMultiProtocolMutationWithRecovery(async () => {
         throw originalError;
       }, refresh);
     } catch (error) {
@@ -19,7 +19,7 @@ describe('sponsor mutation recovery', () => {
     }
 
     expect(refresh).toHaveBeenCalledTimes(1);
-    expect(isSponsorPartialMutationError(caught)).toBe(true);
+    expect(isMultiProtocolPartialMutationError(caught)).toBe(true);
     expect((caught as Error & { cause?: unknown }).cause).toBe(originalError);
   });
 
@@ -27,7 +27,7 @@ describe('sponsor mutation recovery', () => {
     const originalError = new Error('OpenAI update failed');
 
     await expect(
-      runSponsorMutationWithRecovery(
+      runMultiProtocolMutationWithRecovery(
         async () => {
           throw originalError;
         },

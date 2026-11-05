@@ -17,12 +17,9 @@ export type ProviderBrand =
   | 'claude'
   | 'vertex'
   | 'openaiCompatibility'
-  | 'apikeyFun'
-  | 'fennoAI'
-  | 'qiniuCloud'
   | 'kimi';
 
-export type SponsorProviderBrand = 'apikeyFun' | 'fennoAI' | 'qiniuCloud' | 'kimi';
+export type MultiProtocolProviderBrand = 'kimi';
 
 export const PROVIDER_SORT_BY_VALUES = ['name', 'priority', 'recent-success'] as const;
 export type ProviderSortBy = (typeof PROVIDER_SORT_BY_VALUES)[number];
@@ -39,27 +36,6 @@ export type ProviderResourceSelector =
   | { brand: 'claude'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'vertex'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'openaiCompatibility'; name: string; index: number }
-  | {
-      brand: 'apikeyFun';
-      openaiIndices: number[];
-      claudeIndices: number[];
-      codexIndices: number[];
-      geminiIndices: number[];
-    }
-  | {
-      brand: 'fennoAI';
-      openaiIndices: number[];
-      claudeIndices: number[];
-      codexIndices: number[];
-      geminiIndices: number[];
-    }
-  | {
-      brand: 'qiniuCloud';
-      openaiIndices: number[];
-      claudeIndices: number[];
-      codexIndices: number[];
-      geminiIndices: number[];
-    }
   | {
       brand: 'kimi';
       openaiIndices: number[];
@@ -122,7 +98,7 @@ export interface ProviderSnapshot {
   groups: ProviderGroup[];
 }
 
-export interface SponsorProviderRaw {
+export interface MultiProtocolProviderRaw {
   openai: Array<{ config: OpenAIProviderConfig; index: number }>;
   claude: Array<{ config: ProviderKeyConfig; index: number }>;
   codex: Array<{ config: ProviderKeyConfig; index: number }>;
@@ -147,10 +123,10 @@ export interface ModelEntryInput extends ModelOptionsInput {
   thinkingLevelsTouched?: boolean;
 }
 
-export type SponsorProtocol = 'openai' | 'codex' | 'claude' | 'gemini';
+export type ProviderProtocol = 'openai' | 'codex' | 'claude' | 'gemini';
 
-export interface SponsorKeyEntryInput extends ProviderBehaviorOptions {
-  protocol: SponsorProtocol;
+export interface MultiProtocolKeyEntryInput extends ProviderBehaviorOptions {
+  protocol: ProviderProtocol;
   apiKey: string;
   existingApiKey?: string;
   baseUrl: string;
@@ -207,6 +183,6 @@ export interface ProviderEntryFormInput extends ProviderBehaviorOptions {
   /** Temporary selection for connectivity tests only; never persisted in backend config. */
   testModel?: string;
   apiKeyEntries?: ApiKeyEntryInput[];
-  /** APIKEY.FUN stores one grouped key per platform protocol. */
-  sponsorKeyEntries?: SponsorKeyEntryInput[];
+  /** Kimi stores one grouped key per platform protocol. */
+  multiProtocolKeyEntries?: MultiProtocolKeyEntryInput[];
 }

@@ -42,25 +42,6 @@
   min-width: 0;
 }
 
-.titleLink {
-  width: fit-content;
-  max-width: 100%;
-  border-radius: var(--radius-xs);
-  color: inherit;
-  text-decoration: none;
-
-  @media (hover: hover) {
-    &:hover .titleExternalIcon {
-      color: var(--text-primary);
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: 2px;
-  }
-}
-
 .title {
   margin: 0;
   font-size: 16px;
@@ -71,12 +52,6 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-.titleExternalIcon {
-  flex-shrink: 0;
-  color: var(--text-secondary);
-  transition: color var(--dur-hover) var(--ease-out-strong);
 }
 
 .summary {
@@ -100,17 +75,6 @@
 
 .dotActive {
   background: var(--status-success-solid);
-}
-
-.promo {
-  margin: -4px 0 0;
-  padding: 12px 16px;
-  border-radius: var(--radius-lg);
-  background: var(--bg-tertiary);
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--text-secondary);
-  text-wrap: pretty;
 }
 
 // Toolbar: search grows, sort and model filter sit on the right.

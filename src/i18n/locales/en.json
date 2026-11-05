@@ -76,8 +76,8 @@
     "remember_password_label": "Remember password",
     "management_key_label": "Management Key",
     "management_key_placeholder": "Enter the management key",
-    "show_key": "Show key",
-    "hide_key": "Hide key",
+    "show_key": "Show management key",
+    "hide_key": "Hide management key",
     "submit_button": "Login",
     "submitting": "Connecting...",
     "error_backend_detail": "Backend response",
@@ -92,8 +92,6 @@
     "error_server": "Backend failed while handling the management request, check the server logs",
     "error_cors": "Cross-origin request blocked, please check server configuration",
     "error_ssl": "SSL/TLS certificate verification failed",
-    "show_key": "Show management key",
-    "hide_key": "Hide management key",
     "heading": "Sign in",
     "spec_title": "Connection",
     "spec_backend": "Backend",
@@ -115,7 +113,6 @@
   "nav": {
     "requests": "Requests",
     "dashboard": "Dashboard",
-    "quick_start": "Quick Start",
     "ai_providers": "AI Providers",
     "auth_files": "Auth Files",
     "oauth": "OAuth Login",
@@ -125,7 +122,8 @@
     "plugin_store": "Plugin Store",
     "config_management": "Config Panel",
     "logs": "Logs Viewer",
-    "system_info": "System Info"
+    "system_info": "System Info",
+    "api_keys": "API Keys"
   },
   "nav_groups": {
     "operate": "Operate",
@@ -137,7 +135,6 @@
   "nav_meta": {
     "requests": "Per-request usage log",
     "dashboard": "Operations overview",
-    "quick_start": "APIKEY.FUN setup",
     "ai_providers": "Upstream model routing",
     "auth_files": "Auth files & credentials",
     "oauth": "OAuth authorization",
@@ -147,7 +144,8 @@
     "plugin_store": "Discover & install plugins",
     "logs": "Request tracing",
     "config_management": "Gateway configuration",
-    "system_info": "Runtime & diagnostics"
+    "system_info": "Runtime & diagnostics",
+    "api_keys": "Client access keys"
   },
   "dashboard": {
     "hero_verdict_good": "All systems steady",
@@ -929,7 +927,6 @@
     "kimi_ai_oauth_polling_error": "Failed to check authentication status:",
     "kimi_oauth_title": "Kimi China (kimi.com)",
     "kimi_oauth_button": "Log in to Kimi China",
-    "kimi_sign_up_button": "Sign Up Now",
     "kimi_oauth_hint": "Authorize your kimi.com China account via device login. Authentication files are saved automatically. International accounts must use the separate kimi.ai login.",
     "kimi_open_link": "Open Link",
     "kimi_copy_link": "Copy Link",
@@ -991,10 +988,6 @@
     "page_subtitle": "Sign in to a provider to save its credential as an auth file.",
     "kimi_oauth_name": "Kimi China",
     "kimi_ai_oauth_name": "Kimi International",
-    "sponsor_site_china": "China",
-    "sponsor_site_international": "International",
-    "sponsor_kimi_caption": "Device code sign-in · accounts are separate per site",
-    "sponsor_sign_up": "Join Open Platform",
     "method_device": "Device code",
     "method_browser": "Browser sign-in",
     "method_plugin": "Plugin",
@@ -1011,7 +1004,6 @@
     "waiting_background_hint": "Closing this window won't stop sign-in",
     "restart_login": "Start over",
     "success_saved_hint": "The credential is saved — manage it in Auth Files.",
-    "sign_up_prompt": "No account yet?",
     "copied": "Copied"
   },
   "stats": {
@@ -1469,7 +1461,6 @@
           "title": "Network Configuration",
           "description": "Proxy, retry, and routing settings",
           "proxy_url": "Proxy URL",
-          "proxy_url_sponsor_hint": "No suitable proxy?",
           "request_retry": "Request Retry Count",
           "max_retry_credentials": "Max Retry Credentials",
           "max_retry_credentials_hint": "Leave empty to keep it unset. Set to 0 or a negative integer to try all available credentials.",
@@ -1528,11 +1519,11 @@
         }
       },
       "api_keys": {
-        "label": "Client API Keys (access.api-keys)",
+        "label": "Client API keys",
         "add": "Add API Key",
         "generate": "Generate",
         "empty": "No API keys",
-        "hint": "Each entry represents an API key (consistent with 'API Key Management' page style)",
+        "hint": "Give each app its own key so you can replace or remove access independently.",
         "edit_title": "Edit API Key",
         "add_title": "Add API Key",
         "input_label": "API Key",
@@ -1541,7 +1532,7 @@
         "name_placeholder": "For example: Alice's laptop",
         "name_hint": "Saved immediately in this browser only, separately for each server. Not included in server configuration. Clear this field to remove the name.",
         "name_save_error": "Could not save the name in browser storage. Check your browser storage settings.",
-        "input_hint": "Changes take effect after saving the configuration. Upstream provider keys are managed separately.",
+        "input_hint": "Save your changes to apply key updates to the proxy.",
         "error_empty": "Please enter an API key",
         "error_invalid": "API key contains invalid characters",
         "strength": {
@@ -1551,7 +1542,15 @@
           "fair": "Fair",
           "good": "Good",
           "strong": "Strong"
-        }
+        },
+        "search": "Search by name or key",
+        "no_matches": "No matching keys",
+        "clear_search": "Clear search",
+        "copied": "Copied",
+        "error_duplicate": "This API key is already in the list.",
+        "error_missing": "This key is no longer in the list. Close this dialog and try again.",
+        "delete_title": "Remove API key?",
+        "delete_confirm": "Remove “{{name}}” from the list? Access changes after you save."
       },
       "payload_rules": {
         "rule": "Rule",
@@ -2236,8 +2235,7 @@
       "activeResources": "{{active}}/{{total}} active resources",
       "providerFamilies": "{{count}} provider families",
       "updatedAt": "Updated {{time}}",
-      "subtitle": "Upstream API keys and endpoints, grouped by provider.",
-      "quickStartSubtitle": "One APIKEY.FUN key sets up every supported protocol for you."
+      "subtitle": "Upstream API keys and endpoints, grouped by provider."
     },
     "actions": {
       "refresh": "Refresh",
@@ -2254,7 +2252,6 @@
     },
     "categories": {
       "title": "Providers",
-      "quickFill": "Quick Fill",
       "activeCount": "{{active}}/{{total}} active"
     },
     "providerNames": {
@@ -2266,9 +2263,6 @@
       "claude": "Claude",
       "vertex": "Vertex",
       "openaiCompatibility": "OpenAI Compatible",
-      "apikeyFun": "APIKEY.FUN",
-      "fennoAI": "FennoAI",
-      "qiniuCloud": "Qiniu Cloud",
       "kimi": "Kimi"
     },
     "table": {
@@ -2290,79 +2284,6 @@
       "filterPlaceholder": "Search keys, URLs, prefixes…",
       "description": "Manage resources under {{route}}",
       "searchLabel": "Search resources"
-    },
-    "sponsor": {
-      "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
-      "detailHint": "{{provider}} is persisted into the matching API key configs by protocol; this view manages them together.",
-      "registerLink": "Register here",
-      "registerNow": "Register now",
-      "kimiPromo": "New users get API credit worth 10% of their first successful top-up, up to ¥1000. Offer ends September 30.",
-      "dashboardLink": "Dashboard",
-      "emptyRegisterHint": "No configuration yet.",
-      "apiKeyHint": "This key is only written to the selected group/protocol config.",
-      "usageCheck": "Check usage",
-      "usageChecking": "Checking",
-      "usageRemaining": "Remaining: {{amount}} {{unit}}",
-      "usageBreakdown": "Used {{used}} / Limit {{limit}}",
-      "usageStatus": "Status: {{status}}",
-      "usageInvalid": "Invalid key",
-      "usageEmpty": "The endpoint returned no usage data.",
-      "usageApiKeyRequired": "API key is required",
-      "aggregationConflict": "This grouped provider contains multiple backend configs or OpenAI keys. Edit it in the source configuration to avoid data loss.",
-      "partialMutationWarning": "The operation failed after one or more protocols may have been updated. The latest configuration was reloaded; review it before retrying.",
-      "groupedKeysTitle": "Grouped keys",
-      "groupedKeysHint": "Platform keys may be bound to a group when created. Each grouped key here manages one protocol, and model discovery only uses that protocol.",
-      "groupedKey": "Grouped key #{{index}}",
-      "addGroupedKey": "Add grouped key",
-      "removeGroupedKey": "Remove grouped key",
-      "protocol": "Group/protocol",
-      "protocolHint": "Select the group/protocol for this key.",
-      "protocolEndpoint": "Current protocol endpoint",
-      "urlMode": "{{provider}} URL",
-      "urlHint": "All URLs use the same API conventions. Saving writes only the endpoint for the current grouped protocol.",
-      "urlOptions": {
-        "standard": "Standard URL",
-        "direct": "Direct URL",
-        "domestic": "China mainland route",
-        "overseas": "Overseas route",
-        "mainlandChina": "Mainland China (recommended)",
-        "global": "Global"
-      },
-      "urlOptionDescriptions": {
-        "domestic": "For users and workloads in mainland China; usually lower latency in mainland networks.",
-        "overseas": "For overseas deployments, cross-border access, or workloads that need overseas models.",
-        "mainlandChinaRecommended": "Recommended for users and workloads on mainland China networks.",
-        "global": "For users and workloads in all other regions."
-      },
-      "modelsTitle": "Protocol model settings",
-      "modelsHint": "Configure model allowlists or aliases separately for Codex API, Anthropic, Gemini, and OpenAI-compatible routes.",
-      "protocolModels": {
-        "codex": "Codex API models",
-        "anthropic": "Anthropic models",
-        "gemini": "Gemini models",
-        "openai": "OpenAI-compatible models"
-      },
-      "protocolModelHints": {
-        "codex": "Writes to the Codex API config models. Fetch from /v1/models and set aliases if needed.",
-        "anthropic": "Writes to the Anthropic config models. Fetch from /v1/models and set aliases if needed.",
-        "gemini": "Writes to the Gemini config models. Fetch from /v1beta/models and set aliases if needed.",
-        "openai": "Writes to the OpenAI-compatible config models. Fetch from /models and set aliases if needed."
-      },
-      "validation": {
-        "keyRequired": "Enter an API key for every grouped key.",
-        "protocolDuplicate": "Each protocol can only have one grouped key."
-      },
-      "openaiEntries": "OpenAI-compatible keys",
-      "codexEntries": "Codex API keys",
-      "anthropicEntries": "Anthropic keys",
-      "geminiEntries": "Gemini keys",
-      "protocols": {
-        "anthropic": "Anthropic",
-        "openai": "OpenAI Compatible",
-        "gemini": "Gemini",
-        "codexResponses": "Codex API (Responses)"
-      },
-      "emptyDescription": "Add your APIKEY.FUN key here, or register for an account first."
     },
     "status": {
       "active": "Active",
@@ -2530,6 +2451,65 @@
       "noMatchTitle": "No matching resources",
       "noMatchDescription": "Try another search or clear the model filter.",
       "clearFilters": "Clear filters"
+    },
+    "multiProtocol": {
+      "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
+      "detailHint": "{{provider}} is persisted into the matching API key configs by protocol; this view manages them together.",
+      "apiKeyHint": "This key is only written to the selected group/protocol config.",
+      "aggregationConflict": "This grouped provider contains multiple backend configs or OpenAI keys. Edit it in the source configuration to avoid data loss.",
+      "partialMutationWarning": "The operation failed after one or more protocols may have been updated. The latest configuration was reloaded; review it before retrying.",
+      "groupedKeysTitle": "Grouped keys",
+      "groupedKeysHint": "Platform keys may be bound to a group when created. Each grouped key here manages one protocol, and model discovery only uses that protocol.",
+      "groupedKey": "Grouped key #{{index}}",
+      "addGroupedKey": "Add grouped key",
+      "removeGroupedKey": "Remove grouped key",
+      "protocol": "Group/protocol",
+      "protocolHint": "Select the group/protocol for this key.",
+      "protocolEndpoint": "Current protocol endpoint",
+      "urlMode": "{{provider}} URL",
+      "urlHint": "All URLs use the same API conventions. Saving writes only the endpoint for the current grouped protocol.",
+      "urlOptions": {
+        "standard": "Standard URL",
+        "direct": "Direct URL",
+        "domestic": "China mainland route",
+        "overseas": "Overseas route",
+        "mainlandChina": "Mainland China (recommended)",
+        "global": "Global"
+      },
+      "urlOptionDescriptions": {
+        "domestic": "For users and workloads in mainland China; usually lower latency in mainland networks.",
+        "overseas": "For overseas deployments, cross-border access, or workloads that need overseas models.",
+        "mainlandChinaRecommended": "Recommended for users and workloads on mainland China networks.",
+        "global": "For users and workloads in all other regions."
+      },
+      "modelsTitle": "Protocol model settings",
+      "modelsHint": "Configure model allowlists or aliases separately for Codex API, Anthropic, Gemini, and OpenAI-compatible routes.",
+      "protocolModels": {
+        "codex": "Codex API models",
+        "anthropic": "Anthropic models",
+        "gemini": "Gemini models",
+        "openai": "OpenAI-compatible models"
+      },
+      "protocolModelHints": {
+        "codex": "Writes to the Codex API config models. Fetch from /v1/models and set aliases if needed.",
+        "anthropic": "Writes to the Anthropic config models. Fetch from /v1/models and set aliases if needed.",
+        "gemini": "Writes to the Gemini config models. Fetch from /v1beta/models and set aliases if needed.",
+        "openai": "Writes to the OpenAI-compatible config models. Fetch from /models and set aliases if needed."
+      },
+      "validation": {
+        "keyRequired": "Enter an API key for every grouped key.",
+        "protocolDuplicate": "Each protocol can only have one grouped key."
+      },
+      "openaiEntries": "OpenAI-compatible keys",
+      "codexEntries": "Codex API keys",
+      "anthropicEntries": "Anthropic keys",
+      "geminiEntries": "Gemini keys",
+      "protocols": {
+        "anthropic": "Anthropic",
+        "openai": "OpenAI Compatible",
+        "gemini": "Gemini",
+        "codexResponses": "Codex API (Responses)"
+      }
     }
   },
   "claude_reset": {
@@ -2599,5 +2579,17 @@
     "error": "Binding failed. Please start over.",
     "unsupported": "This backend does not support SIWC binding.",
     "expired": "The binding session expired. Please start over."
+  },
+  "api_keys_page": {
+    "description": "Create and manage the keys your apps use to access this proxy.",
+    "names_note": "Names are saved only in this browser, separately for each server. They are not sent to the proxy.",
+    "load_failed": "Could not load API keys. Refresh to try again.",
+    "save_failed": "Could not save API keys. Your draft has been kept.",
+    "saved": "API keys saved.",
+    "conflict": "Keys changed on the server. Refresh and review the latest list before saving.",
+    "reload_confirm": "Refreshing will discard your unsaved key changes and load the current server list.",
+    "unsaved": "You have unsaved key changes",
+    "remove_all_title": "Remove every client key?",
+    "remove_all_message": "Removing every client key disables the configured API key check. Save only if proxy access is protected another way."
   }
 }

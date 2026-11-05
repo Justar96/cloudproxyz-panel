@@ -15,6 +15,7 @@ const BASE_TRANSFORM = 'translateX(-50%)';
 const HIDDEN_TRANSFORM = 'translateX(-50%) translateY(56px)';
 
 export type FloatingSaveBarProps = {
+  className?: string;
   /** 有未保存修改时可见（与未保存离开守卫的 block 条件一致）。 */
   visible: boolean;
   statusText: string;
@@ -35,6 +36,7 @@ export type FloatingSaveBarProps = {
  */
 export function FloatingSaveBar(props: FloatingSaveBarProps) {
   const {
+    className,
     visible,
     statusText,
     statusTone,
@@ -141,7 +143,11 @@ export function FloatingSaveBar(props: FloatingSaveBarProps) {
 
   return createPortal(
     <div className={styles.container} ref={containerRef}>
-      <div className={styles.bar} role="group" aria-label={t('config_management.status_dirty')}>
+      <div
+        className={[styles.bar, className].filter(Boolean).join(' ')}
+        role="group"
+        aria-label={t('config_management.status_dirty')}
+      >
         <span className={`${styles.status} ${toneClass[statusTone]}`} aria-live="polite">
           {saving ? (
             <LoadingSpinner size={12} />

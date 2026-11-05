@@ -132,7 +132,6 @@ describe('shared motion primitives', () => {
   test('OAuth tiles press like Felt buttons and settle under reduced motion', () => {
     for (const [path, target] of [
       ['src/features/oauth/components/ProviderTile.module.scss', '.main:active'],
-      ['src/features/oauth/components/SponsorCard.module.scss', '.siteMain:active'],
     ]) {
       const styles = css(path);
       expect(styles).toContain(`&:has(${target}) {\n    translate: 0 1px;`);

@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { getSponsorAggregationConflict } from '../src/features/providers/sponsorDefinitions';
-import type { SponsorProviderRaw } from '../src/features/providers/types';
+import { getMultiProtocolAggregationConflict } from '../src/features/providers/multiProtocolDefinitions';
+import type { MultiProtocolProviderRaw } from '../src/features/providers/types';
 
-const emptyRaw = (): SponsorProviderRaw => ({
+const emptyRaw = (): MultiProtocolProviderRaw => ({
   openai: [],
   claude: [],
   codex: [],
   gemini: [],
 });
 
-describe('sponsor aggregation safety', () => {
+describe('multiProtocol aggregation safety', () => {
   test('detects multiple configs for one protocol', () => {
     const raw = emptyRaw();
     raw.codex = [
@@ -17,7 +17,7 @@ describe('sponsor aggregation safety', () => {
       { index: 1, config: { apiKey: 'second' } },
     ];
 
-    expect(getSponsorAggregationConflict(raw)).toBe('multiple-configs');
+    expect(getMultiProtocolAggregationConflict(raw)).toBe('multiple-configs');
   });
 
   test('detects multiple OpenAI API keys in one config', () => {
@@ -26,14 +26,14 @@ describe('sponsor aggregation safety', () => {
       {
         index: 0,
         config: {
-          name: 'Sponsor',
+          name: 'Kimi',
           baseUrl: 'https://example.com/v1',
           apiKeyEntries: [{ apiKey: 'first' }, { apiKey: 'second' }],
         },
       },
     ];
 
-    expect(getSponsorAggregationConflict(raw)).toBe('multiple-openai-keys');
+    expect(getMultiProtocolAggregationConflict(raw)).toBe('multiple-openai-keys');
   });
 
   test('allows the supported one-config-per-protocol shape', () => {
@@ -43,13 +43,13 @@ describe('sponsor aggregation safety', () => {
       {
         index: 0,
         config: {
-          name: 'Sponsor',
+          name: 'Kimi',
           baseUrl: 'https://example.com/v1',
           apiKeyEntries: [{ apiKey: 'openai' }],
         },
       },
     ];
 
-    expect(getSponsorAggregationConflict(raw)).toBeNull();
+    expect(getMultiProtocolAggregationConflict(raw)).toBeNull();
   });
 });

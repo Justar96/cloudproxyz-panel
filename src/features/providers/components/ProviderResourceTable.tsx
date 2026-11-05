@@ -14,7 +14,7 @@ import {
 import type { OpenAIProviderConfig } from '@/types';
 import type { StatusBarData } from '@/utils/recentRequests';
 import type { ProviderResource } from '../types';
-import { isMultiProtocolSponsorBrand } from '../sponsorDefinitions';
+import { isMultiProtocolBrand } from '../multiProtocolDefinitions';
 import styles from './ProviderResourceTable.module.scss';
 import statusBarStyles from './providerStatusBar.module.scss';
 
@@ -29,8 +29,8 @@ interface ProviderResourceTableProps {
   onToggleDisabled?: (resource: ProviderResource, disabled: boolean) => void;
 }
 
-const isSponsorResource = (resource: ProviderResource): boolean =>
-  isMultiProtocolSponsorBrand(resource.brand);
+const isMultiProtocolResource = (resource: ProviderResource): boolean =>
+  isMultiProtocolBrand(resource.brand);
 
 const resolveStatusBarData = (
   resource: ProviderResource,
@@ -89,14 +89,14 @@ export function ProviderResourceTable({
 
   const renderProtocolSummary = (r: ProviderResource) =>
     (r.flags.protocols ?? [])
-      .map((protocol) => t(`providersPage.sponsor.protocols.${protocol}`))
+      .map((protocol) => t(`providersPage.multiProtocol.protocols.${protocol}`))
       .join(' / ');
 
   const renderModelsSummary = (r: ProviderResource) => {
     const items: ReactNode[] = [];
-    if (isSponsorResource(r)) {
+    if (isMultiProtocolResource(r)) {
       (r.flags.protocols ?? []).forEach((protocol) => {
-        items.push(renderFlagTag(protocol, t(`providersPage.sponsor.protocols.${protocol}`)));
+        items.push(renderFlagTag(protocol, t(`providersPage.multiProtocol.protocols.${protocol}`)));
       });
       return <div className={styles.metricsCell}>{items}</div>;
     }
@@ -135,7 +135,7 @@ export function ProviderResourceTable({
   );
 
   const renderBaseUrl = (r: ProviderResource) => {
-    if (isSponsorResource(r)) {
+    if (isMultiProtocolResource(r)) {
       return <span className={styles.baseUrl}>{renderProtocolSummary(r)}</span>;
     }
     if (r.brand === 'claude' && !r.baseUrl) {
@@ -155,7 +155,7 @@ export function ProviderResourceTable({
   const renderPrimary = (r: ProviderResource) => {
     let name: ReactNode;
     let sub: ReactNode;
-    if (isSponsorResource(r)) {
+    if (isMultiProtocolResource(r)) {
       name = <span className={styles.primaryName}>{r.name ?? r.identifier}</span>;
       sub = r.apiKeyPreview ?? t('providersPage.status.notConfigured');
     } else if (r.brand === 'openaiCompatibility') {
@@ -225,7 +225,7 @@ export function ProviderResourceTable({
                 <td className={styles.cellStatus}>
                   <div className={styles.statusCell}>
                     {renderStatus(resource)}
-                    {usageByProvider && !isSponsorResource(resource) ? (
+                    {usageByProvider && !isMultiProtocolResource(resource) ? (
                       <>
                         {(() => {
                           const stats = resolveTotalStats(resource, usageByProvider);

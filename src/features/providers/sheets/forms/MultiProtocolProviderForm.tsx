@@ -3,14 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { Select } from '@/components/ui/Select';
 import {
-  IconAlertTriangle,
   IconChevronDown,
-  IconCheckCircle2,
-  IconDollarSign,
   IconDownload,
   IconEye,
   IconEyeOff,
-  IconLoader2,
   IconPlus,
   IconX,
 } from '@/components/ui/icons';
@@ -19,30 +15,28 @@ import { maskApiKey } from '@/utils/format';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 import { removeModelAt } from '../../modelEntries';
 import { syncDiscoveredModels } from '../../discoverySelection';
-import type { ApiKeyFunUsageSummary } from '../../sponsor';
-import { isSponsorPartialMutationError } from '../../sponsorMutationRecovery';
+import { isMultiProtocolPartialMutationError } from '../../multiProtocolMutationRecovery';
 import {
-  discoveryBrandForSponsorProtocol,
-  getSponsorAggregationConflict,
-  getSponsorProviderDefinition,
-  sponsorProtocolI18nKey,
-  sponsorProtocolModelI18nKey,
-  sponsorProtocolUrl,
-  type SponsorProviderDefinition,
-} from '../../sponsorDefinitions';
+  discoveryBrandForProviderProtocol,
+  getMultiProtocolAggregationConflict,
+  getMultiProtocolProviderDefinition,
+  providerProtocolI18nKey,
+  providerProtocolModelI18nKey,
+  providerProtocolUrl,
+  type MultiProtocolProviderDefinition,
+} from '../../multiProtocolDefinitions';
 import type {
   ModelEntryInput,
   ProviderEntryFormInput,
   ProviderResource,
-  SponsorKeyEntryInput,
-  SponsorProtocol,
-  SponsorProviderBrand,
-  SponsorProviderRaw,
+  MultiProtocolKeyEntryInput,
+  ProviderProtocol,
+  MultiProtocolProviderBrand,
+  MultiProtocolProviderRaw,
 } from '../../types';
 import { ModelDiscoveryPanel } from './ModelDiscoveryPanel';
 import { ModelEntriesEditor } from './ModelEntriesEditor';
 import { useModelDiscovery, type UseModelDiscoveryResult } from './useModelDiscovery';
-import { useSponsorUsageCheck, type SponsorUsageMessages } from './useSponsorUsageCheck';
 import styles from './sharedForm.module.scss';
 import { readRuntimePolicy, validateRuntimePolicy } from '../../runtimePolicy';
 import { readModelOptions, validateModelOptions } from '../../modelOptions';
@@ -51,46 +45,45 @@ import { RuntimePolicyEditor } from './RuntimePolicyEditor';
 import { ProviderBehaviorEditor } from './ProviderBehaviorEditor';
 import { pickProviderBehavior } from '../../providerBehavior';
 
-interface SponsorProviderFormProps {
-  brand?: SponsorProviderBrand;
+interface MultiProtocolProviderFormProps {
+  brand?: MultiProtocolProviderBrand;
   resource: ProviderResource | null;
   mode: 'create' | 'edit';
   mutating: boolean;
   formId: string;
-  variant?: 'quickStart';
   onSubmit: (input: ProviderEntryFormInput) => Promise<void>;
   onDirtyChange?: (dirty: boolean) => void;
 }
 
-interface SponsorModelSectionProps {
+interface MultiProtocolModelSectionProps {
   label: string;
   description: string;
-  protocol: SponsorProtocol;
+  protocol: ProviderProtocol;
   models: ModelEntryInput[];
   discovery: UseModelDiscoveryResult;
   mutating: boolean;
   onChange: (next: ModelEntryInput[]) => void;
 }
 
-interface SponsorKeyEntryCardProps {
-  entry: SponsorKeyEntryInput;
+interface MultiProtocolKeyEntryCardProps {
+  entry: MultiProtocolKeyEntryInput;
   index: number;
   formId: string;
   mode: 'create' | 'edit';
-  definition: SponsorProviderDefinition;
-  usedProtocols: Set<SponsorProtocol>;
+  definition: MultiProtocolProviderDefinition;
+  usedProtocols: Set<ProviderProtocol>;
   canRemove: boolean;
   mutating: boolean;
-  onChange: (entry: SponsorKeyEntryInput) => void;
+  onChange: (entry: MultiProtocolKeyEntryInput) => void;
   onRemove: () => void;
 }
 
 const emptyModel = (): ModelEntryInput => ({ name: '', alias: '' });
 
-const emptySponsorKeyEntry = (
-  definition: SponsorProviderDefinition,
-  protocol: SponsorProtocol = definition.defaultProtocol
-): SponsorKeyEntryInput => ({
+const emptyMultiProtocolKeyEntry = (
+  definition: MultiProtocolProviderDefinition,
+  protocol: ProviderProtocol = definition.defaultProtocol
+): MultiProtocolKeyEntryInput => ({
   protocol,
   apiKey: '',
   existingApiKey: '',
@@ -105,7 +98,9 @@ const emptySponsorKeyEntry = (
   models: [emptyModel()],
 });
 
-const emptySponsorForm = (definition: SponsorProviderDefinition): ProviderEntryFormInput => ({
+const emptyMultiProtocolForm = (
+  definition: MultiProtocolProviderDefinition
+): ProviderEntryFormInput => ({
   apiKey: '',
   name: '',
   baseUrl: '',
@@ -118,36 +113,21 @@ const emptySponsorForm = (definition: SponsorProviderDefinition): ProviderEntryF
   models: [],
   headers: [],
   excludedModelsText: '',
-  sponsorKeyEntries: [emptySponsorKeyEntry(definition)],
+  multiProtocolKeyEntries: [emptyMultiProtocolKeyEntry(definition)],
 });
 
-const getSponsorRaw = (
+const getMultiProtocolRaw = (
   resource: ProviderResource | null,
-  brand: SponsorProviderBrand
-): SponsorProviderRaw | null => {
+  brand: MultiProtocolProviderBrand
+): MultiProtocolProviderRaw | null => {
   if (!resource || resource.brand !== brand) return null;
-  return resource.raw as SponsorProviderRaw;
+  return resource.raw as MultiProtocolProviderRaw;
 };
 
 const protocolUrlForEntry = (
-  entry: SponsorKeyEntryInput,
-  definition: SponsorProviderDefinition
-): string => sponsorProtocolUrl(definition.getProtocolUrls(entry.baseUrl), entry.protocol);
-
-const formatUsageAmount = (value: ApiKeyFunUsageSummary['remaining'], locale: string): string => {
-  if (value === null) return '--';
-  if (typeof value === 'number') {
-    return new Intl.NumberFormat(locale, {
-      maximumFractionDigits: 6,
-    }).format(value);
-  }
-  return value;
-};
-
-const isHealthyUsageSummary = (summary: ApiKeyFunUsageSummary): boolean => {
-  const normalizedStatus = (summary.status ?? '').trim().toLowerCase();
-  return summary.isValid && (!normalizedStatus || normalizedStatus === 'active');
-};
+  entry: MultiProtocolKeyEntryInput,
+  definition: MultiProtocolProviderDefinition
+): string => providerProtocolUrl(definition.getProtocolUrls(entry.baseUrl), entry.protocol);
 
 const modelsFromConfig = (models: ModelAlias[] | undefined): ModelEntryInput[] =>
   models?.length
@@ -162,15 +142,15 @@ const modelsFromConfig = (models: ModelAlias[] | undefined): ModelEntryInput[] =
       }))
     : [emptyModel()];
 
-const sponsorEntryFromProviderKey = (
-  definition: SponsorProviderDefinition,
-  protocol: Exclude<SponsorProtocol, 'openai'>,
+const multiProtocolEntryFromProviderKey = (
+  definition: MultiProtocolProviderDefinition,
+  protocol: Exclude<ProviderProtocol, 'openai'>,
   config:
-    | SponsorProviderRaw['codex'][number]['config']
-    | SponsorProviderRaw['claude'][number]['config']
-    | SponsorProviderRaw['gemini'][number]['config']
-): SponsorKeyEntryInput => ({
-  ...emptySponsorKeyEntry(definition, protocol),
+    | MultiProtocolProviderRaw['codex'][number]['config']
+    | MultiProtocolProviderRaw['claude'][number]['config']
+    | MultiProtocolProviderRaw['gemini'][number]['config']
+): MultiProtocolKeyEntryInput => ({
+  ...emptyMultiProtocolKeyEntry(definition, protocol),
   existingApiKey: config.apiKey ?? '',
   baseUrl: definition.resolveBaseUrl(config.baseUrl),
   proxyUrl: config.proxyUrl ?? '',
@@ -184,13 +164,13 @@ const sponsorEntryFromProviderKey = (
   models: modelsFromConfig(config.models),
 });
 
-const sponsorEntryFromOpenAI = (
-  definition: SponsorProviderDefinition,
-  config: SponsorProviderRaw['openai'][number]['config']
-): SponsorKeyEntryInput => {
+const multiProtocolEntryFromOpenAI = (
+  definition: MultiProtocolProviderDefinition,
+  config: MultiProtocolProviderRaw['openai'][number]['config']
+): MultiProtocolKeyEntryInput => {
   const firstEntry = config.apiKeyEntries?.find((entry) => entry.apiKey?.trim());
   return {
-    ...emptySponsorKeyEntry(definition, 'openai'),
+    ...emptyMultiProtocolKeyEntry(definition, 'openai'),
     existingApiKey: firstEntry?.apiKey ?? '',
     baseUrl: definition.resolveBaseUrl(config.baseUrl),
     proxyUrl: firstEntry?.proxyUrl ?? '',
@@ -205,23 +185,23 @@ const sponsorEntryFromOpenAI = (
   };
 };
 
-const sponsorKeyEntriesFromRaw = (
-  raw: SponsorProviderRaw | null,
-  definition: SponsorProviderDefinition
-): SponsorKeyEntryInput[] => {
-  if (!raw) return [emptySponsorKeyEntry(definition)];
-  const entries = definition.protocols.flatMap((protocol): SponsorKeyEntryInput[] => {
+const multiProtocolKeyEntriesFromRaw = (
+  raw: MultiProtocolProviderRaw | null,
+  definition: MultiProtocolProviderDefinition
+): MultiProtocolKeyEntryInput[] => {
+  if (!raw) return [emptyMultiProtocolKeyEntry(definition)];
+  const entries = definition.protocols.flatMap((protocol): MultiProtocolKeyEntryInput[] => {
     if (protocol === 'openai') {
       const openai = raw.openai[0]?.config;
-      return openai ? [sponsorEntryFromOpenAI(definition, openai)] : [];
+      return openai ? [multiProtocolEntryFromOpenAI(definition, openai)] : [];
     }
     const config = raw[protocol][0]?.config;
-    return config ? [sponsorEntryFromProviderKey(definition, protocol, config)] : [];
+    return config ? [multiProtocolEntryFromProviderKey(definition, protocol, config)] : [];
   });
-  return entries.length ? entries : [emptySponsorKeyEntry(definition)];
+  return entries.length ? entries : [emptyMultiProtocolKeyEntry(definition)];
 };
 
-function SponsorModelSection({
+function MultiProtocolModelSection({
   label,
   description,
   protocol,
@@ -229,7 +209,7 @@ function SponsorModelSection({
   discovery,
   mutating,
   onChange,
-}: SponsorModelSectionProps) {
+}: MultiProtocolModelSectionProps) {
   const { t } = useTranslation();
   const [discoveryOpen, setDiscoveryOpen] = useState(false);
   const modelsList = useMemo(() => (models.length ? models : [emptyModel()]), [models]);
@@ -301,7 +281,7 @@ function SponsorModelSection({
   );
 }
 
-function SponsorKeyEntryCard({
+function MultiProtocolKeyEntryCard({
   entry,
   index,
   formId,
@@ -312,46 +292,22 @@ function SponsorKeyEntryCard({
   mutating,
   onChange,
   onRemove,
-}: SponsorKeyEntryCardProps) {
-  const { t, i18n } = useTranslation();
+}: MultiProtocolKeyEntryCardProps) {
+  const { t } = useTranslation();
   const [showApiKey, setShowApiKey] = useState(false);
   const [expanded, setExpanded] = useState(
     () => mode === 'create' || !entry.existingApiKey?.trim()
   );
   const endpointUrl = protocolUrlForEntry(entry, definition);
   const protocolLabel = t(
-    `providersPage.sponsor.protocols.${sponsorProtocolI18nKey(entry.protocol)}`
+    `providersPage.multiProtocol.protocols.${providerProtocolI18nKey(entry.protocol)}`
   );
-  const titleLabel = t('providersPage.sponsor.groupedKey', { index: index + 1 });
+  const titleLabel = t('providersPage.multiProtocol.groupedKey', { index: index + 1 });
   const summaryKey = entry.apiKey.trim() || entry.existingApiKey?.trim() || '';
   const summaryKeyLabel = summaryKey
     ? maskApiKey(summaryKey)
     : t('providersPage.status.notConfigured');
-  const modelKey = sponsorProtocolModelI18nKey(entry.protocol);
-  const usageMessages = useMemo<SponsorUsageMessages>(
-    () => ({
-      apiKeyRequired: t('providersPage.sponsor.usageApiKeyRequired'),
-      emptyResponse: t('providersPage.sponsor.usageEmpty'),
-      requestFailed: t('providersPage.connectivity.requestFailed'),
-    }),
-    [t]
-  );
-  const usageCheck = useSponsorUsageCheck(
-    {
-      baseUrl: entry.baseUrl,
-      apiKey: entry.apiKey,
-      fallbackApiKey: entry.existingApiKey,
-    },
-    usageMessages
-  );
-  const usageSummary = usageCheck.status.summary;
-  const usageHealthy = usageSummary ? isHealthyUsageSummary(usageSummary) : true;
-  const usageRemaining =
-    usageSummary !== null ? formatUsageAmount(usageSummary.remaining, i18n.language) : '';
-  const usageUsed =
-    usageSummary !== null ? formatUsageAmount(usageSummary.used, i18n.language) : '';
-  const usageLimit =
-    usageSummary !== null ? formatUsageAmount(usageSummary.limit, i18n.language) : '';
+  const modelKey = providerProtocolModelI18nKey(entry.protocol);
   const discoveryHeaders = useMemo<Array<{ key: string; value: string }>>(() => [], []);
   const openaiDiscoveryEntries = useMemo(
     () => [
@@ -364,7 +320,7 @@ function SponsorKeyEntryCard({
     [entry.apiKey, entry.existingApiKey, entry.proxyUrl]
   );
   const discovery = useModelDiscovery({
-    brand: discoveryBrandForSponsorProtocol(entry.protocol),
+    brand: discoveryBrandForProviderProtocol(entry.protocol),
     baseUrl: endpointUrl,
     proxyUrl: entry.proxyUrl,
     formHeaders: discoveryHeaders,
@@ -376,10 +332,10 @@ function SponsorKeyEntryCard({
     .filter((protocol) => protocol === entry.protocol || !usedProtocols.has(protocol))
     .map((protocol) => ({
       value: protocol,
-      label: t(`providersPage.sponsor.protocols.${sponsorProtocolI18nKey(protocol)}`),
+      label: t(`providersPage.multiProtocol.protocols.${providerProtocolI18nKey(protocol)}`),
     }));
 
-  const updateEntry = (patch: Partial<SponsorKeyEntryInput>) => {
+  const updateEntry = (patch: Partial<MultiProtocolKeyEntryInput>) => {
     onChange({ ...entry, ...patch });
   };
 
@@ -392,13 +348,13 @@ function SponsorKeyEntryCard({
           aria-expanded={expanded}
           onClick={() => setExpanded((value) => !value)}
         >
-          <span className={styles.sponsorGroupTitle}>
+          <span className={styles.multiProtocolGroupTitle}>
             <span>{titleLabel}</span>
             <strong>{protocolLabel}</strong>
           </span>
-          <span className={styles.sponsorGroupSummary}>
-            <span className={styles.sponsorSummaryKey}>{summaryKeyLabel}</span>
-            <span className={styles.sponsorSummaryUrl}>{endpointUrl}</span>
+          <span className={styles.multiProtocolGroupSummary}>
+            <span className={styles.multiProtocolSummaryKey}>{summaryKeyLabel}</span>
+            <span className={styles.multiProtocolSummaryUrl}>{endpointUrl}</span>
           </span>
         </button>
         <div className={styles.entryCardHeaderRight}>
@@ -421,8 +377,8 @@ function SponsorKeyEntryCard({
             className={styles.removeBtn}
             onClick={onRemove}
             disabled={mutating || !canRemove}
-            title={t('providersPage.sponsor.removeGroupedKey')}
-            aria-label={t('providersPage.sponsor.removeGroupedKey')}
+            title={t('providersPage.multiProtocol.removeGroupedKey')}
+            aria-label={t('providersPage.multiProtocol.removeGroupedKey')}
           >
             <IconX size={12} />
           </button>
@@ -433,32 +389,34 @@ function SponsorKeyEntryCard({
         <div className={styles.entryCardBody}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${formId}-group-${index}-protocol`}>
-              {t('providersPage.sponsor.protocol')}
+              {t('providersPage.multiProtocol.protocol')}
             </label>
             <Select
               id={`${formId}-group-${index}-protocol`}
               value={entry.protocol}
               options={protocolOptions}
               onChange={(value) =>
-                updateEntry({ protocol: value as SponsorProtocol, models: [emptyModel()] })
+                updateEntry({ protocol: value as ProviderProtocol, models: [emptyModel()] })
               }
               disabled={mutating}
-              ariaLabel={t('providersPage.sponsor.protocol')}
+              ariaLabel={t('providersPage.multiProtocol.protocol')}
             />
-            <span className={styles.labelHint}>{t('providersPage.sponsor.protocolHint')}</span>
+            <span className={styles.labelHint}>
+              {t('providersPage.multiProtocol.protocolHint')}
+            </span>
           </div>
 
           {definition.baseUrlOptions.length > 1 ? (
             <div className={styles.field}>
               <span className={styles.label}>
-                {t('providersPage.sponsor.urlMode', { provider: definition.displayName })}
+                {t('providersPage.multiProtocol.urlMode', { provider: definition.displayName })}
               </span>
-              <div className={styles.sponsorUrlOptions} role="radiogroup">
+              <div className={styles.multiProtocolUrlOptions} role="radiogroup">
                 {definition.baseUrlOptions.map((option) => {
                   const checked = definition.resolveBaseUrl(entry.baseUrl) === option.baseUrl;
                   const className = [
-                    styles.sponsorUrlOption,
-                    checked ? styles.sponsorUrlOptionActive : '',
+                    styles.multiProtocolUrlOption,
+                    checked ? styles.multiProtocolUrlOptionActive : '',
                   ]
                     .filter(Boolean)
                     .join(' ');
@@ -472,13 +430,13 @@ function SponsorKeyEntryCard({
                         onChange={() => updateEntry({ baseUrl: option.baseUrl })}
                         disabled={mutating}
                       />
-                      <span className={styles.sponsorUrlOptionText}>
-                        <span>{t(`providersPage.sponsor.urlOptions.${option.id}`)}</span>
+                      <span className={styles.multiProtocolUrlOptionText}>
+                        <span>{t(`providersPage.multiProtocol.urlOptions.${option.id}`)}</span>
                         <small>{option.baseUrl}</small>
                         {option.descriptionKey ? (
-                          <small className={styles.sponsorUrlOptionDescription}>
+                          <small className={styles.multiProtocolUrlOptionDescription}>
                             {t(
-                              `providersPage.sponsor.urlOptionDescriptions.${option.descriptionKey}`
+                              `providersPage.multiProtocol.urlOptionDescriptions.${option.descriptionKey}`
                             )}
                           </small>
                         ) : null}
@@ -487,15 +445,15 @@ function SponsorKeyEntryCard({
                   );
                 })}
               </div>
-              <span className={styles.labelHint}>{t('providersPage.sponsor.urlHint')}</span>
+              <span className={styles.labelHint}>{t('providersPage.multiProtocol.urlHint')}</span>
             </div>
           ) : null}
 
-          <div className={styles.sponsorProtocolCard}>
-            <span className={styles.sponsorProtocolName}>
-              {t('providersPage.sponsor.protocolEndpoint')}
+          <div className={styles.providerProtocolCard}>
+            <span className={styles.providerProtocolName}>
+              {t('providersPage.multiProtocol.protocolEndpoint')}
             </span>
-            <span className={styles.sponsorProtocolUrl}>{endpointUrl}</span>
+            <span className={styles.providerProtocolUrl}>{endpointUrl}</span>
           </div>
 
           <div className={styles.field}>
@@ -539,78 +497,8 @@ function SponsorKeyEntryCard({
                 {showApiKey ? <IconEyeOff size={16} /> : <IconEye size={16} />}
               </button>
             </div>
-            <span className={styles.labelHint}>{t('providersPage.sponsor.apiKeyHint')}</span>
+            <span className={styles.labelHint}>{t('providersPage.multiProtocol.apiKeyHint')}</span>
           </div>
-
-          {definition.supportsUsageCheck ? (
-            <div className={styles.sponsorUsageSection}>
-              <button
-                type="button"
-                className={styles.connectivityBtn}
-                onClick={() => void usageCheck.run()}
-                disabled={mutating || usageCheck.isLoading}
-              >
-                {usageCheck.isLoading ? (
-                  <IconLoader2 className={styles.statusIconLoading} size={14} />
-                ) : (
-                  <IconDollarSign size={14} />
-                )}
-                <span>
-                  {usageCheck.isLoading
-                    ? t('providersPage.sponsor.usageChecking')
-                    : t('providersPage.sponsor.usageCheck')}
-                </span>
-              </button>
-              {usageCheck.status.state === 'success' && usageSummary ? (
-                <div
-                  className={[
-                    styles.sponsorUsageResult,
-                    usageHealthy ? '' : styles.sponsorUsageResultWarning,
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
-                  <div className={styles.sponsorUsageMain}>
-                    {usageHealthy ? (
-                      <IconCheckCircle2
-                        className={`${styles.statusIcon} ${styles.statusIconSuccess}`}
-                        size={14}
-                      />
-                    ) : (
-                      <IconAlertTriangle
-                        className={`${styles.statusIcon} ${styles.statusIconError}`}
-                        size={14}
-                      />
-                    )}
-                    <span>
-                      {t('providersPage.sponsor.usageRemaining', {
-                        amount: usageRemaining,
-                        unit: usageSummary.unit,
-                      })}
-                    </span>
-                  </div>
-                  {usageSummary.used !== null || usageSummary.limit !== null ? (
-                    <span className={styles.sponsorUsageMeta}>
-                      {t('providersPage.sponsor.usageBreakdown', {
-                        used: usageUsed,
-                        limit: usageLimit,
-                      })}
-                    </span>
-                  ) : null}
-                  {!usageHealthy ? (
-                    <span className={styles.sponsorUsageMeta}>
-                      {t('providersPage.sponsor.usageStatus', {
-                        status: usageSummary.status || t('providersPage.sponsor.usageInvalid'),
-                      })}
-                    </span>
-                  ) : null}
-                </div>
-              ) : null}
-              {usageCheck.status.state === 'error' ? (
-                <div className={styles.connectivityError}>{usageCheck.status.message}</div>
-              ) : null}
-            </div>
-          ) : null}
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${formId}-group-${index}-proxy`}>
@@ -706,9 +594,9 @@ function SponsorKeyEntryCard({
             disabled={mutating}
           />
 
-          <SponsorModelSection
-            label={t(`providersPage.sponsor.protocolModels.${modelKey}`)}
-            description={t(`providersPage.sponsor.protocolModelHints.${modelKey}`)}
+          <MultiProtocolModelSection
+            label={t(`providersPage.multiProtocol.protocolModels.${modelKey}`)}
+            description={t(`providersPage.multiProtocol.protocolModelHints.${modelKey}`)}
             protocol={entry.protocol}
             models={entry.models}
             discovery={discovery}
@@ -722,30 +610,29 @@ function SponsorKeyEntryCard({
 }
 
 const buildInitialForm = (
-  definition: SponsorProviderDefinition,
+  definition: MultiProtocolProviderDefinition,
   resource: ProviderResource | null,
   mode: 'create' | 'edit'
 ): ProviderEntryFormInput => {
-  if (mode === 'create') return emptySponsorForm(definition);
-  const raw = getSponsorRaw(resource, definition.brand);
+  if (mode === 'create') return emptyMultiProtocolForm(definition);
+  const raw = getMultiProtocolRaw(resource, definition.brand);
   return {
-    ...emptySponsorForm(definition),
-    sponsorKeyEntries: sponsorKeyEntriesFromRaw(raw, definition),
+    ...emptyMultiProtocolForm(definition),
+    multiProtocolKeyEntries: multiProtocolKeyEntriesFromRaw(raw, definition),
   };
 };
 
-export function SponsorProviderForm({
-  brand = 'apikeyFun',
+export function MultiProtocolProviderForm({
+  brand = 'kimi',
   resource,
   mode,
   mutating,
   formId,
-  variant,
   onSubmit,
   onDirtyChange,
-}: SponsorProviderFormProps) {
+}: MultiProtocolProviderFormProps) {
   const { t } = useTranslation();
-  const definition = useMemo(() => getSponsorProviderDefinition(brand), [brand]);
+  const definition = useMemo(() => getMultiProtocolProviderDefinition(brand), [brand]);
   const [form, setForm] = useState<ProviderEntryFormInput>(() =>
     buildInitialForm(definition, resource, mode)
   );
@@ -754,8 +641,8 @@ export function SponsorProviderForm({
   );
   const [error, setError] = useState<string | null>(null);
   const entries = useMemo(
-    () => form.sponsorKeyEntries ?? [emptySponsorKeyEntry(definition)],
-    [definition, form.sponsorKeyEntries]
+    () => form.multiProtocolKeyEntries ?? [emptyMultiProtocolKeyEntry(definition)],
+    [definition, form.multiProtocolKeyEntries]
   );
   const usedProtocols = useMemo(() => new Set(entries.map((entry) => entry.protocol)), [entries]);
   const missingProtocols = useMemo(
@@ -764,7 +651,7 @@ export function SponsorProviderForm({
   );
 
   const isDirty = useMemo(
-    () => JSON.stringify({ ...form, sponsorKeyEntries: entries }) !== initialFormSignature,
+    () => JSON.stringify({ ...form, multiProtocolKeyEntries: entries }) !== initialFormSignature,
     [entries, form, initialFormSignature]
   );
 
@@ -772,25 +659,25 @@ export function SponsorProviderForm({
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
 
-  const updateEntries = (nextEntries: SponsorKeyEntryInput[]) => {
-    setForm((prev) => ({ ...prev, sponsorKeyEntries: nextEntries }));
+  const updateEntries = (nextEntries: MultiProtocolKeyEntryInput[]) => {
+    setForm((prev) => ({ ...prev, multiProtocolKeyEntries: nextEntries }));
   };
 
-  const updateEntry = (entryIndex: number, nextEntry: SponsorKeyEntryInput) => {
+  const updateEntry = (entryIndex: number, nextEntry: MultiProtocolKeyEntryInput) => {
     updateEntries(entries.map((entry, index) => (index === entryIndex ? nextEntry : entry)));
   };
 
   const removeEntry = (entryIndex: number) => {
     const nextEntries = entries.filter((_, index) => index !== entryIndex);
     updateEntries(
-      nextEntries.length || mode === 'edit' ? nextEntries : [emptySponsorKeyEntry(definition)]
+      nextEntries.length || mode === 'edit' ? nextEntries : [emptyMultiProtocolKeyEntry(definition)]
     );
   };
 
   const addEntry = () => {
     const protocol = missingProtocols[0];
     if (!protocol) return;
-    updateEntries([...entries, emptySponsorKeyEntry(definition, protocol)]);
+    updateEntries([...entries, emptyMultiProtocolKeyEntry(definition, protocol)]);
   };
 
   const validateEntries = (): string | null => {
@@ -802,15 +689,15 @@ export function SponsorProviderForm({
       if (policyError) return t(policyError);
     }
     if (!entries.length) {
-      return mode === 'edit' ? null : t('providersPage.sponsor.validation.keyRequired');
+      return mode === 'edit' ? null : t('providersPage.multiProtocol.validation.keyRequired');
     }
     const missingKey = entries.some(
       (entry) => !entry.apiKey.trim() && !entry.existingApiKey?.trim()
     );
-    if (missingKey) return t('providersPage.sponsor.validation.keyRequired');
+    if (missingKey) return t('providersPage.multiProtocol.validation.keyRequired');
     const protocolSet = new Set(entries.map((entry) => entry.protocol));
     if (protocolSet.size !== entries.length) {
-      return t('providersPage.sponsor.validation.protocolDuplicate');
+      return t('providersPage.multiProtocol.validation.protocolDuplicate');
     }
     if (
       entries.some((entry) => entry.weight !== undefined && !Number.isSafeInteger(entry.weight))
@@ -834,11 +721,11 @@ export function SponsorProviderForm({
     }
     try {
       setError(null);
-      await onSubmit({ ...form, sponsorKeyEntries: entries });
+      await onSubmit({ ...form, multiProtocolKeyEntries: entries });
     } catch (err) {
       setError(
-        isSponsorPartialMutationError(err)
-          ? t('providersPage.sponsor.partialMutationWarning')
+        isMultiProtocolPartialMutationError(err)
+          ? t('providersPage.multiProtocol.partialMutationWarning')
           : err instanceof Error
             ? err.message
             : String(err)
@@ -846,28 +733,27 @@ export function SponsorProviderForm({
     }
   };
 
-  const formClassName = [styles.form, variant === 'quickStart' ? styles.quickStartForm : '']
-    .filter(Boolean)
-    .join(' ');
   const aggregationConflict =
     mode === 'edit'
-      ? getSponsorAggregationConflict(getSponsorRaw(resource, definition.brand))
+      ? getMultiProtocolAggregationConflict(getMultiProtocolRaw(resource, definition.brand))
       : null;
 
   if (aggregationConflict) {
     return (
-      <form id={formId} className={formClassName} onSubmit={(event) => event.preventDefault()}>
-        <div className={styles.errorBox}>{t('providersPage.sponsor.aggregationConflict')}</div>
+      <form id={formId} className={styles.form} onSubmit={(event) => event.preventDefault()}>
+        <div className={styles.errorBox}>
+          {t('providersPage.multiProtocol.aggregationConflict')}
+        </div>
       </form>
     );
   }
 
   return (
-    <form id={formId} className={formClassName} onSubmit={handleSubmit} noValidate>
+    <form id={formId} className={styles.form} onSubmit={handleSubmit} noValidate>
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>{t('providersPage.sponsor.groupedKeysTitle')}</h3>
+        <h3 className={styles.sectionTitle}>{t('providersPage.multiProtocol.groupedKeysTitle')}</h3>
         {entries.map((entry, index) => (
-          <SponsorKeyEntryCard
+          <MultiProtocolKeyEntryCard
             key={`${entry.protocol}-${index}`}
             entry={entry}
             index={index}
@@ -888,7 +774,7 @@ export function SponsorProviderForm({
           onClick={addEntry}
         >
           <IconPlus size={12} />
-          <span>{t('providersPage.sponsor.addGroupedKey')}</span>
+          <span>{t('providersPage.multiProtocol.addGroupedKey')}</span>
         </button>
       </div>
 

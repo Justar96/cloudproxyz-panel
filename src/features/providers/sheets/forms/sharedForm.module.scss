@@ -17,121 +17,6 @@
   --bg-recessed: var(--bg-primary);
 }
 
-.quickStartForm {
-  gap: 20px;
-
-  .section {
-    gap: 14px;
-  }
-
-  .sectionTitle {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
-    letter-spacing: -0.015em;
-  }
-
-  .sectionDesc {
-    max-width: 72ch;
-    font-size: 14px;
-    line-height: 20px;
-    color: var(--text-secondary);
-  }
-
-  .field {
-    gap: 7px;
-  }
-
-  .label {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 18px;
-  }
-
-  .labelHint {
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--text-quaternary);
-  }
-
-  .input,
-  .textarea,
-  .discoverySearch {
-    font-size: 14px;
-    line-height: 1.45;
-  }
-
-  .entryCard {
-    gap: 12px;
-  }
-
-  .entryCardHeader {
-    font-size: 13px;
-    line-height: 1.45;
-  }
-
-  .sponsorGroupTitle {
-    gap: 3px;
-
-    strong {
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 20px;
-    }
-  }
-
-  .sponsorUrlOptionText,
-  .checkboxText {
-    font-size: 14px;
-    line-height: 1.45;
-  }
-
-  .sponsorUrlOptionText small,
-  .checkboxText small,
-  .sponsorProtocolUrl,
-  .sponsorUsageResult,
-  .connectivityError,
-  .discoveryEmpty,
-  .discoveryItem,
-  .discoveryBatchLabel,
-  .discoveryName {
-    font-size: 12px;
-    line-height: 1.6;
-  }
-
-  .sponsorProtocolName {
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 18px;
-  }
-
-  .sponsorUsageMain {
-    line-height: 1.45;
-  }
-
-  .sponsorUsageMeta,
-  .discoveryAlias,
-  .discoveryCount,
-  .discoveryAddedTag {
-    font-size: 12px;
-    line-height: 1.55;
-  }
-
-  .connectivityBtn,
-  .discoveryApplyBtn,
-  .addBtn,
-  .removeBtn {
-    font-size: 13px;
-    font-weight: 500;
-  }
-
-  details summary {
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 20px;
-  }
-}
-
 .section {
   display: flex;
   flex-direction: column;
@@ -374,7 +259,7 @@
   }
 }
 
-.sponsorGroupTitle {
+.multiProtocolGroupTitle {
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -389,7 +274,7 @@
   }
 }
 
-.sponsorGroupSummary {
+.multiProtocolGroupSummary {
   display: flex;
   min-width: 0;
   flex: 1;
@@ -398,8 +283,8 @@
   gap: 8px;
 }
 
-.sponsorSummaryKey,
-.sponsorSummaryUrl {
+.multiProtocolSummaryKey,
+.multiProtocolSummaryUrl {
   display: inline-block;
   min-width: 0;
   overflow: hidden;
@@ -407,13 +292,13 @@
   white-space: nowrap;
 }
 
-.sponsorSummaryKey {
+.multiProtocolSummaryKey {
   max-width: 140px;
   font-family: $font-mono;
   color: var(--text-primary);
 }
 
-.sponsorSummaryUrl {
+.multiProtocolSummaryUrl {
   max-width: min(360px, 45vw);
   font-family: $font-mono;
   color: var(--text-secondary);
@@ -482,7 +367,7 @@
   justify-content: space-between;
 }
 
-.sponsorUrlOptions {
+.multiProtocolUrlOptions {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
@@ -492,7 +377,7 @@
   }
 }
 
-.sponsorUrlOption {
+.multiProtocolUrlOption {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -525,12 +410,12 @@
   }
 }
 
-.sponsorUrlOptionActive,
-.sponsorUrlOptionActive:hover {
+.multiProtocolUrlOptionActive,
+.multiProtocolUrlOptionActive:hover {
   background: var(--bg-active);
 }
 
-.sponsorUrlOptionText {
+.multiProtocolUrlOptionText {
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -547,13 +432,13 @@
   }
 }
 
-.sponsorUrlOptionText .sponsorUrlOptionDescription {
+.multiProtocolUrlOptionText .multiProtocolUrlOptionDescription {
   font-family: inherit;
   font-size: 12px;
   line-height: 1.45;
 }
 
-.sponsorProtocolGrid {
+.providerProtocolGrid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
@@ -563,7 +448,7 @@
   }
 }
 
-.sponsorProtocolCard {
+.providerProtocolCard {
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -573,55 +458,18 @@
   background: var(--bg-tertiary);
 }
 
-.sponsorProtocolName {
+.providerProtocolName {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.sponsorProtocolUrl {
+.providerProtocolUrl {
   font-family: $font-mono;
   font-size: 12px;
   line-height: 16px;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
-}
-
-.sponsorUsageSection {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.sponsorUsageResult {
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--status-success-bg);
-  color: var(--status-success-text);
-  font-size: 12px;
-  line-height: 16px;
-}
-
-.sponsorUsageResultWarning {
-  color: var(--status-attention-text);
-  background: var(--status-attention-bg);
-}
-
-.sponsorUsageMain {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 500;
-}
-
-.sponsorUsageMeta {
-  opacity: 0.85;
 }
 
 .connectivityRow {

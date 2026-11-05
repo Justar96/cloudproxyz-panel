@@ -424,14 +424,6 @@ export function IconSidebarDashboard({ size = 20, ...props }: IconProps) {
   );
 }
 
-export function IconSidebarQuickStart({ size = 20, ...props }: IconProps) {
-  return (
-    <svg {...navSvgProps} width={size} height={size} {...props}>
-      <path d="M13 3 5.5 13.5H12L11 21l7.5-10.5H12L13 3Z" />
-    </svg>
-  );
-}
-
 export function IconSidebarProviders({ size = 20, ...props }: IconProps) {
   return (
     <svg {...navSvgProps} width={size} height={size} {...props}>

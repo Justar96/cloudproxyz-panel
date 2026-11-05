@@ -66,8 +66,8 @@
     "subtitle": "관리 센터"
   },
   "login": {
-    "show_key": "관리 키 표시",
-    "hide_key": "관리 키 숨기기",
+    "show_key": "키 표시",
+    "hide_key": "키 숨기기",
     "heading": "로그인",
     "spec_title": "연결",
     "spec_backend": "백엔드",
@@ -89,8 +89,6 @@
     "remember_password_label": "비밀번호 저장",
     "management_key_label": "관리 키",
     "management_key_placeholder": "관리 키를 입력하세요",
-    "show_key": "키 표시",
-    "hide_key": "키 숨기기",
     "submit_button": "로그인",
     "submitting": "연결 중...",
     "error_backend_detail": "백엔드 응답",
@@ -116,7 +114,6 @@
   "nav": {
     "requests": "요청",
     "dashboard": "대시보드",
-    "quick_start": "빠른 시작",
     "ai_providers": "AI 공급자",
     "auth_files": "인증 파일",
     "oauth": "OAuth 로그인",
@@ -126,7 +123,8 @@
     "plugin_store": "플러그인 스토어",
     "config_management": "설정 패널",
     "logs": "로그 뷰어",
-    "system_info": "관리 센터 정보"
+    "system_info": "관리 센터 정보",
+    "api_keys": "API 키"
   },
   "nav_groups": {
     "operate": "운영",
@@ -138,7 +136,6 @@
   "nav_meta": {
     "requests": "요청별 사용량 기록",
     "dashboard": "운영 개요",
-    "quick_start": "APIKEY.FUN 설정",
     "ai_providers": "업스트림 모델 라우팅",
     "auth_files": "인증 파일 및 자격 증명",
     "oauth": "OAuth 권한 부여",
@@ -148,7 +145,8 @@
     "plugin_store": "플러그인 탐색 및 설치",
     "logs": "요청 추적",
     "config_management": "게이트웨이 설정",
-    "system_info": "런타임 및 진단"
+    "system_info": "런타임 및 진단",
+    "api_keys": "클라이언트 접근 키"
   },
   "dashboard": {
     "status_healthy": "최근 {{window}} 동안 요청이 정상 처리되고 있습니다.",
@@ -932,7 +930,6 @@
     "kimi_ai_oauth_polling_error": "인증 상태 확인 실패:",
     "kimi_oauth_title": "Kimi 중국(kimi.com)",
     "kimi_oauth_button": "Kimi 중국 로그인",
-    "kimi_sign_up_button": "지금 가입하기",
     "kimi_oauth_hint": "기기 로그인을 통해 kimi.com 중국 계정을 인증합니다. 인증 파일이 자동으로 저장됩니다. 글로벌 계정은 별도의 kimi.ai 로그인을 사용해야 합니다.",
     "kimi_open_link": "링크 열기",
     "kimi_copy_link": "링크 복사",
@@ -992,10 +989,6 @@
     "remote_access_disabled": "원격 접속에서는 이 로그인 방식을 사용할 수 없습니다. 로컬(localhost)에서 접속하세요.",
     "kimi_oauth_name": "Kimi 중국",
     "kimi_ai_oauth_name": "Kimi 글로벌",
-    "sponsor_site_china": "중국",
-    "sponsor_site_international": "글로벌",
-    "sponsor_kimi_caption": "기기 코드 로그인 · 두 사이트의 계정은 서로 별개입니다",
-    "sponsor_sign_up": "오픈 플랫폼 가입",
     "method_device": "기기 코드",
     "method_browser": "브라우저 로그인",
     "method_plugin": "플러그인",
@@ -1012,7 +1005,6 @@
     "waiting_background_hint": "창을 닫아도 로그인은 계속됩니다",
     "restart_login": "다시 시작",
     "success_saved_hint": "자격 증명이 저장되었습니다. 인증 파일에서 관리할 수 있습니다.",
-    "sign_up_prompt": "계정이 없나요?",
     "copied": "복사됨"
   },
   "stats": {
@@ -1473,7 +1465,6 @@
           "title": "네트워크 설정",
           "description": "프록시, 재시도 및 라우팅 설정",
           "proxy_url": "프록시 URL",
-          "proxy_url_sponsor_hint": "적합한 프록시가 없나요?",
           "request_retry": "요청 재시도 횟수",
           "max_retry_credentials": "최대 재시도 자격 증명 수",
           "max_retry_credentials_hint": "설정하지 않으려면 비워 두세요. 사용 가능한 모든 자격 증명을 시도하려면 0 또는 음의 정수를 입력하세요.",
@@ -1532,11 +1523,11 @@
         }
       },
       "api_keys": {
-        "label": "클라이언트 API 키 (access.api-keys)",
+        "label": "클라이언트 API 키",
         "add": "API 키 추가",
         "generate": "생성",
         "empty": "API 키 없음",
-        "hint": "각 항목은 하나의 API 키를 나타냅니다 ('API 키 관리' 페이지 스타일과 일치).",
+        "hint": "앱마다 별도 키를 발급하면 접근 권한을 개별적으로 교체하거나 해제할 수 있습니다.",
         "edit_title": "API 키 편집",
         "add_title": "API 키 추가",
         "input_label": "API 키",
@@ -1545,7 +1536,7 @@
         "name_placeholder": "예: Alice의 노트북",
         "name_hint": "이 브라우저에만 즉시 저장되며 서버별로 구분됩니다. 서버 설정에는 포함되지 않습니다. 이름을 제거하려면 이 필드를 비우세요.",
         "name_save_error": "브라우저 저장소에 이름을 저장할 수 없습니다. 브라우저 저장소 설정을 확인하세요.",
-        "input_hint": "설정을 저장한 후 변경 사항이 적용됩니다. 업스트림 공급자 키는 별도로 관리됩니다.",
+        "input_hint": "변경 사항을 저장해야 키 업데이트가 프록시에 적용됩니다.",
         "error_empty": "API 키를 입력하세요",
         "error_invalid": "API 키에 유효하지 않은 문자가 포함되어 있습니다",
         "strength": {
@@ -1555,7 +1546,15 @@
           "fair": "보통",
           "good": "좋음",
           "strong": "강함"
-        }
+        },
+        "search": "이름 또는 키로 검색",
+        "no_matches": "일치하는 키가 없습니다",
+        "clear_search": "검색 지우기",
+        "copied": "복사됨",
+        "error_duplicate": "이 API 키는 이미 목록에 있습니다.",
+        "error_missing": "이 키는 더 이상 목록에 없습니다. 대화 상자를 닫고 다시 시도하세요.",
+        "delete_title": "API 키를 삭제할까요?",
+        "delete_confirm": "목록에서 “{{name}}”을(를) 삭제할까요? 저장하면 접근 권한이 변경됩니다."
       },
       "payload_rules": {
         "rule": "규칙",
@@ -2241,7 +2240,6 @@
     },
     "header": {
       "subtitle": "공급자별 업스트림 API 키와 엔드포인트입니다.",
-      "quickStartSubtitle": "APIKEY.FUN 키 하나로 지원되는 모든 프로토콜을 설정합니다.",
       "title": "AI 공급자",
       "activeResources": "활성 리소스 {{active}}/{{total}}개",
       "providerFamilies": "공급자 제품군 {{count}}개",
@@ -2262,7 +2260,6 @@
     },
     "categories": {
       "title": "공급자",
-      "quickFill": "빠른 입력",
       "activeCount": "활성 {{active}}/{{total}}"
     },
     "providerNames": {
@@ -2274,9 +2271,6 @@
       "claude": "Claude",
       "vertex": "Vertex",
       "openaiCompatibility": "OpenAI 호환",
-      "apikeyFun": "APIKEY.FUN",
-      "fennoAI": "FennoAI",
-      "qiniuCloud": "Qiniu Cloud",
       "kimi": "Kimi"
     },
     "table": {
@@ -2298,79 +2292,6 @@
       "empty": "아직 리소스가 없습니다. \"새로 만들기\"를 클릭하여 추가하세요.",
       "filterPlaceholder": "키, URL, 접두사 검색…",
       "description": "{{route}}의 리소스를 관리합니다."
-    },
-    "sponsor": {
-      "emptyDescription": "APIKEY.FUN 키를 추가하거나 먼저 계정을 만드세요.",
-      "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
-      "detailHint": "{{provider}} 공급자는 프로토콜별로 일치하는 API 키 설정에 저장되며, 이 화면에서 통합 관리합니다.",
-      "registerLink": "여기서 등록",
-      "registerNow": "지금 등록",
-      "kimiPromo": "신규 사용자는 첫 충전 성공 시 충전 금액의 10%에 해당하는 API 크레딧(최대 ¥1000)을 받을 수 있습니다. 혜택은 9월 30일에 종료됩니다.",
-      "dashboardLink": "대시보드",
-      "emptyRegisterHint": "아직 설정이 없습니다.",
-      "apiKeyHint": "이 키는 선택한 그룹/프로토콜 설정에만 저장됩니다.",
-      "usageCheck": "사용량 확인",
-      "usageChecking": "확인 중",
-      "usageRemaining": "남은 사용량: {{amount}} {{unit}}",
-      "usageBreakdown": "사용 {{used}} / 한도 {{limit}}",
-      "usageStatus": "상태: {{status}}",
-      "usageInvalid": "유효하지 않은 키",
-      "usageEmpty": "엔드포인트에서 사용량 데이터를 반환하지 않았습니다.",
-      "usageApiKeyRequired": "API 키가 필요합니다.",
-      "aggregationConflict": "이 그룹화된 공급자에는 여러 백엔드 설정 또는 OpenAI 키가 포함되어 있습니다. 데이터 손실을 방지하려면 소스 설정에서 편집하세요.",
-      "partialMutationWarning": "하나 이상의 프로토콜이 업데이트된 후 작업이 실패했을 수 있습니다. 최신 설정을 다시 불러왔으니 다시 시도하기 전에 검토하세요.",
-      "groupedKeysTitle": "그룹 키",
-      "groupedKeysHint": "플랫폼 키 생성 시 특정 그룹에 바인딩될 수 있습니다. 여기의 각 그룹 키는 하나의 프로토콜만 관리하며, 모델 검색은 해당 프로토콜만 사용합니다.",
-      "groupedKey": "그룹 키 #{{index}}",
-      "addGroupedKey": "그룹 키 추가",
-      "removeGroupedKey": "그룹 키 삭제",
-      "protocol": "그룹/프로토콜",
-      "protocolHint": "이 키에 해당하는 그룹/프로토콜을 선택하세요.",
-      "protocolEndpoint": "현재 프로토콜 엔드포인트",
-      "urlMode": "{{provider}} URL",
-      "urlHint": "모든 URL은 동일한 API 규칙을 사용합니다. 저장 시 현재 그룹화된 프로토콜의 엔드포인트만 기록됩니다.",
-      "urlOptions": {
-        "standard": "표준 URL",
-        "direct": "직접 연결 URL",
-        "domestic": "중국 본토 경로",
-        "overseas": "해외 경로",
-        "mainlandChina": "중국 본토 (권장)",
-        "global": "글로벌"
-      },
-      "urlOptionDescriptions": {
-        "domestic": "중국 본토의 사용자 및 워크로드용입니다. 본토 네트워크에서 일반적으로 대기 시간이 더 짧습니다.",
-        "overseas": "해외 배포, 국경 간 액세스 또는 해외 모델이 필요한 워크로드용입니다.",
-        "mainlandChinaRecommended": "중국 본토 네트워크의 사용자 및 워크로드에 권장됩니다.",
-        "global": "기타 모든 지역의 사용자 및 워크로드용입니다."
-      },
-      "modelsTitle": "프로토콜 모델 설정",
-      "modelsHint": "Codex API, Anthropic, Gemini 및 OpenAI 호환 경로에 대한 모델 허용 목록 또는 별칭을 개별적으로 설정하세요.",
-      "protocolModels": {
-        "codex": "Codex API 모델",
-        "anthropic": "Anthropic 모델",
-        "gemini": "Gemini 모델",
-        "openai": "OpenAI 호환 모델"
-      },
-      "protocolModelHints": {
-        "codex": "Codex API 설정의 models에 저장됩니다. /v1/models에서 가져온 후 필요한 경우 별칭을 설정하세요.",
-        "anthropic": "Anthropic 설정의 models에 저장됩니다. /v1/models에서 가져온 후 필요한 경우 별칭을 설정하세요.",
-        "gemini": "Gemini 설정의 models에 저장됩니다. /v1beta/models에서 가져온 후 필요한 경우 별칭을 설정하세요.",
-        "openai": "OpenAI 호환 설정의 models에 저장됩니다. /models에서 가져온 후 필요한 경우 별칭을 설정하세요."
-      },
-      "validation": {
-        "keyRequired": "모든 그룹 키에 API 키를 입력하세요.",
-        "protocolDuplicate": "각 프로토콜에는 그룹 키를 하나만 지정할 수 있습니다."
-      },
-      "openaiEntries": "OpenAI 호환 키",
-      "codexEntries": "Codex API 키",
-      "anthropicEntries": "Anthropic 키",
-      "geminiEntries": "Gemini 키",
-      "protocols": {
-        "anthropic": "Anthropic",
-        "openai": "OpenAI 호환",
-        "gemini": "Gemini",
-        "codexResponses": "Codex API (Responses)"
-      }
     },
     "status": {
       "active": "활성",
@@ -2531,6 +2452,65 @@
     },
     "modelCatalog": {
       "notLoaded": "로드되지 않음"
+    },
+    "multiProtocol": {
+      "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
+      "detailHint": "{{provider}} 공급자는 프로토콜별로 일치하는 API 키 설정에 저장되며, 이 화면에서 통합 관리합니다.",
+      "apiKeyHint": "이 키는 선택한 그룹/프로토콜 설정에만 저장됩니다.",
+      "aggregationConflict": "이 그룹화된 공급자에는 여러 백엔드 설정 또는 OpenAI 키가 포함되어 있습니다. 데이터 손실을 방지하려면 소스 설정에서 편집하세요.",
+      "partialMutationWarning": "하나 이상의 프로토콜이 업데이트된 후 작업이 실패했을 수 있습니다. 최신 설정을 다시 불러왔으니 다시 시도하기 전에 검토하세요.",
+      "groupedKeysTitle": "그룹 키",
+      "groupedKeysHint": "플랫폼 키 생성 시 특정 그룹에 바인딩될 수 있습니다. 여기의 각 그룹 키는 하나의 프로토콜만 관리하며, 모델 검색은 해당 프로토콜만 사용합니다.",
+      "groupedKey": "그룹 키 #{{index}}",
+      "addGroupedKey": "그룹 키 추가",
+      "removeGroupedKey": "그룹 키 삭제",
+      "protocol": "그룹/프로토콜",
+      "protocolHint": "이 키에 해당하는 그룹/프로토콜을 선택하세요.",
+      "protocolEndpoint": "현재 프로토콜 엔드포인트",
+      "urlMode": "{{provider}} URL",
+      "urlHint": "모든 URL은 동일한 API 규칙을 사용합니다. 저장 시 현재 그룹화된 프로토콜의 엔드포인트만 기록됩니다.",
+      "urlOptions": {
+        "standard": "표준 URL",
+        "direct": "직접 연결 URL",
+        "domestic": "중국 본토 경로",
+        "overseas": "해외 경로",
+        "mainlandChina": "중국 본토 (권장)",
+        "global": "글로벌"
+      },
+      "urlOptionDescriptions": {
+        "domestic": "중국 본토의 사용자 및 워크로드용입니다. 본토 네트워크에서 일반적으로 대기 시간이 더 짧습니다.",
+        "overseas": "해외 배포, 국경 간 액세스 또는 해외 모델이 필요한 워크로드용입니다.",
+        "mainlandChinaRecommended": "중국 본토 네트워크의 사용자 및 워크로드에 권장됩니다.",
+        "global": "기타 모든 지역의 사용자 및 워크로드용입니다."
+      },
+      "modelsTitle": "프로토콜 모델 설정",
+      "modelsHint": "Codex API, Anthropic, Gemini 및 OpenAI 호환 경로에 대한 모델 허용 목록 또는 별칭을 개별적으로 설정하세요.",
+      "protocolModels": {
+        "codex": "Codex API 모델",
+        "anthropic": "Anthropic 모델",
+        "gemini": "Gemini 모델",
+        "openai": "OpenAI 호환 모델"
+      },
+      "protocolModelHints": {
+        "codex": "Codex API 설정의 models에 저장됩니다. /v1/models에서 가져온 후 필요한 경우 별칭을 설정하세요.",
+        "anthropic": "Anthropic 설정의 models에 저장됩니다. /v1/models에서 가져온 후 필요한 경우 별칭을 설정하세요.",
+        "gemini": "Gemini 설정의 models에 저장됩니다. /v1beta/models에서 가져온 후 필요한 경우 별칭을 설정하세요.",
+        "openai": "OpenAI 호환 설정의 models에 저장됩니다. /models에서 가져온 후 필요한 경우 별칭을 설정하세요."
+      },
+      "validation": {
+        "keyRequired": "모든 그룹 키에 API 키를 입력하세요.",
+        "protocolDuplicate": "각 프로토콜에는 그룹 키를 하나만 지정할 수 있습니다."
+      },
+      "openaiEntries": "OpenAI 호환 키",
+      "codexEntries": "Codex API 키",
+      "anthropicEntries": "Anthropic 키",
+      "geminiEntries": "Gemini 키",
+      "protocols": {
+        "anthropic": "Anthropic",
+        "openai": "OpenAI 호환",
+        "gemini": "Gemini",
+        "codexResponses": "Codex API (Responses)"
+      }
     }
   },
   "claude_reset": {
@@ -2600,5 +2580,17 @@
     "error": "바인딩에 실패했습니다. 다시 시작하세요.",
     "unsupported": "이 서버는 SIWC 바인딩을 지원하지 않습니다.",
     "expired": "바인딩 세션이 만료되었습니다. 다시 시작하세요."
+  },
+  "api_keys_page": {
+    "description": "앱이 이 프록시에 접근할 때 사용하는 키를 만들고 관리합니다.",
+    "names_note": "이름은 이 브라우저에만 서버별로 저장되며 프록시로 전송되지 않습니다.",
+    "load_failed": "API 키를 불러오지 못했습니다. 새로고침 후 다시 시도하세요.",
+    "save_failed": "API 키를 저장하지 못했습니다. 작성 중인 변경 사항은 유지됩니다.",
+    "saved": "API 키를 저장했습니다.",
+    "conflict": "서버의 키가 변경되었습니다. 새로고침하고 최신 목록을 확인한 후 저장하세요.",
+    "reload_confirm": "새로고침하면 저장하지 않은 키 변경 사항을 버리고 서버의 현재 목록을 불러옵니다.",
+    "unsaved": "저장하지 않은 키 변경 사항이 있습니다",
+    "remove_all_title": "모든 클라이언트 키를 삭제할까요?",
+    "remove_all_message": "모든 클라이언트 키를 삭제하면 설정된 API 키 검사가 비활성화됩니다. 다른 방법으로 프록시 접근을 보호하는 경우에만 저장하세요."
   }
 }

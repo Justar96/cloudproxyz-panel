@@ -12,26 +12,12 @@ interface ProviderCategoryListProps {
   onSelect: (brand: ProviderBrand) => void;
 }
 
-const QUICK_FILL_BRAND_ORDER: readonly ProviderBrand[] = ['fennoAI', 'qiniuCloud'];
-
-const QUICK_FILL_BRANDS: ReadonlySet<ProviderBrand> = new Set(QUICK_FILL_BRAND_ORDER);
-
 export function ProviderCategoryList({ groups, activeBrand, onSelect }: ProviderCategoryListProps) {
   const { t } = useTranslation();
   const providersLabelId = useId();
-  const quickFillLabelId = useId();
-
-  const quickFillGroups = groups
-    .filter((g) => QUICK_FILL_BRANDS.has(g.id))
-    .sort(
-      (left, right) =>
-        QUICK_FILL_BRAND_ORDER.indexOf(left.id) - QUICK_FILL_BRAND_ORDER.indexOf(right.id)
-    );
-  const providerGroups = groups.filter((g) => !QUICK_FILL_BRANDS.has(g.id));
-
   const selectOptions = useMemo(
     () =>
-      [...providerGroups, ...quickFillGroups].map((group) => ({
+      groups.map((group) => ({
         value: group.id,
         label: `${t(`providersPage.providerNames.${group.id}`)} · ${t(
           'providersPage.categories.activeCount',
@@ -41,7 +27,7 @@ export function ProviderCategoryList({ groups, activeBrand, onSelect }: Provider
           }
         )}`,
       })),
-    [providerGroups, quickFillGroups, t]
+    [groups, t]
   );
 
   const renderGroups = (items: ProviderGroup[], labelId: string) => (
@@ -97,16 +83,8 @@ export function ProviderCategoryList({ groups, activeBrand, onSelect }: Provider
           <p className={styles.groupLabel} id={providersLabelId}>
             {t('providersPage.categories.title')}
           </p>
-          {renderGroups(providerGroups, providersLabelId)}
+          {renderGroups(groups, providersLabelId)}
         </div>
-        {quickFillGroups.length > 0 && (
-          <div className={styles.group}>
-            <p className={styles.groupLabel} id={quickFillLabelId}>
-              {t('providersPage.categories.quickFill')}
-            </p>
-            {renderGroups(quickFillGroups, quickFillLabelId)}
-          </div>
-        )}
       </nav>
     </>
   );

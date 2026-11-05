@@ -76,8 +76,8 @@
     "remember_password_label": "Ghi nhớ mật khẩu",
     "management_key_label": "Key quản lý",
     "management_key_placeholder": "Nhập key quản lý",
-    "show_key": "Hiện key",
-    "hide_key": "Ẩn key",
+    "show_key": "Hiện key quản lý",
+    "hide_key": "Ẩn key quản lý",
     "submit_button": "Đăng nhập",
     "submitting": "Đang kết nối...",
     "error_backend_detail": "Phản hồi từ backend",
@@ -92,8 +92,6 @@
     "error_cors": "Yêu cầu cross-origin bị chặn, vui lòng kiểm tra cấu hình máy chủ",
     "error_ssl": "Xác minh chứng chỉ SSL/TLS thất bại",
     "error_legacy_backend": "Backend này chấp nhận Management API v0 nhưng không cung cấp v8. Vui lòng nâng cấp CLIProxyAPI lên v8 hoặc mới hơn để sử dụng trang quản lý này.",
-    "show_key": "Hiện key quản lý",
-    "hide_key": "Ẩn key quản lý",
     "heading": "Đăng nhập",
     "spec_title": "Kết nối",
     "spec_backend": "Backend",
@@ -115,7 +113,6 @@
   "nav": {
     "requests": "Yêu cầu",
     "dashboard": "Bảng điều khiển",
-    "quick_start": "Bắt đầu nhanh",
     "ai_providers": "AI Provider",
     "auth_files": "File xác thực",
     "oauth": "Đăng nhập OAuth",
@@ -125,7 +122,8 @@
     "plugin_store": "Cửa hàng Plugin",
     "config_management": "Bảng cấu hình",
     "logs": "Trình xem Log",
-    "system_info": "Thông tin Trung tâm Quản lý"
+    "system_info": "Thông tin Trung tâm Quản lý",
+    "api_keys": "Khóa API"
   },
   "nav_groups": {
     "operate": "Vận hành",
@@ -137,7 +135,6 @@
   "nav_meta": {
     "requests": "Nhật ký sử dụng theo yêu cầu",
     "dashboard": "Tổng quan vận hành",
-    "quick_start": "Thiết lập APIKEY.FUN",
     "ai_providers": "Định tuyến model upstream",
     "auth_files": "File xác thực & credential",
     "oauth": "Ủy quyền OAuth",
@@ -147,7 +144,8 @@
     "plugin_store": "Khám phá & cài đặt plugin",
     "logs": "Truy vết yêu cầu",
     "config_management": "Cấu hình gateway",
-    "system_info": "Runtime & chẩn đoán"
+    "system_info": "Runtime & chẩn đoán",
+    "api_keys": "Khóa truy cập của ứng dụng"
   },
   "dashboard": {
     "hero_verdict_good": "Mọi hệ thống ổn định",
@@ -542,7 +540,7 @@
     "seven_day_cowork": "Giới hạn tuần của Cowork",
     "iguana_necktie": "Iguana Necktie",
     "seven_day_fable": "Giới hạn tuần của Fable 5",
-    "cloud_session_credits": "Tín dụng phiên đám mây",
+    "cloud_session_credits": "Tín dụng phiên Cloud",
     "additional_credit_balance": "Số dư tín dụng bổ sung",
     "extra_usage_label": "Sử dụng thêm",
     "extra_usage_enabled": "Đã bật",
@@ -563,8 +561,7 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team",
-    "cloud_session_credits": "Tín dụng phiên Cloud"
+    "plan_team": "Team"
   },
   "codex_quota": {
     "title": "Quota Codex",
@@ -847,7 +844,6 @@
     "antigravity_oauth_polling_error": "Không thể kiểm tra trạng thái xác thực:",
     "kimi_oauth_title": "Kimi OAuth",
     "kimi_oauth_button": "Đăng nhập bằng Kimi",
-    "kimi_sign_up_button": "Đăng ký ngay",
     "kimi_oauth_hint": "Đăng nhập nhanh vào Kimi qua ủy quyền thiết bị. File xác thực được lấy và lưu tự động.",
     "kimi_open_link": "Mở liên kết",
     "kimi_copy_link": "Sao chép liên kết",
@@ -907,10 +903,6 @@
     "remote_access_disabled": "Phương thức đăng nhập này không khả dụng cho truy cập từ xa. Vui lòng truy cập từ localhost.",
     "kimi_oauth_name": "Kimi Trung Quốc",
     "kimi_ai_oauth_name": "Kimi quốc tế",
-    "sponsor_site_china": "Trung Quốc",
-    "sponsor_site_international": "Quốc tế",
-    "sponsor_kimi_caption": "Đăng nhập bằng mã thiết bị · tài khoản hai trang tách biệt",
-    "sponsor_sign_up": "Đăng ký Open Platform",
     "method_device": "Mã thiết bị",
     "method_browser": "Đăng nhập qua trình duyệt",
     "method_plugin": "Plugin",
@@ -927,7 +919,6 @@
     "waiting_background_hint": "Đóng cửa sổ không làm gián đoạn đăng nhập",
     "restart_login": "Bắt đầu lại",
     "success_saved_hint": "Đã lưu credential — quản lý trong File xác thực.",
-    "sign_up_prompt": "Chưa có tài khoản?",
     "copied": "Đã sao chép",
     "devin_oauth_cancel": "Hủy đăng nhập Devin",
     "devin_oauth_cancelled": "Đã hủy đăng nhập Devin.",
@@ -1291,7 +1282,6 @@
           "session_affinity": "Định tuyến Session Affinity",
           "ws_auth": "Xác thực WebSocket",
           "ws_auth_desc": "Bật xác thực WebSocket (/v1/ws)",
-          "proxy_url_sponsor_hint": "Chưa có proxy phù hợp?",
           "max_retry_interval_hint": "Đặt thành 0 hoặc số nguyên âm để bỏ qua thời gian chờ cooldown giữa các lượt thử lại."
         },
         "streaming": {
@@ -1321,16 +1311,16 @@
         }
       },
       "api_keys": {
-        "label": "Danh sách API Key (api-keys)",
+        "label": "Khóa API của ứng dụng",
         "add": "Thêm API Key",
         "generate": "Tạo",
         "empty": "Chưa có API key",
-        "hint": "Mỗi mục là một API key (nhất quán với phong cách trang 'Quản lý API Key')",
+        "hint": "Cấp khóa riêng cho từng ứng dụng để có thể thay thế hoặc thu hồi quyền truy cập độc lập.",
         "edit_title": "Chỉnh sửa API Key",
         "add_title": "Thêm API Key",
         "input_label": "API Key",
         "input_placeholder": "Dán API key của bạn",
-        "input_hint": "Chỉ sửa nội dung file cấu hình cục bộ, không đồng bộ sang giao diện Quản lý API Key",
+        "input_hint": "Lưu thay đổi để áp dụng các cập nhật khóa cho proxy.",
         "error_empty": "Vui lòng nhập API key",
         "error_invalid": "API key chứa ký tự không hợp lệ",
         "strength": {
@@ -1344,7 +1334,15 @@
         "name_label": "Tên / mô tả (tùy chọn)",
         "name_placeholder": "Ví dụ: Laptop của Alice",
         "name_hint": "Được lưu ngay trong trình duyệt này, riêng cho từng máy chủ. Không bao gồm trong cấu hình máy chủ. Xóa trường này để xóa tên.",
-        "name_save_error": "Không thể lưu tên vào bộ lưu trữ trình duyệt. Vui lòng kiểm tra cài đặt lưu trữ của trình duyệt."
+        "name_save_error": "Không thể lưu tên vào bộ lưu trữ trình duyệt. Vui lòng kiểm tra cài đặt lưu trữ của trình duyệt.",
+        "search": "Tìm theo tên hoặc khóa",
+        "no_matches": "Không có khóa phù hợp",
+        "clear_search": "Xóa tìm kiếm",
+        "copied": "Đã sao chép",
+        "error_duplicate": "Khóa API này đã có trong danh sách.",
+        "error_missing": "Khóa này không còn trong danh sách. Hãy đóng hộp thoại và thử lại.",
+        "delete_title": "Xóa khóa API?",
+        "delete_confirm": "Xóa “{{name}}” khỏi danh sách? Quyền truy cập thay đổi sau khi lưu."
       },
       "payload_rules": {
         "rule": "Quy tắc",
@@ -2109,8 +2107,7 @@
       "activeResources": "{{active}}/{{total}} tài nguyên đang hoạt động",
       "providerFamilies": "{{count}} nhóm provider",
       "updatedAt": "Cập nhật {{time}}",
-      "subtitle": "Khóa API và endpoint thượng nguồn, nhóm theo nhà cung cấp.",
-      "quickStartSubtitle": "Một khóa APIKEY.FUN thiết lập sẵn mọi giao thức được hỗ trợ."
+      "subtitle": "Khóa API và endpoint thượng nguồn, nhóm theo nhà cung cấp."
     },
     "actions": {
       "refresh": "Làm mới",
@@ -2127,7 +2124,6 @@
     },
     "categories": {
       "title": "Provider",
-      "quickFill": "Điền nhanh",
       "activeCount": "{{active}}/{{total}} đang hoạt động"
     },
     "providerNames": {
@@ -2139,10 +2135,7 @@
       "claudeApi": "ClaudeAPI",
       "vertex": "Vertex",
       "openaiCompatibility": "Tương thích OpenAI",
-      "apikeyFun": "APIKEY.FUN",
       "code0": "Code0",
-      "fennoAI": "FennoAI",
-      "qiniuCloud": "Qiniu Cloud",
       "lmuAI": "LMU AI (Linhmou AI)",
       "infistar": "Infistar",
       "kimi": "Kimi",
@@ -2167,79 +2160,6 @@
       "description": "Quản lý tài nguyên trong {{route}}",
       "cliProfileTag": "Hồ sơ CLI",
       "searchLabel": "Tìm tài nguyên"
-    },
-    "sponsor": {
-      "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
-      "detailHint": "{{provider}} được lưu vào cấu hình API key tương ứng theo giao thức; khung xem này quản lý chúng cùng nhau.",
-      "registerLink": "Đăng ký tại đây",
-      "registerNow": "Đăng ký ngay",
-      "dashboardLink": "Bảng điều khiển",
-      "emptyRegisterHint": "Chưa có cấu hình nào.",
-      "apiKeyHint": "Key này chỉ được ghi vào cấu hình nhóm/giao thức đã chọn.",
-      "usageCheck": "Kiểm tra mức sử dụng",
-      "usageChecking": "Đang kiểm tra",
-      "usageRemaining": "Còn lại: {{amount}} {{unit}}",
-      "usageBreakdown": "Đã dùng {{used}} / Giới hạn {{limit}}",
-      "usageStatus": "Trạng thái: {{status}}",
-      "usageInvalid": "Key không hợp lệ",
-      "usageEmpty": "Endpoint không trả về dữ liệu sử dụng nào.",
-      "usageApiKeyRequired": "Cần có API key",
-      "aggregationConflict": "Provider được nhóm này chứa nhiều cấu hình backend hoặc key OpenAI. Hãy chỉnh trong cấu hình nguồn để tránh mất dữ liệu.",
-      "partialMutationWarning": "Thao tác thất bại sau khi một hoặc nhiều giao thức có thể đã được cập nhật. Cấu hình mới nhất đã được tải lại; hãy xem lại trước khi thử lại.",
-      "groupedKeysTitle": "Key được nhóm",
-      "groupedKeysHint": "Key nền tảng có thể được gắn vào nhóm khi tạo. Mỗi key được nhóm tại đây quản lý một giao thức, và khám phá model chỉ dùng giao thức đó.",
-      "groupedKey": "Key được nhóm #{{index}}",
-      "addGroupedKey": "Thêm key được nhóm",
-      "removeGroupedKey": "Xóa key được nhóm",
-      "protocol": "Nhóm/giao thức",
-      "protocolHint": "Chọn nhóm/giao thức cho key này.",
-      "protocolEndpoint": "Endpoint giao thức hiện tại",
-      "urlMode": "URL {{provider}}",
-      "urlHint": "Mọi URL dùng cùng quy ước API. Lưu chỉ ghi endpoint của giao thức được nhóm hiện tại.",
-      "urlOptions": {
-        "standard": "URL chuẩn",
-        "direct": "URL trực tiếp",
-        "domestic": "Tuyến Trung Quốc đại lục",
-        "overseas": "Tuyến nước ngoài",
-        "mainlandChina": "Trung Quốc đại lục (khuyến nghị)",
-        "global": "Toàn cầu"
-      },
-      "urlOptionDescriptions": {
-        "domestic": "Dành cho người dùng và khối lượng công việc tại Trung Quốc đại lục; thường có độ trễ thấp hơn trên mạng đại lục.",
-        "overseas": "Dành cho triển khai nước ngoài, truy cập xuyên biên giới hoặc khối lượng công việc cần model nước ngoài.",
-        "mainlandChinaRecommended": "Khuyến nghị cho người dùng và khối lượng công việc trên mạng Trung Quốc đại lục.",
-        "global": "Dành cho người dùng và khối lượng công việc ở mọi khu vực khác."
-      },
-      "modelsTitle": "Cài đặt model giao thức",
-      "modelsHint": "Cấu hình danh sách cho phép hoặc bí danh model riêng cho các tuyến Codex API, Anthropic, Gemini và tương thích OpenAI.",
-      "protocolModels": {
-        "codex": "Model Codex API",
-        "anthropic": "Model Anthropic",
-        "gemini": "Model Gemini",
-        "openai": "Model tương thích OpenAI"
-      },
-      "protocolModelHints": {
-        "codex": "Ghi vào cấu hình model Codex API. Lấy từ /v1/models và đặt bí danh nếu cần.",
-        "anthropic": "Ghi vào cấu hình model Anthropic. Lấy từ /v1/models và đặt bí danh nếu cần.",
-        "gemini": "Ghi vào cấu hình model Gemini. Lấy từ /v1beta/models và đặt bí danh nếu cần.",
-        "openai": "Ghi vào cấu hình model tương thích OpenAI. Lấy từ /models và đặt bí danh nếu cần."
-      },
-      "validation": {
-        "keyRequired": "Nhập API key cho mọi key được nhóm.",
-        "protocolDuplicate": "Mỗi giao thức chỉ có một key được nhóm."
-      },
-      "openaiEntries": "Key tương thích OpenAI",
-      "codexEntries": "Key Codex API",
-      "anthropicEntries": "Key Anthropic",
-      "geminiEntries": "Key Gemini",
-      "protocols": {
-        "anthropic": "Anthropic",
-        "openai": "Tương thích OpenAI",
-        "gemini": "Gemini",
-        "codexResponses": "Codex API (Responses)"
-      },
-      "kimiPromo": "Người dùng mới nạp tiền lần đầu thành công sẽ được tặng hạn mức API trị giá 10% số tiền nạp, tối đa ¥1000. Ưu đãi kết thúc vào ngày 30 tháng 9.",
-      "emptyDescription": "Thêm khóa APIKEY.FUN tại đây, hoặc đăng ký tài khoản trước."
     },
     "status": {
       "active": "Đang hoạt động",
@@ -2493,6 +2413,65 @@
       "noMatchTitle": "Không có tài nguyên phù hợp",
       "noMatchDescription": "Thử từ khóa khác hoặc xóa bộ lọc mô hình.",
       "clearFilters": "Xóa bộ lọc"
+    },
+    "multiProtocol": {
+      "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
+      "detailHint": "{{provider}} được lưu vào cấu hình API key tương ứng theo giao thức; khung xem này quản lý chúng cùng nhau.",
+      "apiKeyHint": "Key này chỉ được ghi vào cấu hình nhóm/giao thức đã chọn.",
+      "aggregationConflict": "Provider được nhóm này chứa nhiều cấu hình backend hoặc key OpenAI. Hãy chỉnh trong cấu hình nguồn để tránh mất dữ liệu.",
+      "partialMutationWarning": "Thao tác thất bại sau khi một hoặc nhiều giao thức có thể đã được cập nhật. Cấu hình mới nhất đã được tải lại; hãy xem lại trước khi thử lại.",
+      "groupedKeysTitle": "Key được nhóm",
+      "groupedKeysHint": "Key nền tảng có thể được gắn vào nhóm khi tạo. Mỗi key được nhóm tại đây quản lý một giao thức, và khám phá model chỉ dùng giao thức đó.",
+      "groupedKey": "Key được nhóm #{{index}}",
+      "addGroupedKey": "Thêm key được nhóm",
+      "removeGroupedKey": "Xóa key được nhóm",
+      "protocol": "Nhóm/giao thức",
+      "protocolHint": "Chọn nhóm/giao thức cho key này.",
+      "protocolEndpoint": "Endpoint giao thức hiện tại",
+      "urlMode": "URL {{provider}}",
+      "urlHint": "Mọi URL dùng cùng quy ước API. Lưu chỉ ghi endpoint của giao thức được nhóm hiện tại.",
+      "urlOptions": {
+        "standard": "URL chuẩn",
+        "direct": "URL trực tiếp",
+        "domestic": "Tuyến Trung Quốc đại lục",
+        "overseas": "Tuyến nước ngoài",
+        "mainlandChina": "Trung Quốc đại lục (khuyến nghị)",
+        "global": "Toàn cầu"
+      },
+      "urlOptionDescriptions": {
+        "domestic": "Dành cho người dùng và khối lượng công việc tại Trung Quốc đại lục; thường có độ trễ thấp hơn trên mạng đại lục.",
+        "overseas": "Dành cho triển khai nước ngoài, truy cập xuyên biên giới hoặc khối lượng công việc cần model nước ngoài.",
+        "mainlandChinaRecommended": "Khuyến nghị cho người dùng và khối lượng công việc trên mạng Trung Quốc đại lục.",
+        "global": "Dành cho người dùng và khối lượng công việc ở mọi khu vực khác."
+      },
+      "modelsTitle": "Cài đặt model giao thức",
+      "modelsHint": "Cấu hình danh sách cho phép hoặc bí danh model riêng cho các tuyến Codex API, Anthropic, Gemini và tương thích OpenAI.",
+      "protocolModels": {
+        "codex": "Model Codex API",
+        "anthropic": "Model Anthropic",
+        "gemini": "Model Gemini",
+        "openai": "Model tương thích OpenAI"
+      },
+      "protocolModelHints": {
+        "codex": "Ghi vào cấu hình model Codex API. Lấy từ /v1/models và đặt bí danh nếu cần.",
+        "anthropic": "Ghi vào cấu hình model Anthropic. Lấy từ /v1/models và đặt bí danh nếu cần.",
+        "gemini": "Ghi vào cấu hình model Gemini. Lấy từ /v1beta/models và đặt bí danh nếu cần.",
+        "openai": "Ghi vào cấu hình model tương thích OpenAI. Lấy từ /models và đặt bí danh nếu cần."
+      },
+      "validation": {
+        "keyRequired": "Nhập API key cho mọi key được nhóm.",
+        "protocolDuplicate": "Mỗi giao thức chỉ có một key được nhóm."
+      },
+      "openaiEntries": "Key tương thích OpenAI",
+      "codexEntries": "Key Codex API",
+      "anthropicEntries": "Key Anthropic",
+      "geminiEntries": "Key Gemini",
+      "protocols": {
+        "anthropic": "Anthropic",
+        "openai": "Tương thích OpenAI",
+        "gemini": "Gemini",
+        "codexResponses": "Codex API (Responses)"
+      }
     }
   },
   "devin_quota": {
@@ -2606,5 +2585,17 @@
     "error": "Liên kết thất bại. Hãy bắt đầu lại.",
     "unsupported": "Máy chủ này không hỗ trợ liên kết SIWC.",
     "expired": "Phiên liên kết đã hết hạn. Hãy bắt đầu lại."
+  },
+  "api_keys_page": {
+    "description": "Tạo và quản lý các khóa mà ứng dụng dùng để truy cập proxy này.",
+    "names_note": "Tên chỉ được lưu trong trình duyệt này, riêng cho từng máy chủ, và không được gửi đến proxy.",
+    "load_failed": "Không thể tải khóa API. Hãy làm mới để thử lại.",
+    "save_failed": "Không thể lưu khóa API. Bản nháp vẫn được giữ.",
+    "saved": "Đã lưu khóa API.",
+    "conflict": "Khóa trên máy chủ đã thay đổi. Hãy làm mới và kiểm tra danh sách trước khi lưu.",
+    "reload_confirm": "Làm mới sẽ bỏ các thay đổi khóa chưa lưu và tải danh sách hiện tại từ máy chủ.",
+    "unsaved": "Bạn có thay đổi khóa chưa lưu",
+    "remove_all_title": "Xóa tất cả khóa của ứng dụng?",
+    "remove_all_message": "Xóa tất cả khóa sẽ tắt kiểm tra khóa API đã cấu hình. Chỉ lưu nếu quyền truy cập proxy được bảo vệ bằng cách khác."
   }
 }
