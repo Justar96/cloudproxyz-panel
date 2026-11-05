@@ -14,6 +14,7 @@ import { LegacyBackendError, probeLegacyBackend } from '@/services/api/legacyBac
 import { useConfigStore } from './useConfigStore';
 import { useModelsStore } from './useModelsStore';
 import { useQuotaStore } from './useQuotaStore';
+import { useRequestLogStore } from './useRequestLogStore';
 import { detectApiBaseFromLocation, normalizeApiBase } from '@/utils/connection';
 
 interface AuthStoreState extends AuthState {
@@ -176,6 +177,7 @@ export const useAuthStore = create<AuthStoreState>()(
         useConfigStore.getState().clearCache();
         useModelsStore.getState().clearCache();
         useQuotaStore.getState().clearQuotaCache();
+        useRequestLogStore.getState().reset();
         set({
           isAuthenticated: false,
           apiBase: '',

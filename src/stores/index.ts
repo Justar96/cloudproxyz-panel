@@ -13,3 +13,4 @@ export {
   commitIfQuotaCacheCurrent,
   useQuotaStore,
 } from './useQuotaStore';
+export { requestLogScope, useRequestLogStore } from './useRequestLogStore';

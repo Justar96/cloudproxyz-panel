@@ -27,11 +27,13 @@ import {
   IconSidebarQuickStart,
   IconSidebarQuota,
   IconSidebarRouting,
+  IconSidebarRequests,
   IconSidebarStore,
   IconSidebarSystem,
   IconChevronDown,
 } from '@/components/ui/icons';
 import { BrandMark } from '@/components/common/BrandMark';
+import { useRequestLogCollector } from '@/features/requests/useRequestLogCollector';
 import {
   useAuthStore,
   useConfigStore,
@@ -67,6 +69,7 @@ const sidebarIcons: Record<string, ReactNode> = {
   pluginStore: <IconSidebarStore size={18} />,
   config: <IconSidebarConfig size={18} />,
   logs: <IconSidebarLogs size={18} />,
+  requests: <IconSidebarRequests size={18} />,
   system: <IconSidebarSystem size={18} />,
 };
 
@@ -259,6 +262,7 @@ const THEME_OPTIONS: Array<{ key: Theme; labelKey: string; icon: ReactNode }> = 
 
 export function MainLayout() {
   const { t } = useTranslation();
+  useRequestLogCollector();
   const { showNotification } = useNotificationStore();
   const location = useLocation();
 
@@ -591,6 +595,12 @@ export function MainLayout() {
           labelKey: 'nav.quota_management',
           metaKey: 'nav_meta.quota_management',
           icon: sidebarIcons.quota,
+        },
+        {
+          path: '/requests',
+          labelKey: 'nav.requests',
+          metaKey: 'nav_meta.requests',
+          icon: sidebarIcons.requests,
         },
         {
           path: '/logs',
