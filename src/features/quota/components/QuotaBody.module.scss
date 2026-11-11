@@ -84,6 +84,35 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Claude extra usage: the on/off state describes this label, not the credential, so it
+   sits beside the name and only the numeric utilization takes the right-hand slot. */
+.claudeExtraUsageTitle {
+  order: 1;
+  display: inline-flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
+
+  .quotaModel {
+    flex: 0 1 auto;
+  }
+}
+
+.claudeExtraUsageStatus {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: $radius-full;
+  background: color-mix(in srgb, var(--text-secondary) 10%, transparent);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
 .quotaPercent {
   order: 2;
   flex: 0 0 auto;

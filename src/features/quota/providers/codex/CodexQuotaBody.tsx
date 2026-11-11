@@ -1,5 +1,5 @@
 /**
- * Codex 额度渲染体：套餐 chip 行（档位见 cardTier.ts）、重置积分明细、用量窗口水位条。
+ * Codex 额度渲染体：套餐 chip 行（档位见 cardTier.ts）、宿主插槽、重置积分明细、用量窗口水位条。
  */
 
 import { useMemo } from 'react';
@@ -33,7 +33,12 @@ const formatCreditBalance = (value: string | null, locale?: string): string | nu
   return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(amount);
 };
 
-export function CodexQuotaBody({ quota, classes }: QuotaBodyProps<CodexQuotaState>) {
+export function CodexQuotaBody({
+  quota,
+  classes,
+  planItems,
+  afterPlan,
+}: QuotaBodyProps<CodexQuotaState>) {
   const { t, i18n } = useTranslation();
   const now = useNow();
   const locale = i18n.resolvedLanguage;
@@ -89,7 +94,8 @@ export function CodexQuotaBody({ quota, classes }: QuotaBodyProps<CodexQuotaStat
         expiryDisplay ||
         creditsUnlimited ||
         creditBalance !== null ||
-        rateLimitResetCreditsAvailableCount !== null) && (
+        rateLimitResetCreditsAvailableCount !== null ||
+        planItems) && (
         <div className={classes.codexPlan}>
           {planLabel && (
             <span className={classes.codexPlanItem}>
@@ -126,8 +132,10 @@ export function CodexQuotaBody({ quota, classes }: QuotaBodyProps<CodexQuotaStat
               </span>
             </span>
           )}
+          {planItems}
         </div>
       )}
+      {afterPlan}
       {windows.length === 0 ? (
         <div className={classes.quotaMessage}>{t('codex_quota.empty_windows')}</div>
       ) : (

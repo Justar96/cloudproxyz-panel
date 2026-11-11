@@ -13,7 +13,7 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { IconRefreshCw } from '@/components/ui/icons';
-import type { ClaudeQuotaState, ResolvedTheme } from '@/types';
+import type { ClaudeQuotaState, CodexQuotaState, ResolvedTheme } from '@/types';
 import { resolveQuotaErrorMessage } from '@/utils/quota';
 import { getQuotaDisplayName } from '@/utils/quota/identity';
 import { getAuthFileIcon, getTypeLabel } from '@/features/authFiles/constants';
@@ -23,8 +23,12 @@ import { QUOTA_ADAPTERS, type QuotaCardState } from '../providers';
 import { isQuotaRefreshDisabled, type QuotaFileEntry } from '../logic';
 import type { QuotaHealth } from '../health';
 import { useClaudeResetGrants } from '../providers/claude/ClaudeResetGrants';
+import { ClaudeResetGrantDialog } from '../providers/claude/ClaudeResetGrantDialog';
 import { ClaudeResetGrantDetails } from '../providers/claude/ClaudeResetGrantDetails';
 import { hasClaudeUsageData } from '../providers/claude/data';
+import { CodexCreditOverageDialog } from '../providers/codex/CodexCreditOverageDialog';
+import { CodexCreditOverageRow } from '../providers/codex/CodexCreditOverageRow';
+import { useCodexCreditOverage } from '../providers/codex/useCodexCreditOverage';
 import bodyStyles from './QuotaBody.module.scss';
 import styles from './QuotaCard.module.scss';
 
@@ -43,6 +47,8 @@ export type QuotaCardProps = {
   minRemaining?: number | null;
   /** Print the provider under the name; off when the surrounding UI already names it. */
   showProvider?: boolean;
+  /** Codex only: credentials in the panel sharing this account user's credit setting. */
+  creditOverageSharedCount?: number;
   onRefresh: () => void;
   onReset: () => void;
 };
@@ -57,6 +63,7 @@ export function QuotaCard(props: QuotaCardProps) {
     health,
     minRemaining = null,
     showProvider = true,
+    creditOverageSharedCount = 1,
     onRefresh,
     onReset,
   } = props;
@@ -80,6 +87,20 @@ export function QuotaCard(props: QuotaCardProps) {
     quota,
     onRefresh
   );
+  const creditOverage = useCodexCreditOverage(
+    file,
+    entry.type === 'codex' ? (quota as CodexQuotaState | undefined) : undefined,
+    !canRefresh || loading || resetting
+  );
+  const codexAfterPlan = creditOverage.visible ? (
+    <CodexCreditOverageRow
+      entry={creditOverage.entry}
+      classes={quotaClasses}
+      disabled={creditOverage.blocked}
+      name={displayName}
+      onManage={creditOverage.openDialog}
+    />
+  ) : undefined;
   const providerType =
     entry.type === 'plugin'
       ? String(file.quotaProvider ?? file.provider ?? file.type ?? 'plugin')
@@ -210,6 +231,7 @@ export function QuotaCard(props: QuotaCardProps) {
               <adapter.Body
                 quota={staleError ? ({ ...quota, stale: false } as QuotaCardState) : quota}
                 classes={quotaClasses}
+                afterPlan={entry.type === 'codex' ? codexAfterPlan : undefined}
               />
             )}
             {entry.type === 'claude' && status === 'success' && (
@@ -232,7 +254,8 @@ export function QuotaCard(props: QuotaCardProps) {
                   size="sm"
                   className={styles.action}
                   disabled={claudeReset.blocked}
-                  onClick={claudeReset.confirm}
+                  onClick={claudeReset.openDialog}
+                  aria-haspopup="dialog"
                   title={t(`claude_reset.${claudeReset.buttonLabel}`)}
                 >
                   <IconRefreshCw
@@ -269,6 +292,39 @@ export function QuotaCard(props: QuotaCardProps) {
             </footer>
           )}
         </>
+      )}
+      {entry.type === 'claude' && (
+        <ClaudeResetGrantDialog
+          open={claudeReset.open}
+          grants={claudeReset.grants}
+          selected={claudeReset.selected}
+          canRedeemGrant={claudeReset.canRedeemGrant}
+          onSelect={claudeReset.selectGrant}
+          busy={claudeReset.busy}
+          loading={claudeReset.loading}
+          pendingGrantId={claudeReset.pendingGrantId}
+          message={claudeReset.message}
+          name={displayName}
+          onConfirm={() => void claudeReset.confirm()}
+          onClose={claudeReset.closeDialog}
+        />
+      )}
+      {creditOverage.context && (
+        <CodexCreditOverageDialog
+          open={creditOverage.open}
+          context={creditOverage.context}
+          entry={creditOverage.entry}
+          operation={creditOverage.operation}
+          writeDisabled={creditOverage.writeDisabled}
+          contextCurrent={creditOverage.contextCurrent}
+          sharedCredentialCount={creditOverageSharedCount}
+          selection={creditOverage.selection}
+          pendingTarget={creditOverage.pendingTarget}
+          feedback={creditOverage.feedback}
+          onSelect={creditOverage.selectValue}
+          onSave={() => void creditOverage.save()}
+          onClose={creditOverage.closeDialog}
+        />
       )}
     </article>
   );

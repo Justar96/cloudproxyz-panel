@@ -38,6 +38,7 @@ import {
   sortAuthFiles,
 } from '@/features/authFiles/logic';
 import { useAuthFilesData } from '@/features/authFiles/hooks/useAuthFilesData';
+import { useModelCatalogSync } from '@/features/authFiles/hooks/useModelCatalogSync';
 import { useAuthFilesModels } from '@/features/authFiles/hooks/useAuthFilesModels';
 import { useAuthFilesOauth } from '@/features/authFiles/hooks/useAuthFilesOauth';
 import { useAuthFilesPrefixProxyEditor } from '@/features/authFiles/hooks/useAuthFilesPrefixProxyEditor';
@@ -108,6 +109,15 @@ export function AuthFilesPage() {
     invalidateModels,
   } = useAuthFilesModels();
 
+  const [modelCatalogVersion, setModelCatalogVersion] = useState(0);
+  const { syncingModelCatalog, syncModelCatalog } = useModelCatalogSync(() => {
+    invalidateModels();
+    setModelCatalogVersion((version) => version + 1);
+    if (modelsModalOpen) {
+      void showModels({ name: modelsFileName, type: modelsFileType });
+    }
+  });
+
   const invalidateDerivedCaches = useCallback(
     (names?: string[]) => invalidateAuthFileDerivedCaches(invalidateModels, names),
     [invalidateModels]
@@ -166,7 +176,7 @@ export function AuthFilesPage() {
     handleToggleFork,
     handleRenameAlias,
     handleDeleteAlias,
-  } = useAuthFilesOauth({ viewMode, files });
+  } = useAuthFilesOauth({ viewMode, files, modelCatalogVersion });
 
   const {
     prefixProxyEditor,
@@ -562,6 +572,9 @@ export function AuthFilesPage() {
   return (
     <div className={`page ${styles.page}`}>
       <VaultHeader
+        syncingModelCatalog={syncingModelCatalog}
+        onSyncModelCatalog={() => void syncModelCatalog()}
+        modelCatalogSyncDisabled={connectionStatus !== 'connected'}
         totalCount={files.length}
         activeCount={activeCount}
         problemCount={problemCount}

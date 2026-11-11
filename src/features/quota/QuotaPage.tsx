@@ -52,6 +52,10 @@ import {
 import { nextRecoveryMs } from './resetSchedule';
 import { getQuotaProviderIcon } from './providerIcons';
 import { QUOTA_ADAPTERS, getQuotaSetter, type QuotaCardState } from './providers';
+import {
+  codexCreditOverageKey,
+  countCodexCreditOverageKeys,
+} from './providers/codex/creditOverage';
 import type { QuotaProviderType } from './providers/types';
 import { useDevinQuotaAutoLoad } from './providers/devin/useDevinQuotaAutoLoad';
 import { useQuotaActions } from './hooks/useQuotaActions';
@@ -178,6 +182,14 @@ export function QuotaPage() {
 
   const entries = useMemo(() => classifyQuotaFiles(files), [files]);
   const tabCounts = useMemo(() => buildTabCounts(entries), [entries]);
+  // Account-level settings span every page and tab, so count over all entries.
+  const codexCreditOverageCounts = useMemo(
+    () =>
+      countCodexCreditOverageKeys(
+        entries.filter((entry) => entry.type === 'codex').map((entry) => entry.file)
+      ),
+    [entries]
+  );
 
   // Health per credential from the quota already loaded (no requests).
   const healthByKey = useMemo(() => {
@@ -351,6 +363,11 @@ export function QuotaPage() {
       resetting={resettingQuotaName === getQuotaCacheKey(entry.file)}
       health={healthOf(entry)}
       minRemaining={healthByKey.get(entry)?.minRemaining ?? null}
+      creditOverageSharedCount={
+        entry.type === 'codex'
+          ? codexCreditOverageCounts.get(codexCreditOverageKey(entry.file) ?? '')
+          : undefined
+      }
       onRefresh={() => void refreshQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
       onReset={() => resetQuota(entry.file, QUOTA_ADAPTERS[entry.type])}
     />
