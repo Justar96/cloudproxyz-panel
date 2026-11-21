@@ -19,3 +19,10 @@
 .layoutSingle {
   grid-template-columns: minmax(0, 1fr);
 }
+
+.quickStartStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}

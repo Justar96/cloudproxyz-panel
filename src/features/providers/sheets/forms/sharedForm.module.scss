@@ -42,16 +42,14 @@
     gap: 7px;
   }
 
-  .label {
+  .label,
+  .labelLine {
     font-size: 13px;
-    font-weight: 500;
     line-height: 18px;
   }
 
-  .labelHint {
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--text-quaternary);
+  .label {
+    font-weight: 500;
   }
 
   .input,
@@ -87,7 +85,6 @@
   }
 
   .sponsorUrlOptionText small,
-  .checkboxText small,
   .sponsorProtocolUrl,
   .sponsorUsageResult,
   .connectivityError,
@@ -172,11 +169,12 @@
   color: var(--text-secondary);
 }
 
-.labelHint {
+/* Label + InfoTip (FieldLabel). Plain inline flow at the label's own size, so the InfoTip
+   brings its own spacing and follows the last word when a long label wraps. */
+.labelLine {
+  display: block;
+  min-width: 0;
   font-size: 12px;
-  line-height: 16px;
-  color: var(--text-quaternary);
-  font-weight: 400;
 }
 
 .input,
@@ -273,12 +271,15 @@
   font-size: 14px;
   line-height: 20px;
   color: var(--text-primary);
+}
 
-  small {
-    color: var(--text-secondary);
-    font-size: 12px;
-    line-height: 16px;
-  }
+/* Checkbox row + InfoTip (CheckboxField). The InfoTip stays outside the <label>; the row
+   shrinks to its content so the icon sits right after the text. */
+.checkboxLine {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  font-size: 14px;
 }
 
 .fieldRow {
@@ -329,6 +330,18 @@
 
 .detailHeader {
   margin-bottom: 4px;
+}
+
+/* Sponsor detail: name + InfoTip on one line, in normal inline flow. */
+.detailTitleLine {
+  display: block;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.detailTitle {
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .entryCard {
@@ -999,12 +1012,6 @@
   border: 0;
 }
 
-.thinkingExistingHint {
-  margin: 0;
-  color: var(--status-attention-text);
-  font-size: 12px;
-  line-height: 16px;
-}
 
 .thinkingLevelGrid {
   display: grid;

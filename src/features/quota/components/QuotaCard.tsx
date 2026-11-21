@@ -12,8 +12,8 @@
 
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
-import { IconRefreshCw } from '@/components/ui/icons';
-import type { ClaudeQuotaState, ResolvedTheme } from '@/types';
+import { IconChevronDown, IconRefreshCw } from '@/components/ui/icons';
+import type { ClaudeQuotaState, CodexQuotaState, ResolvedTheme } from '@/types';
 import { resolveQuotaErrorMessage } from '@/utils/quota';
 import { getQuotaDisplayName } from '@/utils/quota/identity';
 import { getAuthFileIcon, getTypeLabel } from '@/features/authFiles/constants';
@@ -23,8 +23,12 @@ import { QUOTA_ADAPTERS, type QuotaCardState } from '../providers';
 import { isQuotaRefreshDisabled, type QuotaFileEntry } from '../logic';
 import type { QuotaHealth } from '../health';
 import { useClaudeResetGrants } from '../providers/claude/ClaudeResetGrants';
+import { ClaudeResetGrantDialog } from '../providers/claude/ClaudeResetGrantDialog';
 import { ClaudeResetGrantDetails } from '../providers/claude/ClaudeResetGrantDetails';
 import { hasClaudeUsageData } from '../providers/claude/data';
+import { CodexCreditOverageDialog } from '../providers/codex/CodexCreditOverageDialog';
+import { CodexCreditOverageRow } from '../providers/codex/CodexCreditOverageRow';
+import { useCodexCreditOverage } from '../providers/codex/useCodexCreditOverage';
 import bodyStyles from './QuotaBody.module.scss';
 import styles from './QuotaCard.module.scss';
 
@@ -43,6 +47,14 @@ export type QuotaCardProps = {
   minRemaining?: number | null;
   /** Print the provider under the name; off when the surrounding UI already names it. */
   showProvider?: boolean;
+  /**
+   * Compact layout only: true shows the glance card (name, plan, one line per limit),
+   * false the full card. Undefined (other layouts) shows the full card with no toggle.
+   */
+  glance?: boolean;
+  onToggleGlance?: () => void;
+  /** Codex only: credentials in the panel sharing this account user's credit setting. */
+  creditOverageSharedCount?: number;
   onRefresh: () => void;
   onReset: () => void;
 };
@@ -55,8 +67,10 @@ export function QuotaCard(props: QuotaCardProps) {
     canRefresh,
     resetting,
     health,
-    minRemaining = null,
     showProvider = true,
+    glance,
+    onToggleGlance,
+    creditOverageSharedCount = 1,
     onRefresh,
     onReset,
   } = props;
@@ -94,16 +108,26 @@ export function QuotaCard(props: QuotaCardProps) {
     quota?.errorStatus,
     quota?.error || t('common.unknown_error')
   );
+  const creditOverage = useCodexCreditOverage(
+    file,
+    entry.type === 'codex' ? (quota as CodexQuotaState | undefined) : undefined,
+    !canRefresh || loading || resetting
+  );
+  const codexAfterPlan = creditOverage.visible ? (
+    <CodexCreditOverageRow
+      entry={creditOverage.entry}
+      classes={quotaClasses}
+      disabled={creditOverage.blocked}
+      name={displayName}
+      onManage={creditOverage.openDialog}
+    />
+  ) : undefined;
   const showReset =
     status === 'success' &&
     Boolean(adapter.resetQuota) &&
     quota !== undefined &&
     Boolean(adapter.canResetQuota?.(quota));
 
-  const headline =
-    status === 'success' && minRemaining !== null
-      ? Math.round(Math.max(0, Math.min(100, minRemaining)))
-      : null;
   const refreshDisabled = isQuotaRefreshDisabled(
     canRefresh,
     loading,
@@ -112,7 +136,11 @@ export function QuotaCard(props: QuotaCardProps) {
   const hasFooter = status !== 'idle' && (entry.type === 'claude' || showReset);
 
   return (
-    <article className={styles.card} data-health={health}>
+    <article
+      className={`${styles.card} ${glance ? styles.cardGlance : ''}`}
+      data-health={health}
+      data-quota-glance={glance ? '' : undefined}
+    >
       <header className={styles.head}>
         <div className={styles.identity}>
           <span className={styles.iconWrap} title={typeLabel}>
@@ -129,6 +157,24 @@ export function QuotaCard(props: QuotaCardProps) {
             {showProvider && <span className={styles.typeLabel}>{typeLabel}</span>}
           </span>
         </div>
+        {status !== 'idle' && !glance && (
+          <span className={styles.health} data-health={health}>
+            <span className={styles.healthDot} aria-hidden="true" />
+            {t(`quota_management.health_${health}`)}
+          </span>
+        )}
+        {glance !== undefined && (
+          <button
+            type="button"
+            className={styles.glanceToggle}
+            onClick={onToggleGlance}
+            aria-expanded={!glance}
+            aria-label={`${t(glance ? 'card_layout.show_details' : 'card_layout.hide_details')}: ${displayName}`}
+            title={t(glance ? 'card_layout.show_details' : 'card_layout.hide_details')}
+          >
+            <IconChevronDown size={14} />
+          </button>
+        )}
         {status !== 'idle' && (
           <Button
             variant="ghost"
@@ -140,7 +186,7 @@ export function QuotaCard(props: QuotaCardProps) {
             aria-label={t('auth_files.quota_refresh_single')}
           >
             <IconRefreshCw
-              size={16}
+              size={14}
               aria-hidden="true"
               className={loading ? styles.spinning : undefined}
             />
@@ -157,22 +203,6 @@ export function QuotaCard(props: QuotaCardProps) {
         </div>
       ) : (
         <>
-          <div className={styles.summary}>
-            {headline !== null && (
-              <div className={styles.headline}>
-                <span className={styles.headlineValue}>
-                  {headline}
-                  <span className={styles.headlineUnit}>%</span>
-                </span>
-                <span className={styles.headlineHint}>{t('quota_management.headline_hint')}</span>
-              </div>
-            )}
-            <span className={styles.health} data-health={health}>
-              <span className={styles.healthDot} aria-hidden="true" />
-              {t(`quota_management.health_${health}`)}
-            </span>
-          </div>
-
           <div className={styles.body}>
             {loading && retainedClaudeUsage ? (
               <p role="status" aria-busy="true" className={quotaClasses.quotaMessage}>
@@ -210,9 +240,10 @@ export function QuotaCard(props: QuotaCardProps) {
               <adapter.Body
                 quota={staleError ? ({ ...quota, stale: false } as QuotaCardState) : quota}
                 classes={quotaClasses}
+                afterPlan={codexAfterPlan}
               />
             )}
-            {entry.type === 'claude' && status === 'success' && (
+            {entry.type === 'claude' && status === 'success' && !glance && (
               <>
                 <ClaudeResetGrantDetails grants={claudeReset.grants} classes={quotaClasses} />
                 {claudeReset.message && (
@@ -224,7 +255,7 @@ export function QuotaCard(props: QuotaCardProps) {
             )}
           </div>
 
-          {hasFooter && (
+          {hasFooter && !glance && (
             <footer className={styles.footer}>
               {entry.type === 'claude' && (
                 <Button
@@ -232,7 +263,8 @@ export function QuotaCard(props: QuotaCardProps) {
                   size="sm"
                   className={styles.action}
                   disabled={claudeReset.blocked}
-                  onClick={claudeReset.confirm}
+                  onClick={claudeReset.openDialog}
+                  aria-haspopup="dialog"
                   title={t(`claude_reset.${claudeReset.buttonLabel}`)}
                 >
                   <IconRefreshCw
@@ -269,6 +301,39 @@ export function QuotaCard(props: QuotaCardProps) {
             </footer>
           )}
         </>
+      )}
+      {entry.type === 'claude' && (
+        <ClaudeResetGrantDialog
+          open={claudeReset.open}
+          grants={claudeReset.grants}
+          selected={claudeReset.selected}
+          canRedeemGrant={claudeReset.canRedeemGrant}
+          onSelect={claudeReset.selectGrant}
+          busy={claudeReset.busy}
+          loading={claudeReset.loading}
+          pendingGrantId={claudeReset.pendingGrantId}
+          message={claudeReset.message}
+          name={displayName}
+          onConfirm={() => void claudeReset.confirm()}
+          onClose={claudeReset.closeDialog}
+        />
+      )}
+      {creditOverage.context && (
+        <CodexCreditOverageDialog
+          open={creditOverage.open}
+          context={creditOverage.context}
+          entry={creditOverage.entry}
+          operation={creditOverage.operation}
+          writeDisabled={creditOverage.writeDisabled}
+          contextCurrent={creditOverage.contextCurrent}
+          sharedCredentialCount={creditOverageSharedCount}
+          selection={creditOverage.selection}
+          pendingTarget={creditOverage.pendingTarget}
+          feedback={creditOverage.feedback}
+          onSelect={creditOverage.selectValue}
+          onSave={() => void creditOverage.save()}
+          onClose={creditOverage.closeDialog}
+        />
       )}
     </article>
   );

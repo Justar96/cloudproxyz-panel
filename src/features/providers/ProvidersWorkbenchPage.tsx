@@ -157,7 +157,7 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
     () =>
       fixedBrand
         ? allGroups.filter((group) => group.id === fixedBrand)
-        : allGroups.filter((group) => group.id !== 'apikeyFun'),
+        : allGroups.filter((group) => !isMultiProtocolSponsorBrand(group.id)),
     [allGroups, fixedBrand]
   );
   const firstVisibleBrand = groups[0]?.id ?? fixedBrand ?? 'gemini';
@@ -456,11 +456,13 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
           />
         ) : null}
         {fixedBrand === 'apikeyFun' ? (
-          <SponsorQuickStartPanel
-            resource={quickStartResource}
-            workbench={workbench}
-            mutationDisabled={disableMutations}
-          />
+          <div className={styles.quickStartStack}>
+            <SponsorQuickStartPanel
+              resource={quickStartResource}
+              workbench={workbench}
+              mutationDisabled={disableMutations}
+            />
+          </div>
         ) : (
           <ProviderResourcePanel
             group={activeGroup}

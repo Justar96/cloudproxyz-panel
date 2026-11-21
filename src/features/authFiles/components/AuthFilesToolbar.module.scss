@@ -24,6 +24,8 @@
   :global(.input) {
     min-height: 36px;
     padding-block: 8px;
+    padding-right: 34px;
+    text-overflow: ellipsis;
   }
 }
 
@@ -147,6 +149,10 @@
   font-size: 14px;
   line-height: 20px;
   color: var(--text-primary);
+}
+
+.popoverRow > span {
+  white-space: nowrap;
 }
 
 .pageSizeInput {

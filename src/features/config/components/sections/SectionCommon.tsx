@@ -29,7 +29,6 @@ export function SectionCommon({
   return (
     <SectionCard
       title={t('config_management.visual.sections.common.title')}
-      description={t('config_management.visual.sections.common.description')}
     >
       <SettingList>
         <HostField {...fieldProps} />

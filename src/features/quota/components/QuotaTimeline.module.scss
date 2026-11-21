@@ -20,6 +20,11 @@ $lane-width: 210px;
   flex-wrap: wrap;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+}
+
 .title {
   margin: 0;
   font-size: 16px;
@@ -130,11 +135,11 @@ $lane-width: 210px;
 }
 
 .axisCells {
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--timeline-columns);
 }
 
 .axisCell {
-  flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -206,6 +211,14 @@ $lane-width: 210px;
   white-space: nowrap;
 }
 
+.laneGroupName {
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
 .lanePeriod {
   flex: none;
   padding: 0 6px;
@@ -248,10 +261,10 @@ $lane-width: 210px;
 .trackGrid {
   position: absolute;
   inset: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--timeline-columns);
 
   > span {
-    flex: 1 1 0;
     border-left: 1px solid var(--border-color);
 
     &[data-weekend='1'] {
@@ -391,17 +404,12 @@ $lane-width: 210px;
   background: var(--viz-warning);
 }
 
-.legendNote {
-  flex: 1 1 320px;
-  min-width: 0;
-  color: var(--text-quaternary);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .nav button {
     transition: none;
   }
 }
+
 
 @include mobile {
   // The lane column can't shrink much before names become unreadable, so the

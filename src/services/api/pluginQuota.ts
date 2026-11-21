@@ -99,6 +99,9 @@ export function resolveQuotaPluginId(
     candidates.find((plugin) => normalizeProviderId(plugin.quotaProvider) === target) ??
     candidates.find((plugin) => normalizeProviderId(plugin.id) === target) ??
     candidates.find((plugin) => normalizeProviderId(plugin.oauthProvider) === target) ??
+    candidates.find((plugin) =>
+      (plugin.oauthProviders ?? []).some((id) => normalizeProviderId(id) === target)
+    ) ??
     (candidates.length === 1 ? candidates[0] : undefined);
   return match?.id ?? null;
 }

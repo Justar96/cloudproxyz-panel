@@ -24,7 +24,15 @@
   padding-bottom: 16px;
 }
 
+/* 标题 + InfoTip：普通行内流，字号/行高与标题一致，InfoTip 不撑高这一行。 */
+.titleLine {
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+
 .title {
+  display: inline;
   margin: 0;
   color: var(--text-primary);
   font-size: 16px;

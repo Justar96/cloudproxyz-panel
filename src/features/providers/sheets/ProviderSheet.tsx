@@ -230,21 +230,8 @@ export function ProviderSheet({
       open={state.open}
       onClose={onClose}
       size={descriptor.sheetSize}
+      // The title already reads "<mode> · <provider>"; no eyebrow or route subtitle to repeat it.
       title={titleText}
-      description={t('providersPage.table.description', {
-        route:
-          state.brand === 'openaiCompatibility'
-            ? '/ai-providers/openai'
-            : state.brand === 'apikeyFun'
-              ? '/quick-start'
-              : state.brand === 'fennoAI'
-                ? '/ai-providers/fennoai'
-                : state.brand === 'qiniuCloud'
-                  ? '/ai-providers/qiniu'
-                  : state.brand === 'kimi'
-                    ? '/ai-providers/kimi'
-                    : `/ai-providers/${state.brand}`,
-      })}
       footer={footer}
       closeDisabled={submitting}
       confirmClose={confirmDiscardIfDirty}

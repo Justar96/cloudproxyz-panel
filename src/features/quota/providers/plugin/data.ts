@@ -1,5 +1,7 @@
 import type { TFunction } from 'i18next';
 import type { AuthFileItem, PluginQuotaState } from '@/types';
+export { resolveQuotaPluginId } from '@/services/api/pluginQuota';
+
 import {
   pluginQuotaApi,
   PluginQuotaUnavailableError,

@@ -27,14 +27,12 @@ export function SectionStreaming({
   return (
     <SectionCard
       title={t('config_management.visual.sections.streaming.title')}
-      description={t('config_management.visual.sections.streaming.description')}
     >
       <SettingList>
         <TextSetting
           fieldId="streamingKeepaliveSeconds"
           size="sm"
           label={t('config_management.visual.sections.streaming.keepalive_seconds')}
-          description={t('config_management.visual.sections.streaming.keepalive_hint')}
           type="number"
           placeholder="0"
           value={streaming.keepaliveSeconds}

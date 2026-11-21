@@ -298,6 +298,28 @@
   }
 }
 
+.modelsActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  max-width: 100%;
+
+  > button {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
+.modelsActionLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
 .groupHeading {
   display: flex;
   min-width: 0;

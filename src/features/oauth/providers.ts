@@ -1,9 +1,5 @@
 import type { BuiltInOAuthProvider } from '@/services/api';
 import { getPluginTitle, resolvePluginAssetURL } from '@/features/plugins/pluginResources';
-import {
-  KIMI_CHINESE_AFFILIATE_URL,
-  KIMI_INTERNATIONAL_AFFILIATE_URL,
-} from '@/features/providers/kimi';
 import type { PluginListEntry } from '@/types';
 import iconMeta from '@/assets/icons/meta.svg';
 import iconCodex from '@/assets/icons/codex.svg';
@@ -34,6 +30,10 @@ export interface BuiltInOAuthProviderCard {
   /** 区分同品牌的不同站点，磁贴副行展示。 */
   domain?: string;
   /**
+   * Sign-in note attached to the InfoTip next to the open-auth step.
+   */
+  signInNoteKey?: string;
+  /**
    * Sponsor sites share one brand card in the first row, each with a login entry and a
    * registration link (currently Kimi China / International). `siteKey` is the short site name.
    */
@@ -54,7 +54,6 @@ export interface PluginOAuthProviderCard {
 
 export type OAuthProviderCard = BuiltInOAuthProviderCard | PluginOAuthProviderCard;
 
-/** 展示顺序即数组顺序：赞助商（Kimi 两站）置首，其余沿用原有次序。 */
 export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
   {
     kind: 'builtin',
@@ -64,7 +63,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     icon: { light: iconKimiTileBlack, dark: iconKimiTileWhite },
     flow: 'device',
     domain: 'kimi.com',
-    sponsor: { signUpUrl: KIMI_CHINESE_AFFILIATE_URL, siteKey: 'auth_login.sponsor_site_china' },
+    signInNoteKey: 'auth_login.kimi_oauth_hint',
   },
   {
     kind: 'builtin',
@@ -74,10 +73,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     icon: { light: iconKimiTileBlack, dark: iconKimiTileWhite },
     flow: 'device',
     domain: 'kimi.ai',
-    sponsor: {
-      signUpUrl: KIMI_INTERNATIONAL_AFFILIATE_URL,
-      siteKey: 'auth_login.sponsor_site_international',
-    },
+    signInNoteKey: 'auth_login.kimi_ai_oauth_hint',
   },
   {
     kind: 'builtin',
@@ -110,6 +106,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.antigravity_oauth_title',
     icon: iconAntigravity,
     flow: 'browser',
+    signInNoteKey: 'auth_login.antigravity_oauth_hint',
   },
   {
     kind: 'builtin',
@@ -126,6 +123,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.devin_oauth_title',
     icon: { light: iconDevin, dark: iconDevinDark },
     flow: 'browser',
+    signInNoteKey: 'auth_login.devin_oauth_hint',
   },
 ];
 
@@ -151,29 +149,36 @@ export const isSponsor = (
 export const resolveThemedIcon = (icon: ThemedIcon, theme: 'light' | 'dark'): string =>
   typeof icon === 'string' ? icon : icon[theme];
 
+/**
+ * 一个插件可能声明多个登录入口（各自带标题与图标），每个入口一张卡；
+ * v8.0.49 之前只有单个 `oauth_provider`，那时仍然只出一张卡。
+ */
 export const buildPluginOAuthProviderCards = (
   plugins: PluginListEntry[],
   apiBase: string
 ): PluginOAuthProviderCard[] => {
   const seenProviders = new Set(BUILTIN_PROVIDER_IDS);
   return plugins.flatMap((plugin) => {
-    const provider = plugin.oauthProvider;
-    if (
-      !plugin.supportsOAuth ||
-      !plugin.effectiveEnabled ||
-      !provider ||
-      seenProviders.has(provider)
-    ) {
-      return [];
-    }
-    seenProviders.add(provider);
-    return [
-      {
-        kind: 'plugin' as const,
-        id: provider,
-        title: getPluginTitle(plugin),
-        icon: resolvePluginAssetURL(plugin.logo || plugin.metadata?.logo || '', apiBase),
-      },
-    ];
+    if (!plugin.supportsOAuth || !plugin.effectiveEnabled) return [];
+    const declared = plugin.oauthProviders?.length
+      ? plugin.oauthProviders
+      : plugin.oauthProvider
+        ? [plugin.oauthProvider]
+        : [];
+    const pluginTitle = getPluginTitle(plugin);
+    const pluginLogo = plugin.logo || plugin.metadata?.logo || '';
+    return declared.flatMap((provider) => {
+      if (seenProviders.has(provider)) return [];
+      seenProviders.add(provider);
+      const entry = plugin.oauthProviderEntries?.find((item) => item.identifier === provider);
+      return [
+        {
+          kind: 'plugin' as const,
+          id: provider,
+          title: entry?.name?.trim() || pluginTitle,
+          icon: resolvePluginAssetURL(entry?.logo?.trim() || pluginLogo, apiBase),
+        },
+      ];
+    });
   });
 };

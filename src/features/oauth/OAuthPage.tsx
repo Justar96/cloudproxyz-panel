@@ -6,6 +6,7 @@ import iconVertex from '@/assets/icons/vertex.svg';
 import iconCodex from '@/assets/icons/codex.svg';
 import { KIMI_DISPLAY_NAME } from '@/features/providers/kimi';
 import { OAuthHeader } from './components/OAuthHeader';
+import { LoginProxyField } from './components/LoginProxyField';
 import { ProviderTile } from './components/ProviderTile';
 import { SponsorCard, type SponsorCardSite } from './components/SponsorCard';
 import { OAuthFlowDialog, type DialogHeading } from './components/OAuthFlowDialog';
@@ -98,6 +99,9 @@ export function OAuthPage() {
     icon: iconOf(card),
   });
 
+  const signInNoteOf = (card: OAuthProviderCard) =>
+    card.kind === 'builtin' && card.signInNoteKey ? t(card.signInNoteKey) : undefined;
+
   const sponsorOf = (card: OAuthProviderCard) =>
     isSponsor(card)
       ? { url: card.sponsor.signUpUrl, label: t('auth_login.kimi_sign_up_button') }
@@ -180,6 +184,13 @@ export function OAuthPage() {
         addedCount={flows.addedCount}
       />
 
+      {/* Optional login proxy: configured before clicking a tile without changing the fast path. */}
+      <LoginProxyField
+        value={flows.loginProxy}
+        rejectedValue={flows.loginProxyRejected}
+        onChange={flows.setLoginProxy}
+      />
+
       {/* Sponsors share one brand card in the first row; other providers follow in the grid. */}
       {sponsorCards.length > 0 && (
         <SponsorCard
@@ -224,6 +235,7 @@ export function OAuthPage() {
           state={flows.states[dialogCard.id] ?? {}}
           text={(suffix) => flows.providerText(dialogCard.id, suffix)}
           supportsCallback={supportsManualCallback(dialogCard)}
+          signInNote={signInNoteOf(dialogCard)}
           sponsor={sponsorOf(dialogCard)}
           onStart={() => void flows.startAuth(dialogCard.id)}
           onCancel={() => void flows.cancelAuth(dialogCard.id)}

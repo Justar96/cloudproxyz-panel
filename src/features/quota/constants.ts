@@ -21,3 +21,9 @@ export const QUOTA_PAGE_SIZE = 20;
 export const QUOTA_SORT_MODES = ['default', 'soonest'] as const;
 
 export type QuotaSortMode = (typeof QUOTA_SORT_MODES)[number];
+/** Card layout (Even rows / Stacked / Compact), kept in localStorage across sessions. */
+export const QUOTA_CARD_LAYOUT_KEY = 'quotaPage.cardLayout';
+
+/** Column minimums and gaps for the Stacked and Compact layouts; Even rows uses `.grid`. */
+export const QUOTA_STACKED_COLUMNS = { minColumnWidth: 280, gap: 12 } as const;
+export const QUOTA_COMPACT_COLUMNS = { minColumnWidth: 230, gap: 10 } as const;

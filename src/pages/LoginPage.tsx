@@ -98,19 +98,25 @@ export function LoginPage() {
   const storedKey = useAuthStore((state) => state.managementKey);
   const storedRememberPassword = useAuthStore((state) => state.rememberPassword);
 
-  const [apiBase, setApiBase] = useState('');
-  const [managementKey, setManagementKey] = useState('');
+  const detectedBase = useMemo(() => detectApiBaseFromLocation(), []);
+  const [apiBase, setApiBase] = useState(() => useAuthStore.getState().apiBase || detectedBase);
+  const [managementKey, setManagementKey] = useState(
+    () => useAuthStore.getState().managementKey || ''
+  );
   const [showCustomBase, setShowCustomBase] = useState(false);
   const [showKey, setShowKey] = useState(false);
-  const [rememberPassword, setRememberPassword] = useState(false);
+  const [rememberPassword, setRememberPassword] = useState(() => {
+    const { rememberPassword: remembered, managementKey: key } = useAuthStore.getState();
+    return remembered || Boolean(key);
+  });
   const [loading, setLoading] = useState(false);
-  const [autoLoading, setAutoLoading] = useState(true);
+  const [autoLoading, setAutoLoading] = useState(() =>
+    useAuthStore.getState().hasRestorableSession()
+  );
   const [autoLoginSuccess, setAutoLoginSuccess] = useState(false);
   const [error, setError] = useState('');
   const [keyError, setKeyError] = useState('');
   const keyInputRef = useRef<HTMLInputElement>(null);
-
-  const detectedBase = useMemo(() => detectApiBaseFromLocation(), []);
   const languageOptions = useMemo(
     () =>
       LANGUAGE_ORDER.map((lang) => ({
