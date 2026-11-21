@@ -5,12 +5,12 @@ import { IconLoader2, IconPencil } from '@/components/ui/icons';
 import type { ProviderRecentUsageMap } from '@/components/providers/utils';
 import { useNotificationStore } from '@/stores';
 import { PROVIDER_DESCRIPTORS } from '../descriptors';
-import { isMultiProtocolSponsorBrand } from '../sponsorDefinitions';
+import { isMultiProtocolBrand } from '../multiProtocolDefinitions';
 import type { ProviderBrand, ProviderEntryFormInput, ProviderResource } from '../types';
 import type { UseProviderWorkbenchResult } from '../useProviderWorkbench';
 import { BaseProviderForm } from './forms/BaseProviderForm';
 import { ResourceDetailView } from './ResourceDetailView';
-import { SponsorProviderForm } from './forms/SponsorProviderForm';
+import { MultiProtocolProviderForm } from './forms/MultiProtocolProviderForm';
 import styles from './forms/sharedForm.module.scss';
 
 type SheetMode = 'detail' | 'create' | 'edit';
@@ -143,9 +143,9 @@ export function ProviderSheet({
       return <ResourceDetailView resource={state.resource} usageByProvider={usageByProvider} />;
     }
     const formKey = `${state.brand}:${state.resource?.id ?? 'new'}:${state.mode}`;
-    if (isMultiProtocolSponsorBrand(state.brand)) {
+    if (isMultiProtocolBrand(state.brand)) {
       return (
-        <SponsorProviderForm
+        <MultiProtocolProviderForm
           key={formKey}
           brand={state.brand}
           resource={state.resource}
@@ -230,7 +230,6 @@ export function ProviderSheet({
       open={state.open}
       onClose={onClose}
       size={descriptor.sheetSize}
-      // The title already reads "<mode> · <provider>"; no eyebrow or route subtitle to repeat it.
       title={titleText}
       footer={footer}
       closeDisabled={submitting}

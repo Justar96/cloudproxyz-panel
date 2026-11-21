@@ -473,14 +473,6 @@ export function IconSidebarDashboard({ size = 20, ...props }: IconProps) {
   );
 }
 
-export function IconSidebarQuickStart({ size = 20, ...props }: IconProps) {
-  return (
-    <svg {...navSvgProps} width={size} height={size} {...props}>
-      <path d="M13 3 5.5 13.5H12L11 21l7.5-10.5H12L13 3Z" />
-    </svg>
-  );
-}
-
 export function IconSidebarProviders({ size = 20, ...props }: IconProps) {
   return (
     <svg {...navSvgProps} width={size} height={size} {...props}>
@@ -528,6 +520,17 @@ export function IconSidebarLogs({ size = 20, ...props }: IconProps) {
       <rect x="3.5" y="4" width="17" height="16" rx="3" />
       <path d="m7.5 9.5 2.5 2.5-2.5 2.5" />
       <path d="M12.5 15h4" />
+    </svg>
+  );
+}
+
+export function IconSidebarRequests({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...navSvgProps} width={size} height={size} {...props}>
+      <path d="M4 6.5h16" />
+      <path d="M4 12h10" />
+      <path d="M4 17.5h7" />
+      <path d="m15.5 15 3 2.5-3 2.5" />
     </svg>
   );
 }

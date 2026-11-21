@@ -3,10 +3,6 @@ import { obfuscatedStorage } from '@/services/storage/secureStorage';
 import { STORAGE_KEY_AUTH } from '@/utils/constants';
 import { resolveLoginRedirect } from '@/router/loginRedirect';
 import { shouldAttemptAutoLogin, useAuthStore } from '@/stores/useAuthStore';
-import {
-  LOGIN_TRANSITION_TIMINGS,
-  LOGIN_TRANSITION_TIMINGS_REDUCED,
-} from '@/stores/useLoginTransitionStore';
 
 const originalStorage = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
 let values: Map<string, string>;
@@ -137,15 +133,12 @@ describe('v2 login persistence', () => {
 });
 
 describe('splash pacing', () => {
-  test('auto-login splash timings remain bounded', () => {
-    expect(LOGIN_TRANSITION_TIMINGS.splashMin).toBeGreaterThanOrEqual(500);
-    expect(LOGIN_TRANSITION_TIMINGS.splashMin).toBeLessThanOrEqual(900);
-    expect(LOGIN_TRANSITION_TIMINGS_REDUCED.splashMin).toBe(LOGIN_TRANSITION_TIMINGS.splashMin);
-  });
-
-  test('splash renders inside the CloudProxyz login card', async () => {
+  test('auto-login holds the splash just long enough to read, not a fixed 1.5s', async () => {
     const source = await Bun.file('src/pages/LoginPage.tsx').text();
-    expect(source).toContain('styles.splashContent');
-    expect(source).toContain('styles.cardHeader');
+    const splashMin = Number(source.match(/const SPLASH_MIN_MS = (\d+);/)?.[1]);
+    expect(splashMin).toBeGreaterThanOrEqual(500);
+    expect(splashMin).toBeLessThanOrEqual(900);
+    expect(source).not.toContain('1500');
+    expect(source).toContain('Math.max(0, SPLASH_MIN_MS - elapsed)');
   });
 });

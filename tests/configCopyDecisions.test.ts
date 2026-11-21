@@ -15,7 +15,6 @@ import { SectionLogging } from '@/features/config/components/sections/SectionLog
 import { SectionNetwork } from '@/features/config/components/sections/SectionNetwork';
 import { SectionPayload } from '@/features/config/components/sections/SectionPayload';
 import { SectionStreaming } from '@/features/config/components/sections/SectionStreaming';
-import { SPONSORS } from '@/features/config/sponsors';
 
 const translations = i18n.cloneInstance({ lng: 'en' });
 const render = (element: ReturnType<typeof createElement>) =>
@@ -62,7 +61,6 @@ describe('section headers', () => {
 
 describe('proxy URL sponsor', () => {
   test('omits sponsor links in CloudProxyz', () => {
-    expect(SPONSORS).toEqual([]);
     for (const Section of [SectionCommon, SectionNetwork]) {
       const row = rowOf(
         renderSection(Section as ComponentType<Record<string, unknown>>),

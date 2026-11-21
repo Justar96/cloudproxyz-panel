@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs';
 import { apiClient } from '@/services/api/client';
 import { oauthApi } from '@/services/api/oauth';
 import { createOAuthAttempts } from '@/features/oauth/oauthAttempts';
-import { isSponsor, OAUTH_PROVIDERS } from '@/features/oauth/providers';
 
 describe('Kimi regional login', () => {
   test('uses separate provider parameters and preserves cancellation', async () => {
@@ -36,16 +35,6 @@ describe('Kimi regional login', () => {
     } finally {
       attempts.invalidateAll();
     }
-  });
-
-  test('offers both Kimi tiles without sponsor affiliate links', () => {
-    const kimi = OAUTH_PROVIDERS.find((provider) => provider.id === 'kimi');
-    const kimiAi = OAUTH_PROVIDERS.find((provider) => provider.id === 'kimi-ai');
-    expect(kimi).toMatchObject({ flow: 'device', domain: 'kimi.com' });
-    expect(kimiAi).toMatchObject({ flow: 'device', domain: 'kimi.ai' });
-    expect(kimi?.sponsor).toBeUndefined();
-    expect(kimiAi?.sponsor).toBeUndefined();
-    expect(OAUTH_PROVIDERS.filter(isSponsor)).toEqual([]);
   });
 
   for (const locale of ['en', 'zh-CN', 'zh-TW', 'ru']) {

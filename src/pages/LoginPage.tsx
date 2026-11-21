@@ -14,13 +14,15 @@ import { BrandMark } from '@/components/common/BrandMark';
 import { BRAND_NAME } from '@/utils/brand';
 import type { ApiError } from '@/types';
 import { LegacyBackendError } from '@/services/api/legacyBackendProbe';
+import { resolveLoginRedirect } from '@/router/loginRedirect';
 import styles from './LoginPage.module.scss';
+
+/** Minimum time the auto-login splash stays up, measured from page open. */
+const SPLASH_MIN_MS = 700;
 
 /**
  * 将 API 错误转换为本地化的用户友好消息
  */
-type RedirectState = { from?: { pathname?: string } };
-
 function getLocalizedErrorMessage(error: unknown, t: (key: string) => string): string {
   if (error instanceof LegacyBackendError) return t('login.error_legacy_backend');
   const apiError = error as Partial<ApiError>;
@@ -94,11 +96,10 @@ export function LoginPage() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const login = useAuthStore((state) => state.login);
   const restoreSession = useAuthStore((state) => state.restoreSession);
-  const storedBase = useAuthStore((state) => state.apiBase);
-  const storedKey = useAuthStore((state) => state.managementKey);
-  const storedRememberPassword = useAuthStore((state) => state.rememberPassword);
 
   const detectedBase = useMemo(() => detectApiBaseFromLocation(), []);
+  // Fill the form from saved connection details on first paint, so it appears settled when
+  // there is no restorable session.
   const [apiBase, setApiBase] = useState(() => useAuthStore.getState().apiBase || detectedBase);
   const [managementKey, setManagementKey] = useState(
     () => useAuthStore.getState().managementKey || ''
@@ -110,6 +111,7 @@ export function LoginPage() {
     return remembered || Boolean(key);
   });
   const [loading, setLoading] = useState(false);
+  // Only show the splash when restoreSession will actually attempt an auto-login.
   const [autoLoading, setAutoLoading] = useState(() =>
     useAuthStore.getState().hasRestorableSession()
   );
@@ -117,6 +119,8 @@ export function LoginPage() {
   const [error, setError] = useState('');
   const [keyError, setKeyError] = useState('');
   const keyInputRef = useRef<HTMLInputElement>(null);
+
+  const redirectTarget = resolveLoginRedirect(location.state);
   const languageOptions = useMemo(
     () =>
       LANGUAGE_ORDER.map((lang) => ({
@@ -136,20 +140,28 @@ export function LoginPage() {
   );
 
   useEffect(() => {
+    const splashStartedAt = performance.now();
     const init = async () => {
       try {
         const autoLoggedIn = await restoreSession();
         if (autoLoggedIn) {
           setAutoLoginSuccess(true);
-          // 延迟跳转，让用户看到成功动画
-          setTimeout(() => {
-            const redirect = (location.state as RedirectState | null)?.from?.pathname || '/';
-            navigate(redirect, { replace: true });
-          }, 1500);
+          // Pad fast connections up to a short minimum so the splash never flashes; slow ones
+          // navigate as soon as they finish.
+          const elapsed = performance.now() - splashStartedAt;
+          setTimeout(
+            () => navigate(redirectTarget, { replace: true }),
+            Math.max(0, SPLASH_MIN_MS - elapsed)
+          );
         } else {
-          setApiBase(storedBase || detectedBase);
-          setManagementKey(storedKey || '');
-          setRememberPassword(storedRememberPassword || Boolean(storedKey));
+          // Backfill from the latest stored values. A 401 during auto-login clears storage, so
+          // keep whatever was already typed to let the user correct it and retry.
+          const stored = useAuthStore.getState();
+          setApiBase((previous) => stored.apiBase || previous || detectedBase);
+          setManagementKey((previous) => stored.managementKey || previous);
+          setRememberPassword(
+            (previous) => stored.rememberPassword || Boolean(stored.managementKey) || previous
+          );
         }
       } finally {
         // 自动登录成功时 showSplash 仍由 autoLoginSuccess 维持，可无条件结束 loading
@@ -180,7 +192,7 @@ export function LoginPage() {
         rememberPassword,
       });
       showNotification(t('common.connected_status'), 'success');
-      navigate('/', { replace: true });
+      navigate(redirectTarget, { replace: true });
     } catch (err: unknown) {
       const message = getLocalizedErrorMessage(err, t);
       setError(message);
@@ -194,6 +206,7 @@ export function LoginPage() {
     login,
     managementKey,
     navigate,
+    redirectTarget,
     rememberPassword,
     showNotification,
     t,
@@ -210,8 +223,7 @@ export function LoginPage() {
   );
 
   if (isAuthenticated && !autoLoading && !autoLoginSuccess) {
-    const redirect = (location.state as RedirectState | null)?.from?.pathname || '/';
-    return <Navigate to={redirect} replace />;
+    return <Navigate to={redirectTarget} replace />;
   }
 
   // 显示启动动画（自动登录中或自动登录成功）

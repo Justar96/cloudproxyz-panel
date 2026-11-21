@@ -24,15 +24,17 @@ import {
   IconSidebarOauth,
   IconSidebarPlugins,
   IconSidebarProviders,
+  IconKey,
   IconSidebarQuota,
   IconSidebarRouting,
+  IconSidebarRequests,
   IconSidebarSystem,
   IconChevronDown,
 } from '@/components/ui/icons';
 import { BrandMark } from '@/components/common/BrandMark';
+import { useRequestLogCollector } from '@/features/requests/useRequestLogCollector';
 import {
   useAuthStore,
-  useLoginTransitionStore,
   useConfigStore,
   useLanguageStore,
   useNotificationStore,
@@ -55,6 +57,7 @@ import type { Theme } from '@/types';
 
 const sidebarIcons: Record<string, ReactNode> = {
   dashboard: <IconSidebarDashboard size={18} />,
+  apiKeys: <IconKey size={18} />,
   aiProviders: <IconSidebarProviders size={18} />,
   authFiles: <IconSidebarAuthFiles size={18} />,
   oauth: <IconSidebarOauth size={18} />,
@@ -63,6 +66,7 @@ const sidebarIcons: Record<string, ReactNode> = {
   plugins: <IconSidebarPlugins size={18} />,
   config: <IconSidebarConfig size={18} />,
   logs: <IconSidebarLogs size={18} />,
+  requests: <IconSidebarRequests size={18} />,
   system: <IconSidebarSystem size={18} />,
 };
 
@@ -255,6 +259,7 @@ const THEME_OPTIONS: Array<{ key: Theme; labelKey: string; icon: ReactNode }> = 
 
 export function MainLayout() {
   const { t } = useTranslation();
+  useRequestLogCollector();
   const { showNotification } = useNotificationStore();
   const location = useLocation();
 
@@ -297,7 +302,6 @@ export function MainLayout() {
 
   const fullBrandName = BRAND_NAME;
   const abbrBrandName = t('title.abbr');
-  const arrivingFromLogin = useLoginTransitionStore((state) => state.phase === 'revealing');
   const isLogsPage = location.pathname.startsWith('/logs');
   const isPluginResourcePage = location.pathname.startsWith('/plugin-pages');
   const showSidebarLabels = !sidebarCollapsed || sidebarOpen;
@@ -537,6 +541,12 @@ export function MainLayout() {
       labelKey: 'nav_groups.gateway',
       items: [
         {
+          path: '/api-keys',
+          labelKey: 'nav.api_keys',
+          metaKey: 'nav_meta.api_keys',
+          icon: sidebarIcons.apiKeys,
+        },
+        {
           path: '/ai-providers',
           labelKey: 'nav.ai_providers',
           metaKey: 'nav_meta.ai_providers',
@@ -576,6 +586,12 @@ export function MainLayout() {
           labelKey: 'nav.quota_management',
           metaKey: 'nav_meta.quota_management',
           icon: sidebarIcons.quota,
+        },
+        {
+          path: '/requests',
+          labelKey: 'nav.requests',
+          metaKey: 'nav_meta.requests',
+          icon: sidebarIcons.requests,
         },
         {
           path: '/logs',
@@ -959,7 +975,7 @@ export function MainLayout() {
     <div
       className={`app-shell ${sidebarCollapsed ? 'sidebar-is-collapsed' : ''} ${
         isPluginResourcePage ? 'plugin-resource-shell' : ''
-      } ${arrivingFromLogin ? 'app-shell--arriving' : ''}`}
+      }`}
     >
       <a
         className="skip-link"

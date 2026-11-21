@@ -379,9 +379,7 @@ export function RoutingPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title} data-reveal>
-          {t('routing.title')}
-        </h1>
+        <h1 className={styles.title}>{t('routing.title')}</h1>
       </header>
 
       {renderBody()}

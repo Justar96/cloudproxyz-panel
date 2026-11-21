@@ -1,17 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { IconCheck, IconX } from '@/components/ui/icons';
-import { InfoTip } from '@/components/ui/Tooltip';
 import { getProviderTotalStats, type ProviderRecentUsageMap } from '@/components/providers/utils';
 import type { OpenAIProviderConfig } from '@/types';
 import { maskApiKey } from '@/utils/format';
 import {
-  getSponsorProviderDefinition,
-  isMultiProtocolSponsorBrand,
-  sponsorProtocolI18nKey,
-  sponsorProtocolUrl,
-} from '../sponsorDefinitions';
-import type { ProviderResource, SponsorProviderRaw } from '../types';
+  getMultiProtocolProviderDefinition,
+  isMultiProtocolBrand,
+  providerProtocolI18nKey,
+  providerProtocolUrl,
+} from '../multiProtocolDefinitions';
+import type { ProviderResource, MultiProtocolProviderRaw } from '../types';
 import styles from './forms/sharedForm.module.scss';
 
 interface ResourceDetailViewProps {
@@ -19,7 +18,7 @@ interface ResourceDetailViewProps {
   usageByProvider?: ProviderRecentUsageMap;
 }
 
-const sponsorProtocolEntryKey = (protocol: string): string => {
+const providerProtocolEntryKey = (protocol: string): string => {
   if (protocol === 'claude') return 'anthropicEntries';
   if (protocol === 'codex') return 'codexEntries';
   return `${protocol}Entries`;
@@ -28,9 +27,9 @@ const sponsorProtocolEntryKey = (protocol: string): string => {
 export function ResourceDetailView({ resource, usageByProvider }: ResourceDetailViewProps) {
   const { t } = useTranslation();
 
-  if (isMultiProtocolSponsorBrand(resource.brand)) {
-    const definition = getSponsorProviderDefinition(resource.brand);
-    const raw = resource.raw as SponsorProviderRaw;
+  if (isMultiProtocolBrand(resource.brand)) {
+    const definition = getMultiProtocolProviderDefinition(resource.brand);
+    const raw = resource.raw as MultiProtocolProviderRaw;
     const openaiKeyCount = raw.openai.reduce(
       (count, item) => count + (item.config.apiKeyEntries?.length ?? 0),
       0
@@ -60,22 +59,21 @@ export function ResourceDetailView({ resource, usageByProvider }: ResourceDetail
 
     return (
       <div>
-        <div className={`${styles.detailHeader} ${styles.detailTitleLine}`}>
-          <span className={styles.detailTitle}>{resource.name ?? resource.identifier}</span>
-          <InfoTip
-            content={t('providersPage.sponsor.detailHint', { provider: definition.displayName })}
-            label={resource.name ?? resource.identifier}
-          />
+        <div className={styles.detailHeader}>
+          <div className={styles.sectionTitle}>{resource.name ?? resource.identifier}</div>
+          <p className={styles.sectionDesc}>
+            {t('providersPage.multiProtocol.detailHint', { provider: definition.displayName })}
+          </p>
         </div>
 
-        <div className={styles.sponsorProtocolGrid}>
+        <div className={styles.providerProtocolGrid}>
           {definition.protocols.map((protocol) => (
-            <div key={protocol} className={styles.sponsorProtocolCard}>
-              <span className={styles.sponsorProtocolName}>
-                {t(`providersPage.sponsor.protocols.${sponsorProtocolI18nKey(protocol)}`)}
+            <div key={protocol} className={styles.providerProtocolCard}>
+              <span className={styles.providerProtocolName}>
+                {t(`providersPage.multiProtocol.protocols.${providerProtocolI18nKey(protocol)}`)}
               </span>
-              <span className={styles.sponsorProtocolUrl}>
-                {sponsorProtocolUrl(protocolUrls, protocol)}
+              <span className={styles.providerProtocolUrl}>
+                {providerProtocolUrl(protocolUrls, protocol)}
               </span>
             </div>
           ))}
@@ -93,7 +91,7 @@ export function ResourceDetailView({ resource, usageByProvider }: ResourceDetail
           {definition.protocols.map((protocol) => (
             <div key={protocol}>
               <dt className={styles.dt}>
-                {t(`providersPage.sponsor.${sponsorProtocolEntryKey(protocol)}`)}
+                {t(`providersPage.multiProtocol.${providerProtocolEntryKey(protocol)}`)}
               </dt>
               <dd className={styles.dd}>{protocolCounts[protocol]}</dd>
             </div>

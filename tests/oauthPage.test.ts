@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
@@ -22,10 +21,6 @@ import type { ProviderFlowState } from '@/features/oauth/hooks/useOAuthFlows';
 import { resolveCallbackUrl, XAI_CALLBACK_URL } from '@/features/oauth/callbackUrl';
 import { resolveFlowView, splitAuthUrl } from '@/features/oauth/flowView';
 import { buildPluginOAuthProviderCards, OAUTH_PROVIDERS } from '@/features/oauth/providers';
-import {
-  KIMI_CHINESE_AFFILIATE_URL,
-  KIMI_INTERNATIONAL_AFFILIATE_URL,
-} from '@/features/providers/kimi';
 import type { PluginListEntry } from '@/types';
 
 describe('OAuth dialog view resolution', () => {
@@ -170,21 +165,7 @@ describe('OAuth provider gallery', () => {
     expect(markup).not.toContain('aria-label="注册开放平台');
   });
 
-  test('renders Kimi sites without sponsor metadata', () => {
-    const sponsors = OAUTH_PROVIDERS.filter((provider) => provider.sponsor);
-    expect(sponsors).toEqual([]);
-  });
-
-  test('renders the sponsor card settled, without ambient or looping motion', () => {
-    const styles = readFileSync('src/features/oauth/components/SponsorCard.module.scss', 'utf8');
-    // The fork removed decorative entrance/breathing loops; only press/hover transitions remain.
-    expect(styles).not.toMatch(/@keyframes|animation\s*:|infinite/);
-    const reducedMotion = styles.slice(styles.indexOf('@media (prefers-reduced-motion: reduce)'));
-    expect(reducedMotion).toMatch(/transition:\s*none;/);
-    expect(reducedMotion).toMatch(/translate:\s*none;/);
-  });
-
-  test('omits Kimi affiliate registration links from OAuthPage', async () => {
+  test('renders Kimi sites as standard tiles without affiliate links', async () => {
     const i18n = createInstance();
     await i18n.init({ lng: 'en', resources: { en: { translation: en } } });
     const markup = renderToStaticMarkup(
@@ -194,9 +175,7 @@ describe('OAuth provider gallery', () => {
         createElement(MemoryRouter, null, createElement(OAuthPage))
       )
     );
-    for (const url of [KIMI_CHINESE_AFFILIATE_URL, KIMI_INTERNATIONAL_AFFILIATE_URL]) {
-      expect(markup).not.toContain(url);
-    }
+    expect(markup).not.toContain('aff=cliproxyapi');
   });
 });
 
@@ -256,15 +235,6 @@ describe('OAuth dialog secondary text', () => {
     );
     // The note stays reachable to assistive tech through the InfoTip's hidden description.
     expect(noted.markup).toMatch(/<span id="[^"]+" hidden="">[^<]*Google[^<]*<\/span>/);
-  });
-
-  test('keeps the sponsor sign-up link visible without the provider sentence', async () => {
-    const { markup } = await renderEn(
-      dialog('kimi', {}, { sponsor: { url: 'https://platform.example/', label: 'Sign Up Now' } })
-    );
-    expect(markup).toContain(en.auth_login.sign_up_prompt);
-    expect(markup).toContain('href="https://platform.example/"');
-    expect(markup).not.toContain('kimi_oauth_hint');
   });
 
   test('the success view relies on its actions instead of a saved-credential sentence', async () => {

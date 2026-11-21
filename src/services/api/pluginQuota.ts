@@ -84,9 +84,9 @@ const normalizeProviderId = (value: unknown) =>
 
 /**
  * Compatibility heuristic for older v8 credentials without `quota_plugin_id`.
- * Prefer a quota identifier, plugin ID, then OAuth provider match. A plugin matched only through
- * DescribeQuota's supported providers is not exposed by /plugins, so fall back to the sole quota
- * plugin when exactly one is registered.
+ * Prefer a quota identifier, plugin ID, then any declared OAuth identifier. A plugin matched only
+ * through DescribeQuota's supported providers is not exposed by /plugins, so fall back to the sole
+ * quota plugin when exactly one is registered.
  */
 export function resolveQuotaPluginId(
   plugins: readonly PluginListEntry[],

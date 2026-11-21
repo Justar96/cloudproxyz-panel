@@ -6,15 +6,8 @@ import { createInstance } from 'i18next';
 import { I18nextProvider } from 'react-i18next';
 import en from '@/i18n/locales/en.json';
 import { BaseProviderForm } from '@/features/providers/sheets/forms/BaseProviderForm';
-import { SponsorProviderForm } from '@/features/providers/sheets/forms/SponsorProviderForm';
 import { CheckboxField } from '@/features/providers/sheets/forms/CheckboxField';
-import { ResourceDetailView } from '@/features/providers/sheets/ResourceDetailView';
-import { getSponsorProviderDefinition } from '@/features/providers/sponsorDefinitions';
-import type {
-  ProviderBrand,
-  ProviderResource,
-  SponsorProviderBrand,
-} from '@/features/providers/types';
+import type { ProviderBrand } from '@/features/providers/types';
 
 const i18n = createInstance();
 await i18n.init({ lng: 'en', resources: { en: { translation: en } } });
@@ -22,7 +15,6 @@ const render = (element: ReturnType<typeof createElement>) =>
   renderToStaticMarkup(createElement(I18nextProvider, { i18n }, element));
 
 const form = en.providersPage.form;
-const sponsor = en.providersPage.sponsor;
 
 /**
  * English copy of notes that were removed outright. Pinned as literals (not read from en.json)
@@ -31,8 +23,6 @@ const sponsor = en.providersPage.sponsor;
 const REMOVED = {
   baseUrlRequired: 'Required for this provider',
   disabled: "Disabled entries won't be used by the gateway",
-  protocol: 'Select the group/protocol for this key.',
-  protocolModels: 'config models. Fetch from',
 };
 
 const renderBase = (brand: ProviderBrand) =>
@@ -43,18 +33,6 @@ const renderBase = (brand: ProviderBrand) =>
       mode: 'create',
       mutating: false,
       formId: 'f',
-      onSubmit: async () => {},
-    })
-  );
-
-const renderSponsor = (brand: SponsorProviderBrand) =>
-  render(
-    createElement(SponsorProviderForm, {
-      brand,
-      resource: null,
-      mode: 'create',
-      mutating: false,
-      formId: 's',
       onSubmit: async () => {},
     })
   );
@@ -166,46 +144,6 @@ describe('provider form notes', () => {
     expect(plain.startsWith('<label')).toBe(true);
     expect(plain).not.toContain('aria-describedby');
     expect(plain).not.toContain('data-info-tip');
-  });
-
-  test('sponsor form: restating notes removed, scope notes become InfoTips', () => {
-    for (const brand of ['apikeyFun', 'fennoAI', 'qiniuCloud', 'aiCodeMirror', 'kimi'] as const) {
-      const html = renderSponsor(brand);
-      const definition = getSponsorProviderDefinition(brand);
-      expect(html).not.toContain(REMOVED.protocol);
-      expect(html).not.toContain(escapeHtml(REMOVED.disabled));
-      expect(html).not.toContain(REMOVED.protocolModels);
-      expectNote(html, form.apiKey, sponsor.apiKeyHint, 's-group-0-api-key');
-      expectNote(html, form.weight, form.weightHint, 's-group-0-weight');
-      if (definition.baseUrlOptions.length > 1) {
-        const urlLabel = sponsor.urlMode.replace('{{provider}}', definition.displayName);
-        expectNote(html, urlLabel, sponsor.urlHint);
-        const group = /<div\b[^>]*role="radiogroup"[^>]*>/.exec(html)![0];
-        expect(group).toContain('aria-labelledby="s-group-0-base-url-label"');
-        expect(group).toContain('aria-describedby="s-group-0-base-url-hint"');
-        expect(html).toContain(`id="s-group-0-base-url-label"`);
-      } else {
-        expect(html).not.toContain(sponsor.urlHint);
-      }
-      expectNoTipInsideLabel(html);
-    }
-  });
-
-  test('sponsor detail explanation is an InfoTip after the resource name', () => {
-    const resource = {
-      id: 'fenno',
-      brand: 'fennoAI',
-      name: 'Fenno',
-      identifier: 'fenno',
-      raw: { openai: [], codex: [], claude: [], gemini: [] },
-    } as unknown as ProviderResource;
-    const html = render(createElement(ResourceDetailView, { resource }));
-    const note = sponsor.detailHint.replace(
-      '{{provider}}',
-      getSponsorProviderDefinition('fennoAI').displayName
-    );
-    expect(html).not.toContain('<p ');
-    expectNote(html, 'Fenno', note);
   });
 
   test('provider sheet header carries only the title', () => {

@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { apiClient } from '@/services/api/client';
 import { pluginsApi } from '@/services/api/plugins';
 import { buildPluginOAuthProviderCards } from '@/features/oauth/providers';
-import { resolveQuotaPluginId } from '@/features/quota/providers/plugin/data';
+import { resolveQuotaPluginId } from '@/services/api/pluginQuota';
 import type { PluginListEntry } from '@/types';
 
 const spies: Array<{ mockRestore(): void }> = [];

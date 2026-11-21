@@ -40,8 +40,6 @@ export interface OAuthFlowDialogProps {
   supportsCallback: boolean;
   /** Provider-specific sign-in note attached to the InfoTip next to the open-auth step. */
   signInNote?: string;
-  /** Featured provider: app icon and registration link in the hint. */
-  sponsor?: { url: string; label: string };
   onStart: () => void;
   onCancel: () => void;
   onCallbackChange: (value: string) => void;
@@ -59,7 +57,7 @@ export function OAuthFlowDialog(props: OAuthFlowDialogProps) {
       open={open}
       onClose={onClose}
       width={500}
-      className={props.sponsor ? `${styles.dialog} ${styles.sponsorDialog}` : styles.dialog}
+      className={styles.dialog}
       title={<DialogTitle {...heading} />}
       footer={view === 'flow' ? <FlowStatusBar {...props} /> : undefined}
     >
@@ -70,19 +68,7 @@ export function OAuthFlowDialog(props: OAuthFlowDialogProps) {
   );
 }
 
-/** 赞助商的注册入口：链接不能藏进提示气泡（键盘够不到），所以单独成行常驻。 */
-function SponsorSignUp({ sponsor }: { sponsor: { url: string; label: string } }) {
-  const { t } = useTranslation();
-  return (
-    <p className={styles.hint}>
-      <span className={styles.signUpPrompt}>{t('auth_login.sign_up_prompt')}</span>{' '}
-      <a className={styles.inlineLink} href={sponsor.url} target="_blank" rel="noopener noreferrer">
-        {sponsor.label}
-        <IconExternalLink size={11} aria-hidden="true" />
-      </a>
-    </p>
-  );
-}
+
 
 function FlowBody(props: OAuthFlowDialogProps & { view: Exclude<FlowView, 'success'> }) {
   const { t } = useTranslation();
@@ -92,7 +78,7 @@ function FlowBody(props: OAuthFlowDialogProps & { view: Exclude<FlowView, 'succe
   if (view !== 'flow') {
     return (
       <div className={styles.stack}>
-        {props.sponsor && <SponsorSignUp sponsor={props.sponsor} />}
+
         {view === 'failed' && (
           <div className={styles.alert} role="alert">
             {text('oauth_status_error')} {state.error || ''}
@@ -109,7 +95,6 @@ function FlowBody(props: OAuthFlowDialogProps & { view: Exclude<FlowView, 'succe
 
   return (
     <div className={styles.stack}>
-      {props.sponsor && <SponsorSignUp sponsor={props.sponsor} />}
       {state.proxyUrl && (
         <p className={styles.proxyNote}>
           <span>{t('auth_login.login_proxy_in_use')}</span>
